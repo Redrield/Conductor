@@ -5,11 +5,12 @@ mod resources;
 use resources::Resources;
 
 mod ws;
+mod ipc;
 
 fn main() -> WVResult {
     ws::launch_rocket();
 
-    web_view::builder()
+    let mut webview = web_view::builder()
         .title("React in rust native?")
         .content(Content::Url("http://localhost:8000"))
         .size(800, 600)
@@ -23,7 +24,15 @@ fn main() -> WVResult {
             }
             Ok(())
         })
-        .build()?
-        .run()
+        .build()?;
+
+    // run() copied from web-view so we can put in some refresh calls to update the frontend state with each new tick
+    loop {
+        match webview.step() {
+            Some(Ok(_)) => continue,
+            Some(e) => e?,
+            None => return Ok(webview.user_data().clone())
+        }
+    }
 }
 
