@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use ds::Mode as DsMode;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum Message {
     UpdateTeamNumber {
@@ -21,10 +21,13 @@ pub enum Message {
         comms_alive: bool,
         code_alive: bool,
         voltage: f32,
+    },
+    NewStdout {
+        message: String,
     }
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug)]
 pub enum Mode {
     Autonomous,
     Teleoperated,

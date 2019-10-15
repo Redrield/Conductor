@@ -5,19 +5,18 @@ use rocket::response::{content, Responder};
 use rocket::http::{Status, ContentType};
 use crate::resources;
 
-/// React is so fucking pedantic i want to die
-struct Fml {
+/// Contents of some file and its extension, acts as NamedFile without needing std fs apis
+struct FileResource {
     content: String,
     extension: String
 }
 
-impl<'r> Responder<'r> for Fml {
+impl<'r> Responder<'r> for FileResource {
     fn respond_to(self, request: &Request) -> Result<Response<'r>, Status> {
-        match self.extension.as_str() {
-            "css" => content::Css(self.content).respond_to(request),
-            "js" => content::JavaScript(self.content).respond_to(request),
-            "svg" => content::Content(ContentType::SVG, self.content).respond_to(request),
-            _ => content::Plain(self.content).respond_to(request),
+        if let Some(ct) = ContentType::from_extension(&self.extension) {
+            content::Content(ct, self.content).respond_to(request)
+        }else {
+            content::Plain(self.content).respond_to(request)
         }
     }
 }
@@ -34,11 +33,11 @@ fn index() -> content::Html<String> {
 }
 
 #[get("/<file..>")]
-fn static_resources(file: PathBuf) -> Option<Fml> {
+fn static_resources(file: PathBuf) -> Option<FileResource> {
     let ext = file.extension().unwrap().to_os_string().into_string().unwrap();
     let stuff = resources::Resources::get(file.into_os_string().to_str().unwrap()).map(|cow| unsafe { String::from_utf8_unchecked(cow.into_owned()) })?;
 
-    Some(Fml {
+    Some(FileResource {
         content: stuff,
         extension: ext
     })
