@@ -9,35 +9,50 @@ mod ws;
 mod ipc;
 use ipc::*;
 use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
 fn main() -> WVResult {
     ws::launch_rocket();
 
-    let mut ds = Arc::new(Mutex::new(DriverStation::new_team(0, Alliance::new_red(1))));
+    let mut ds = Arc::new(Mutex::new(DriverStation::new_team(9999, Alliance::new_red(1))));
 
     let wv_ds = ds.clone();
     let mut webview = web_view::builder()
         .title("Driver Station")
         .content(Content::Url("http://localhost:8000"))
-        .size(800, 250)
+        .size(1000, 300)
         .debug(true)
         .user_data(())
-        .invoke_handler(move |_wv, arg| {
+        .invoke_handler(move |wv, arg| {
             let mut ds = wv_ds.lock().unwrap();
             match serde_json::from_str::<Message>(arg).unwrap() {
                 Message::UpdateTeamNumber { team_number } => {
-                    //*ds = DriverStation::new_team(team_number, Alliance::new_red(1));
+                    println!("Update to {}", team_number);
+                    *ds = DriverStation::new_team(team_number, Alliance::new_red(1));
+
+                    let handle = wv.handle();
+                    ds.set_tcp_consumer(move |packet| {
+                        let TcpPacket::Stdout(msg) = packet;
+                        handle.dispatch(|wv| wv.eval(&format!("update({})", serde_json::to_string(&Message::NewStdout { message: msg.message }).unwrap()))).unwrap();
+                    });
+
                 }
                 Message::UpdateMode { mode } => {
                     println!("Update mode to {:?}", mode);
-                    //ds.set_mode(mode.to_ds());
+                    ds.set_mode(mode.to_ds());
                 }
                 Message::UpdateEnableStatus { enabled } => {
-                    //if enabled {
-                    //    ds.enable();
-                    //} else {
-                    //    ds.disable();
-                    //}
+                    println!("Changing enable status to {}", enabled);
+
+                    if enabled {
+                        ds.enable();
+                    } else {
+                        ds.disable();
+                    }
+                }
+                Message::NewStdout { message } => {
+                    println!("Got error {}", message);
                 }
                 _ => {}
             }
@@ -45,29 +60,26 @@ fn main() -> WVResult {
         })
         .build()?;
 
+    let ticker_ds = ds.clone();
     let handle = webview.handle();
-    ds.lock().unwrap().set_tcp_consumer(move |packet| {
-        let TcpPacket::Stdout(msg) = packet;
+    thread::spawn(move || {
+        loop {
+            let msg = {
+                let ds = ticker_ds.lock().unwrap();
+                let comms = ds.trace().is_connected();
+                let code = ds.trace().is_code_started();
+                let voltage = ds.battery_voltage();
 
-        handle.dispatch(move |wv| wv.eval(&format!("update({})", serde_json::to_string(&Message::NewStdout { message: msg.message }).unwrap())));
+                Message::RobotStateUpdate { comms_alive: comms, code_alive: code, voltage }
+            };
+
+//            println!("{:?}", msg);
+            handle.dispatch(move |wv| wv.eval(&format!("update({})", serde_json::to_string(&msg).unwrap()))).unwrap();
+
+            thread::sleep(Duration::from_millis(50));
+        }
     });
 
-    // run() copied from web-view so we can put in some refresh calls to update the frontend state with each new tick
-    loop {
-        //let ds = ds.lock().unwrap();
-
-        //let comms_alive = ds.trace().is_connected();
-        //let code_alive = ds.trace().is_code_started();
-        //let voltage = ds.battery_voltage();
-
-        // Update frontend state
-        //webview.eval(&format!("update({})", serde_json::to_string(&Message::RobotStateUpdate { comms_alive, code_alive, voltage }).unwrap()));
-
-        match webview.step() {
-            Some(Ok(_)) => continue,
-            Some(e) => e?,
-            None => return Ok(webview.user_data().clone())
-        }
-    }
+    webview.run()
 }
 

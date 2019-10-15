@@ -4321,15 +4321,14 @@ var author$project$Ipc$Autonomous = {$: 'Autonomous'};
 var author$project$Ipc$Red = function (a) {
 	return {$: 'Red', a: a};
 };
-var elm$core$Basics$False = {$: 'False'};
-var elm$core$Basics$True = {$: 'True'};
-var elm$core$Result$isOk = function (result) {
-	if (result.$ === 'Ok') {
-		return true;
-	} else {
-		return false;
-	}
+var author$project$Ipc$UpdateTeamNumber = function (a) {
+	return {$: 'UpdateTeamNumber', a: a};
 };
+var elm$core$Array$branchFactor = 32;
+var elm$core$Array$Array_elm_builtin = F4(
+	function (a, b, c, d) {
+		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
+	});
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$GT = {$: 'GT'};
 var elm$core$Basics$LT = {$: 'LT'};
@@ -4410,11 +4409,6 @@ var elm$core$Array$foldr = F3(
 var elm$core$Array$toList = function (array) {
 	return A3(elm$core$Array$foldr, elm$core$List$cons, _List_Nil, array);
 };
-var elm$core$Array$branchFactor = 32;
-var elm$core$Array$Array_elm_builtin = F4(
-	function (a, b, c, d) {
-		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
-	});
 var elm$core$Basics$ceiling = _Basics_ceiling;
 var elm$core$Basics$fdiv = _Basics_fdiv;
 var elm$core$Basics$logBase = F2(
@@ -4539,6 +4533,7 @@ var elm$core$Array$builderToArray = F2(
 				builder.tail);
 		}
 	});
+var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$idiv = _Basics_idiv;
 var elm$core$Basics$lt = _Utils_lt;
 var elm$core$Elm$JsArray$initialize = _JsArray_initialize;
@@ -4590,6 +4585,14 @@ var elm$core$Result$Err = function (a) {
 };
 var elm$core$Result$Ok = function (a) {
 	return {$: 'Ok', a: a};
+};
+var elm$core$Basics$True = {$: 'True'};
+var elm$core$Result$isOk = function (result) {
+	if (result.$ === 'Ok') {
+		return true;
+	} else {
+		return false;
+	}
 };
 var elm$json$Json$Decode$Failure = F2(
 	function (a, b) {
@@ -4796,164 +4799,6 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 			}
 		}
 	});
-var elm$core$Platform$Cmd$batch = _Platform_batch;
-var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var jinjor$elm_debounce$Debounce$Debounce = function (a) {
-	return {$: 'Debounce', a: a};
-};
-var jinjor$elm_debounce$Debounce$init = jinjor$elm_debounce$Debounce$Debounce(
-	{input: _List_Nil, locked: false});
-var author$project$Main$init = function (_n0) {
-	return _Utils_Tuple2(
-		{
-			alliance: author$project$Ipc$Red(1),
-			debounce: jinjor$elm_debounce$Debounce$init,
-			enabled: false,
-			mode: author$project$Ipc$Autonomous,
-			stdout: _List_Nil,
-			stdoutList: FabienHenon$elm_infinite_list_view$InfiniteList$init,
-			teamNumber: '',
-			voltage: 0.0
-		},
-		elm$core$Platform$Cmd$none);
-};
-var author$project$Ipc$Invalid = {$: 'Invalid'};
-var author$project$Ipc$JoystickUpdate = function (a) {
-	return {$: 'JoystickUpdate', a: a};
-};
-var author$project$Ipc$NewStdout = function (a) {
-	return {$: 'NewStdout', a: a};
-};
-var author$project$Ipc$RobotStateUpdate = function (a) {
-	return {$: 'RobotStateUpdate', a: a};
-};
-var author$project$Ipc$UpdateEnableStatus = function (a) {
-	return {$: 'UpdateEnableStatus', a: a};
-};
-var author$project$Ipc$UpdateMode = function (a) {
-	return {$: 'UpdateMode', a: a};
-};
-var author$project$Ipc$UpdateTeamNumber = function (a) {
-	return {$: 'UpdateTeamNumber', a: a};
-};
-var author$project$Ipc$Teleoperated = {$: 'Teleoperated'};
-var author$project$Ipc$Test = {$: 'Test'};
-var elm$core$String$toLower = _String_toLower;
-var elm$json$Json$Decode$andThen = _Json_andThen;
-var elm$json$Json$Decode$fail = _Json_fail;
-var elm$json$Json$Decode$string = _Json_decodeString;
-var elm$json$Json$Decode$succeed = _Json_succeed;
-var author$project$Ipc$decodeMode = A2(
-	elm$json$Json$Decode$andThen,
-	function (s) {
-		var _n0 = elm$core$String$toLower(s);
-		switch (_n0) {
-			case 'autonomous':
-				return elm$json$Json$Decode$succeed(author$project$Ipc$Autonomous);
-			case 'teleoperated':
-				return elm$json$Json$Decode$succeed(author$project$Ipc$Teleoperated);
-			case 'test':
-				return elm$json$Json$Decode$succeed(author$project$Ipc$Test);
-			default:
-				return elm$json$Json$Decode$fail('Invalid mode ' + s);
-		}
-	},
-	elm$json$Json$Decode$string);
-var elm$json$Json$Decode$bool = _Json_decodeBool;
-var elm$json$Json$Decode$field = _Json_decodeField;
-var elm$json$Json$Decode$float = _Json_decodeFloat;
-var elm$json$Json$Decode$int = _Json_decodeInt;
-var elm$json$Json$Decode$map = _Json_map1;
-var author$project$Ipc$decodeMsg = A2(
-	elm$json$Json$Decode$andThen,
-	function (ty) {
-		switch (ty) {
-			case 'UpdateTeamNumber':
-				return A2(
-					elm$json$Json$Decode$map,
-					function (tn) {
-						return author$project$Ipc$UpdateTeamNumber(
-							{team_number: tn});
-					},
-					A2(elm$json$Json$Decode$field, 'team_number', elm$json$Json$Decode$int));
-			case 'UpdateMode':
-				return A2(
-					elm$json$Json$Decode$map,
-					function (mode) {
-						return author$project$Ipc$UpdateMode(
-							{mode: mode});
-					},
-					A2(elm$json$Json$Decode$field, 'mode', author$project$Ipc$decodeMode));
-			case 'UpdateEnableStatus':
-				return A2(
-					elm$json$Json$Decode$map,
-					function (enabled) {
-						return author$project$Ipc$UpdateEnableStatus(
-							{enabled: enabled});
-					},
-					A2(elm$json$Json$Decode$field, 'enabled', elm$json$Json$Decode$bool));
-			case 'NewStdout':
-				return A2(
-					elm$json$Json$Decode$map,
-					function (msg) {
-						return author$project$Ipc$NewStdout(
-							{message: msg});
-					},
-					A2(elm$json$Json$Decode$field, 'message', elm$json$Json$Decode$string));
-			case 'JoystickUpdate':
-				return A2(
-					elm$json$Json$Decode$andThen,
-					function (removed) {
-						return A2(
-							elm$json$Json$Decode$map,
-							function (name) {
-								return author$project$Ipc$JoystickUpdate(
-									{name: name, removed: removed});
-							},
-							A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string));
-					},
-					A2(elm$json$Json$Decode$field, 'removed', elm$json$Json$Decode$bool));
-			case 'RobotStateUpdate':
-				return A2(
-					elm$json$Json$Decode$andThen,
-					function (comms) {
-						return A2(
-							elm$json$Json$Decode$andThen,
-							function (code) {
-								return A2(
-									elm$json$Json$Decode$map,
-									function (voltage) {
-										return author$project$Ipc$RobotStateUpdate(
-											{code_alive: code, comms_alive: comms, voltage: voltage});
-									},
-									A2(elm$json$Json$Decode$field, 'voltage', elm$json$Json$Decode$float));
-							},
-							A2(elm$json$Json$Decode$field, 'code_alive', elm$json$Json$Decode$bool));
-					},
-					A2(elm$json$Json$Decode$field, 'comms_alive', elm$json$Json$Decode$bool));
-			default:
-				return elm$json$Json$Decode$fail('no');
-		}
-	},
-	elm$json$Json$Decode$string);
-var elm$json$Json$Decode$value = _Json_decodeValue;
-var author$project$Main$updateFrontend = _Platform_incomingPort('updateFrontend', elm$json$Json$Decode$value);
-var author$project$Model$BackendMessage = function (a) {
-	return {$: 'BackendMessage', a: a};
-};
-var elm$json$Json$Decode$decodeValue = _Json_run;
-var author$project$Main$subscriptions = function (_n0) {
-	return author$project$Main$updateFrontend(
-		function (msg) {
-			var m = A2(elm$json$Json$Decode$decodeValue, author$project$Ipc$decodeMsg, msg);
-			if (m.$ === 'Ok') {
-				var packet = m.a;
-				return author$project$Model$BackendMessage(packet);
-			} else {
-				return author$project$Model$BackendMessage(author$project$Ipc$Invalid);
-			}
-		});
-};
 var elm$json$Json$Encode$string = _Json_wrap;
 var author$project$Ipc$encodeMode = function (m) {
 	switch (m.$) {
@@ -5037,8 +4882,8 @@ var author$project$Ipc$encodeMsg = function (msg) {
 						elm$json$Json$Encode$string(name))
 					]));
 		case 'RobotStateUpdate':
-			var comms_alive = msg.a.comms_alive;
-			var code_alive = msg.a.code_alive;
+			var commsAlive = msg.a.commsAlive;
+			var codeAlive = msg.a.codeAlive;
 			var voltage = msg.a.voltage;
 			return elm$json$Json$Encode$object(
 				_List_fromArray(
@@ -5048,10 +4893,10 @@ var author$project$Ipc$encodeMsg = function (msg) {
 						elm$json$Json$Encode$string('RobotStateUpdate')),
 						_Utils_Tuple2(
 						'comms_alive',
-						elm$json$Json$Encode$bool(comms_alive)),
+						elm$json$Json$Encode$bool(commsAlive)),
 						_Utils_Tuple2(
 						'code_alive',
-						elm$json$Json$Encode$bool(code_alive)),
+						elm$json$Json$Encode$bool(codeAlive)),
 						_Utils_Tuple2(
 						'voltage',
 						elm$json$Json$Encode$float(voltage))
@@ -5072,42 +4917,32 @@ var author$project$Ipc$encodeMsg = function (msg) {
 			return _Debug_todo(
 				'Ipc',
 				{
-					start: {line: 115, column: 20},
-					end: {line: 115, column: 30}
+					start: {line: 118, column: 22},
+					end: {line: 118, column: 32}
 				})('Unreachable');
 	}
 };
-var author$project$Model$Debounced = function (a) {
-	return {$: 'Debounced', a: a};
-};
-var jinjor$elm_debounce$Debounce$Later = function (a) {
-	return {$: 'Later', a: a};
-};
-var jinjor$elm_debounce$Debounce$later = jinjor$elm_debounce$Debounce$Later;
-var author$project$Main$debounceConfig = {
-	strategy: jinjor$elm_debounce$Debounce$later(1000),
-	transform: author$project$Model$Debounced
-};
 var author$project$Main$updateBackend = _Platform_outgoingPort('updateBackend', elm$core$Basics$identity);
-var author$project$Main$save = function (teamNumber) {
-	return author$project$Main$updateBackend(
-		author$project$Ipc$encodeMsg(
-			author$project$Ipc$UpdateTeamNumber(
-				{team_number: teamNumber})));
+var author$project$Model$Control = {$: 'Control'};
+var author$project$Model$Nop = {$: 'Nop'};
+var elm$browser$Browser$External = function (a) {
+	return {$: 'External', a: a};
 };
-var elm$core$String$isEmpty = function (string) {
-	return string === '';
+var elm$browser$Browser$Internal = function (a) {
+	return {$: 'Internal', a: a};
 };
-var elm$core$String$length = _String_length;
-var elm$core$String$toInt = _String_toInt;
-var elm$core$Platform$Cmd$map = _Platform_map;
-var jinjor$elm_debounce$Debounce$Flush = function (a) {
-	return {$: 'Flush', a: a};
+var elm$browser$Browser$Dom$NotFound = function (a) {
+	return {$: 'NotFound', a: a};
 };
-var jinjor$elm_debounce$Debounce$SendIfLengthNotChangedFrom = function (a) {
-	return {$: 'SendIfLengthNotChangedFrom', a: a};
+var elm$core$Basics$never = function (_n0) {
+	never:
+	while (true) {
+		var nvr = _n0.a;
+		var $temp$_n0 = nvr;
+		_n0 = $temp$_n0;
+		continue never;
+	}
 };
-var elm$core$Process$sleep = _Process_sleep;
 var elm$core$Task$Perform = function (a) {
 	return {$: 'Perform', a: a};
 };
@@ -5256,6 +5091,406 @@ var elm$core$Task$perform = F2(
 			elm$core$Task$Perform(
 				A2(elm$core$Task$map, toMessage, task)));
 	});
+var elm$json$Json$Decode$map = _Json_map1;
+var elm$json$Json$Decode$map2 = _Json_map2;
+var elm$json$Json$Decode$succeed = _Json_succeed;
+var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
+	switch (handler.$) {
+		case 'Normal':
+			return 0;
+		case 'MayStopPropagation':
+			return 1;
+		case 'MayPreventDefault':
+			return 2;
+		default:
+			return 3;
+	}
+};
+var elm$core$String$length = _String_length;
+var elm$core$String$slice = _String_slice;
+var elm$core$String$dropLeft = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3(
+			elm$core$String$slice,
+			n,
+			elm$core$String$length(string),
+			string);
+	});
+var elm$core$String$startsWith = _String_startsWith;
+var elm$url$Url$Http = {$: 'Http'};
+var elm$url$Url$Https = {$: 'Https'};
+var elm$core$String$indexes = _String_indexes;
+var elm$core$String$isEmpty = function (string) {
+	return string === '';
+};
+var elm$core$String$left = F2(
+	function (n, string) {
+		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
+	});
+var elm$core$String$contains = _String_contains;
+var elm$core$String$toInt = _String_toInt;
+var elm$url$Url$Url = F6(
+	function (protocol, host, port_, path, query, fragment) {
+		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
+	});
+var elm$url$Url$chompBeforePath = F5(
+	function (protocol, path, params, frag, str) {
+		if (elm$core$String$isEmpty(str) || A2(elm$core$String$contains, '@', str)) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var _n0 = A2(elm$core$String$indexes, ':', str);
+			if (!_n0.b) {
+				return elm$core$Maybe$Just(
+					A6(elm$url$Url$Url, protocol, str, elm$core$Maybe$Nothing, path, params, frag));
+			} else {
+				if (!_n0.b.b) {
+					var i = _n0.a;
+					var _n1 = elm$core$String$toInt(
+						A2(elm$core$String$dropLeft, i + 1, str));
+					if (_n1.$ === 'Nothing') {
+						return elm$core$Maybe$Nothing;
+					} else {
+						var port_ = _n1;
+						return elm$core$Maybe$Just(
+							A6(
+								elm$url$Url$Url,
+								protocol,
+								A2(elm$core$String$left, i, str),
+								port_,
+								path,
+								params,
+								frag));
+					}
+				} else {
+					return elm$core$Maybe$Nothing;
+				}
+			}
+		}
+	});
+var elm$url$Url$chompBeforeQuery = F4(
+	function (protocol, params, frag, str) {
+		if (elm$core$String$isEmpty(str)) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var _n0 = A2(elm$core$String$indexes, '/', str);
+			if (!_n0.b) {
+				return A5(elm$url$Url$chompBeforePath, protocol, '/', params, frag, str);
+			} else {
+				var i = _n0.a;
+				return A5(
+					elm$url$Url$chompBeforePath,
+					protocol,
+					A2(elm$core$String$dropLeft, i, str),
+					params,
+					frag,
+					A2(elm$core$String$left, i, str));
+			}
+		}
+	});
+var elm$url$Url$chompBeforeFragment = F3(
+	function (protocol, frag, str) {
+		if (elm$core$String$isEmpty(str)) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var _n0 = A2(elm$core$String$indexes, '?', str);
+			if (!_n0.b) {
+				return A4(elm$url$Url$chompBeforeQuery, protocol, elm$core$Maybe$Nothing, frag, str);
+			} else {
+				var i = _n0.a;
+				return A4(
+					elm$url$Url$chompBeforeQuery,
+					protocol,
+					elm$core$Maybe$Just(
+						A2(elm$core$String$dropLeft, i + 1, str)),
+					frag,
+					A2(elm$core$String$left, i, str));
+			}
+		}
+	});
+var elm$url$Url$chompAfterProtocol = F2(
+	function (protocol, str) {
+		if (elm$core$String$isEmpty(str)) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var _n0 = A2(elm$core$String$indexes, '#', str);
+			if (!_n0.b) {
+				return A3(elm$url$Url$chompBeforeFragment, protocol, elm$core$Maybe$Nothing, str);
+			} else {
+				var i = _n0.a;
+				return A3(
+					elm$url$Url$chompBeforeFragment,
+					protocol,
+					elm$core$Maybe$Just(
+						A2(elm$core$String$dropLeft, i + 1, str)),
+					A2(elm$core$String$left, i, str));
+			}
+		}
+	});
+var elm$url$Url$fromString = function (str) {
+	return A2(elm$core$String$startsWith, 'http://', str) ? A2(
+		elm$url$Url$chompAfterProtocol,
+		elm$url$Url$Http,
+		A2(elm$core$String$dropLeft, 7, str)) : (A2(elm$core$String$startsWith, 'https://', str) ? A2(
+		elm$url$Url$chompAfterProtocol,
+		elm$url$Url$Https,
+		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
+};
+var elm$browser$Browser$Dom$getViewportOf = _Browser_getViewportOf;
+var elm$browser$Browser$Dom$setViewportOf = _Browser_setViewportOf;
+var elm$core$Debug$log = _Debug_log;
+var elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2(elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3(elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var elm$core$Platform$Cmd$batch = _Platform_batch;
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Task$onError = _Scheduler_onError;
+var elm$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return elm$core$Task$command(
+			elm$core$Task$Perform(
+				A2(
+					elm$core$Task$onError,
+					A2(
+						elm$core$Basics$composeL,
+						A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
+						elm$core$Result$Err),
+					A2(
+						elm$core$Task$andThen,
+						A2(
+							elm$core$Basics$composeL,
+							A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
+							elm$core$Result$Ok),
+						task))));
+	});
+var jinjor$elm_debounce$Debounce$Debounce = function (a) {
+	return {$: 'Debounce', a: a};
+};
+var jinjor$elm_debounce$Debounce$init = jinjor$elm_debounce$Debounce$Debounce(
+	{input: _List_Nil, locked: false});
+var author$project$Main$init = function (_n0) {
+	return _Utils_Tuple2(
+		{
+			activePage: author$project$Model$Control,
+			alliance: author$project$Ipc$Red(1),
+			debounce: jinjor$elm_debounce$Debounce$init,
+			enabled: false,
+			listScrollBottom: 0.0,
+			mode: author$project$Ipc$Autonomous,
+			robotState: {codeAlive: false, commsAlive: false, voltage: 0.0},
+			stdout: A2(elm$core$List$repeat, 15, ''),
+			stdoutList: FabienHenon$elm_infinite_list_view$InfiniteList$init,
+			teamNumber: ''
+		},
+		elm$core$Platform$Cmd$batch(
+			_List_fromArray(
+				[
+					author$project$Main$updateBackend(
+					author$project$Ipc$encodeMsg(
+						author$project$Ipc$UpdateTeamNumber(
+							{team_number: 0}))),
+					A2(
+					elm$core$Task$attempt,
+					function (_n1) {
+						return author$project$Model$Nop;
+					},
+					A2(
+						elm$core$Task$andThen,
+						function (info) {
+							return A3(
+								elm$browser$Browser$Dom$setViewportOf,
+								'stdoutListView',
+								0,
+								A2(elm$core$Debug$log, 'Scene height', info.scene.height));
+						},
+						elm$browser$Browser$Dom$getViewportOf('stdoutListView')))
+				])));
+};
+var author$project$Ipc$Invalid = function (a) {
+	return {$: 'Invalid', a: a};
+};
+var author$project$Ipc$JoystickUpdate = function (a) {
+	return {$: 'JoystickUpdate', a: a};
+};
+var author$project$Ipc$NewStdout = function (a) {
+	return {$: 'NewStdout', a: a};
+};
+var author$project$Ipc$RobotStateUpdate = function (a) {
+	return {$: 'RobotStateUpdate', a: a};
+};
+var author$project$Ipc$UpdateEnableStatus = function (a) {
+	return {$: 'UpdateEnableStatus', a: a};
+};
+var author$project$Ipc$UpdateMode = function (a) {
+	return {$: 'UpdateMode', a: a};
+};
+var author$project$Ipc$Teleoperated = {$: 'Teleoperated'};
+var author$project$Ipc$Test = {$: 'Test'};
+var elm$core$String$toLower = _String_toLower;
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var elm$json$Json$Decode$fail = _Json_fail;
+var elm$json$Json$Decode$string = _Json_decodeString;
+var author$project$Ipc$decodeMode = A2(
+	elm$json$Json$Decode$andThen,
+	function (s) {
+		var _n0 = elm$core$String$toLower(s);
+		switch (_n0) {
+			case 'autonomous':
+				return elm$json$Json$Decode$succeed(author$project$Ipc$Autonomous);
+			case 'teleoperated':
+				return elm$json$Json$Decode$succeed(author$project$Ipc$Teleoperated);
+			case 'test':
+				return elm$json$Json$Decode$succeed(author$project$Ipc$Test);
+			default:
+				return elm$json$Json$Decode$fail('Invalid mode ' + s);
+		}
+	},
+	elm$json$Json$Decode$string);
+var elm$json$Json$Decode$bool = _Json_decodeBool;
+var elm$json$Json$Decode$field = _Json_decodeField;
+var elm$json$Json$Decode$float = _Json_decodeFloat;
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var author$project$Ipc$decodeMsg = A2(
+	elm$json$Json$Decode$andThen,
+	function (ty) {
+		switch (ty) {
+			case 'UpdateTeamNumber':
+				return A2(
+					elm$json$Json$Decode$map,
+					function (tn) {
+						return author$project$Ipc$UpdateTeamNumber(
+							{team_number: tn});
+					},
+					A2(elm$json$Json$Decode$field, 'team_number', elm$json$Json$Decode$int));
+			case 'UpdateMode':
+				return A2(
+					elm$json$Json$Decode$map,
+					function (mode) {
+						return author$project$Ipc$UpdateMode(
+							{mode: mode});
+					},
+					A2(elm$json$Json$Decode$field, 'mode', author$project$Ipc$decodeMode));
+			case 'UpdateEnableStatus':
+				return A2(
+					elm$json$Json$Decode$map,
+					function (enabled) {
+						return author$project$Ipc$UpdateEnableStatus(
+							{enabled: enabled});
+					},
+					A2(elm$json$Json$Decode$field, 'enabled', elm$json$Json$Decode$bool));
+			case 'NewStdout':
+				return A2(
+					elm$json$Json$Decode$map,
+					function (msg) {
+						return author$project$Ipc$NewStdout(
+							{message: msg});
+					},
+					A2(elm$json$Json$Decode$field, 'message', elm$json$Json$Decode$string));
+			case 'JoystickUpdate':
+				return A2(
+					elm$json$Json$Decode$andThen,
+					function (removed) {
+						return A2(
+							elm$json$Json$Decode$map,
+							function (name) {
+								return author$project$Ipc$JoystickUpdate(
+									{name: name, removed: removed});
+							},
+							A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string));
+					},
+					A2(elm$json$Json$Decode$field, 'removed', elm$json$Json$Decode$bool));
+			case 'RobotStateUpdate':
+				return A2(
+					elm$json$Json$Decode$andThen,
+					function (comms) {
+						return A2(
+							elm$json$Json$Decode$andThen,
+							function (code) {
+								return A2(
+									elm$json$Json$Decode$map,
+									function (voltage) {
+										return author$project$Ipc$RobotStateUpdate(
+											{codeAlive: code, commsAlive: comms, voltage: voltage});
+									},
+									A2(elm$json$Json$Decode$field, 'voltage', elm$json$Json$Decode$float));
+							},
+							A2(elm$json$Json$Decode$field, 'code_alive', elm$json$Json$Decode$bool));
+					},
+					A2(elm$json$Json$Decode$field, 'comms_alive', elm$json$Json$Decode$bool));
+			default:
+				return elm$json$Json$Decode$fail('no');
+		}
+	},
+	A2(elm$json$Json$Decode$field, 'type', elm$json$Json$Decode$string));
+var elm$json$Json$Decode$value = _Json_decodeValue;
+var author$project$Main$updateFrontend = _Platform_incomingPort('updateFrontend', elm$json$Json$Decode$value);
+var author$project$Model$BackendMessage = function (a) {
+	return {$: 'BackendMessage', a: a};
+};
+var elm$core$Debug$toString = _Debug_toString;
+var elm$json$Json$Decode$decodeValue = _Json_run;
+var author$project$Main$subscriptions = function (_n0) {
+	return author$project$Main$updateFrontend(
+		function (msg) {
+			var m = A2(elm$json$Json$Decode$decodeValue, author$project$Ipc$decodeMsg, msg);
+			if (m.$ === 'Ok') {
+				var packet = m.a;
+				return author$project$Model$BackendMessage(packet);
+			} else {
+				var e = m.a;
+				return author$project$Model$BackendMessage(
+					author$project$Ipc$Invalid(
+						elm$core$Debug$toString(e)));
+			}
+		});
+};
+var author$project$Model$Debounced = function (a) {
+	return {$: 'Debounced', a: a};
+};
+var jinjor$elm_debounce$Debounce$Later = function (a) {
+	return {$: 'Later', a: a};
+};
+var jinjor$elm_debounce$Debounce$later = jinjor$elm_debounce$Debounce$Later;
+var author$project$Main$debounceConfig = {
+	strategy: jinjor$elm_debounce$Debounce$later(1000),
+	transform: author$project$Model$Debounced
+};
+var author$project$Main$save = function (teamNumber) {
+	return author$project$Main$updateBackend(
+		author$project$Ipc$encodeMsg(
+			author$project$Ipc$UpdateTeamNumber(
+				{team_number: teamNumber})));
+};
+var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
+var elm$core$Platform$Cmd$map = _Platform_map;
+var jinjor$elm_debounce$Debounce$Flush = function (a) {
+	return {$: 'Flush', a: a};
+};
+var jinjor$elm_debounce$Debounce$SendIfLengthNotChangedFrom = function (a) {
+	return {$: 'SendIfLengthNotChangedFrom', a: a};
+};
+var elm$core$Process$sleep = _Process_sleep;
 var jinjor$elm_debounce$Debounce$delayCmd = F2(
 	function (delay, msg) {
 		return A2(
@@ -5429,17 +5664,28 @@ var author$project$Main$update = F2(
 					cmd);
 			case 'BackendMessage':
 				var m = msg.a;
-				if (m.$ === 'RobotStateUpdate') {
-					var comms_alive = m.a.comms_alive;
-					var code_alive = m.a.code_alive;
-					var voltage = m.a.voltage;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{voltage: voltage}),
-						elm$core$Platform$Cmd$none);
-				} else {
-					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				switch (m.$) {
+					case 'RobotStateUpdate':
+						var state = m.a;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{robotState: state}),
+							elm$core$Platform$Cmd$none);
+					case 'NewStdout':
+						var message = m.a.message;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									stdout: _Utils_ap(
+										model.stdout,
+										_List_fromArray(
+											[message]))
+								}),
+							elm$core$Platform$Cmd$none);
+					default:
+						return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
 			case 'InfiniteListMsg':
 				var list = msg.a;
@@ -5447,17 +5693,36 @@ var author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{stdoutList: list}),
+					A2(
+						elm$core$Task$attempt,
+						function (_n3) {
+							return author$project$Model$Nop;
+						},
+						A2(
+							elm$core$Task$andThen,
+							function (info) {
+								return A3(elm$browser$Browser$Dom$setViewportOf, 'stdoutListView', 0, info.scene.height);
+							},
+							elm$browser$Browser$Dom$getViewportOf('stdoutListView'))));
+			case 'Nop':
+				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+			case 'ChangePage':
+				var page = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{activePage: page}),
 					elm$core$Platform$Cmd$none);
 			default:
 				var team = msg.a;
 				if (elm$core$String$length(team) <= 4) {
-					var _n3 = elm$core$String$toInt(team);
-					if (_n3.$ === 'Just') {
-						var teamNumber = _n3.a;
+					var _n4 = elm$core$String$toInt(team);
+					if (_n4.$ === 'Just') {
+						var teamNumber = _n4.a;
 						if (teamNumber > 0) {
-							var _n4 = A3(jinjor$elm_debounce$Debounce$push, author$project$Main$debounceConfig, teamNumber, model.debounce);
-							var debounce = _n4.a;
-							var cmd = _n4.b;
+							var _n5 = A3(jinjor$elm_debounce$Debounce$push, author$project$Main$debounceConfig, teamNumber, model.debounce);
+							var debounce = _n5.a;
+							var cmd = _n5.b;
 							return _Utils_Tuple2(
 								_Utils_update(
 									model,
@@ -5468,9 +5733,9 @@ var author$project$Main$update = F2(
 						}
 					} else {
 						if (elm$core$String$isEmpty(team)) {
-							var _n5 = A3(jinjor$elm_debounce$Debounce$push, author$project$Main$debounceConfig, 0, model.debounce);
-							var debounce = _n5.a;
-							var cmd = _n5.b;
+							var _n6 = A3(jinjor$elm_debounce$Debounce$push, author$project$Main$debounceConfig, 0, model.debounce);
+							var debounce = _n6.a;
+							var cmd = _n6.b;
 							return _Utils_Tuple2(
 								_Utils_update(
 									model,
@@ -5484,6 +5749,540 @@ var author$project$Main$update = F2(
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
 		}
+	});
+var author$project$Model$ChangePage = function (a) {
+	return {$: 'ChangePage', a: a};
+};
+var author$project$Model$Config = {$: 'Config'};
+var author$project$Model$TeamNumberChange = function (a) {
+	return {$: 'TeamNumberChange', a: a};
+};
+var elm$html$Html$button = _VirtualDom_node('button');
+var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$input = _VirtualDom_node('input');
+var elm$html$Html$label = _VirtualDom_node('label');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$html$Html$Attributes$for = elm$html$Html$Attributes$stringProperty('htmlFor');
+var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
+var elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var elm$html$Html$Events$targetValue = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	elm$json$Json$Decode$string);
+var elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			elm$json$Json$Decode$map,
+			elm$html$Html$Events$alwaysStop,
+			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
+};
+var author$project$Ui$configTab = function (model) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('container')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('row'),
+						elm$html$Html$Attributes$class('align-items-center')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('col')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$label,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$for('teamNumberInput')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Team Number')
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('input-group'),
+										elm$html$Html$Attributes$class('mb-3')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$input,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$type_('number'),
+												elm$html$Html$Attributes$class('form-control'),
+												elm$html$Html$Attributes$id('teamNumberInput'),
+												elm$html$Html$Attributes$value(model.teamNumber),
+												elm$html$Html$Events$onInput(author$project$Model$TeamNumberChange)
+											]),
+										_List_Nil)
+									])),
+								A2(
+								elm$html$Html$label,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$for('gameDataInput')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Game Data')
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('input-group'),
+										elm$html$Html$Attributes$class('mb-3')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$input,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$type_('text'),
+												elm$html$Html$Attributes$class('form-control'),
+												elm$html$Html$Attributes$id('gameDataInput')
+											]),
+										_List_Nil)
+									]))
+							])),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('col')
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('col'),
+								elm$html$Html$Attributes$class('pull-right')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('btn-group-vertical')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$button,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$type_('button'),
+												elm$html$Html$Attributes$class('btn'),
+												elm$html$Html$Attributes$class('btn-secondary')
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text('Restart roboRIO')
+											])),
+										A2(
+										elm$html$Html$button,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$type_('button'),
+												elm$html$Html$Attributes$class('btn'),
+												elm$html$Html$Attributes$class('btn-secondary')
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text('Restart Robot Code')
+											]))
+									]))
+							]))
+					]))
+			]));
+};
+var FabienHenon$elm_infinite_list_view$InfiniteList$decodeToModel = A2(
+	elm$json$Json$Decode$map,
+	FabienHenon$elm_infinite_list_view$InfiniteList$Model,
+	A2(
+		elm$json$Json$Decode$at,
+		_List_fromArray(
+			['target', 'scrollTop']),
+		elm$json$Json$Decode$int));
+var FabienHenon$elm_infinite_list_view$InfiniteList$decodeScroll = function (scrollMsg) {
+	return A2(
+		elm$json$Json$Decode$map,
+		function (s) {
+			return scrollMsg(s);
+		},
+		FabienHenon$elm_infinite_list_view$InfiniteList$decodeToModel);
+};
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var FabienHenon$elm_infinite_list_view$InfiniteList$onScroll = function (scrollMsg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'scroll',
+		FabienHenon$elm_infinite_list_view$InfiniteList$decodeScroll(scrollMsg));
+};
+var FabienHenon$elm_infinite_list_view$InfiniteList$addAttribute = F3(
+	function (f, value, newAttributes) {
+		if (value.$ === 'Nothing') {
+			return newAttributes;
+		} else {
+			var v = value.a;
+			return A2(
+				elm$core$List$cons,
+				f(v),
+				newAttributes);
+		}
+	});
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var FabienHenon$elm_infinite_list_view$InfiniteList$attributes = F2(
+	function (totalHeight, _n0) {
+		var styles = _n0.a.styles;
+		var id = _n0.a.id;
+		var _class = _n0.a._class;
+		return A3(
+			FabienHenon$elm_infinite_list_view$InfiniteList$addAttribute,
+			elm$html$Html$Attributes$class,
+			_class,
+			A3(
+				FabienHenon$elm_infinite_list_view$InfiniteList$addAttribute,
+				elm$html$Html$Attributes$id,
+				id,
+				A2(
+					elm$core$List$map,
+					function (_n1) {
+						var attr = _n1.a;
+						var value = _n1.b;
+						return A2(elm$html$Html$Attributes$style, attr, value);
+					},
+					_Utils_ap(
+						styles,
+						_List_fromArray(
+							[
+								_Utils_Tuple2('margin', '0'),
+								_Utils_Tuple2('padding', '0'),
+								_Utils_Tuple2('box-sizing', 'border-box'),
+								_Utils_Tuple2(
+								'height',
+								elm$core$String$fromInt(totalHeight) + 'px'),
+								_Utils_Tuple2('width', '100%')
+							])))));
+	});
+var FabienHenon$elm_infinite_list_view$InfiniteList$computeElementsAndSizesForMultipleHeights = F4(
+	function (_n0, getHeight, scrollTop, items) {
+		var offset = _n0.a.offset;
+		var containerHeight = _n0.a.containerHeight;
+		var updateComputations = F2(
+			function (item, calculatedTuple) {
+				var _n1 = calculatedTuple;
+				var idx = _n1.idx;
+				var elementsCountToSkip = _n1.elementsCountToSkip;
+				var elementsToShow = _n1.elementsToShow;
+				var topMargin = _n1.topMargin;
+				var currentHeight = _n1.currentHeight;
+				var height = A2(getHeight, idx, item);
+				var newCurrentHeight = currentHeight + height;
+				return (_Utils_cmp(newCurrentHeight, scrollTop - offset) < 1) ? _Utils_update(
+					calculatedTuple,
+					{currentHeight: newCurrentHeight, elementsCountToSkip: elementsCountToSkip + 1, idx: idx + 1, topMargin: topMargin + height}) : ((_Utils_cmp(currentHeight, (scrollTop + containerHeight) + offset) < 0) ? _Utils_update(
+					calculatedTuple,
+					{
+						currentHeight: newCurrentHeight,
+						elementsToShow: A2(elm$core$List$cons, item, elementsToShow),
+						idx: idx + 1
+					}) : _Utils_update(
+					calculatedTuple,
+					{currentHeight: newCurrentHeight, idx: idx + 1}));
+			});
+		var initialValue = {currentHeight: 0, elementsCountToSkip: 0, elementsToShow: _List_Nil, idx: 0, topMargin: 0};
+		var computedValues = A3(elm$core$List$foldl, updateComputations, initialValue, items);
+		return {
+			elements: elm$core$List$reverse(computedValues.elementsToShow),
+			skipCount: computedValues.elementsCountToSkip,
+			topMargin: computedValues.topMargin,
+			totalHeight: computedValues.currentHeight
+		};
+	});
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2(elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return elm$core$List$reverse(
+			A3(elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _n0 = _Utils_Tuple2(n, list);
+			_n0$1:
+			while (true) {
+				_n0$5:
+				while (true) {
+					if (!_n0.b.b) {
+						return list;
+					} else {
+						if (_n0.b.b.b) {
+							switch (_n0.a) {
+								case 1:
+									break _n0$1;
+								case 2:
+									var _n2 = _n0.b;
+									var x = _n2.a;
+									var _n3 = _n2.b;
+									var y = _n3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_n0.b.b.b.b) {
+										var _n4 = _n0.b;
+										var x = _n4.a;
+										var _n5 = _n4.b;
+										var y = _n5.a;
+										var _n6 = _n5.b;
+										var z = _n6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _n0$5;
+									}
+								default:
+									if (_n0.b.b.b.b && _n0.b.b.b.b.b) {
+										var _n7 = _n0.b;
+										var x = _n7.a;
+										var _n8 = _n7.b;
+										var y = _n8.a;
+										var _n9 = _n8.b;
+										var z = _n9.a;
+										var _n10 = _n9.b;
+										var w = _n10.a;
+										var tl = _n10.b;
+										return (ctr > 1000) ? A2(
+											elm$core$List$cons,
+											x,
+											A2(
+												elm$core$List$cons,
+												y,
+												A2(
+													elm$core$List$cons,
+													z,
+													A2(
+														elm$core$List$cons,
+														w,
+														A2(elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											elm$core$List$cons,
+											x,
+											A2(
+												elm$core$List$cons,
+												y,
+												A2(
+													elm$core$List$cons,
+													z,
+													A2(
+														elm$core$List$cons,
+														w,
+														A3(elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _n0$5;
+									}
+							}
+						} else {
+							if (_n0.a === 1) {
+								break _n0$1;
+							} else {
+								break _n0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _n1 = _n0.b;
+			var x = _n1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var elm$core$List$take = F2(
+	function (n, list) {
+		return A3(elm$core$List$takeFast, 0, n, list);
+	});
+var FabienHenon$elm_infinite_list_view$InfiniteList$computeElementsAndSizesForSimpleHeight = F4(
+	function (_n0, itemHeight, scrollTop, items) {
+		var offset = _n0.a.offset;
+		var containerHeight = _n0.a.containerHeight;
+		var totalHeight = elm$core$List$length(items) * itemHeight;
+		var elementsCountToSkip = A2(elm$core$Basics$max, 0, ((scrollTop - offset) / itemHeight) | 0);
+		var topMargin = elementsCountToSkip * itemHeight;
+		var elementsCountToShow = ((((offset * 2) + containerHeight) / itemHeight) | 0) + 1;
+		var elementsToShow = A2(
+			elm$core$Basics$composeR,
+			elm$core$List$drop(elementsCountToSkip),
+			elm$core$List$take(elementsCountToShow))(items);
+		return {elements: elementsToShow, skipCount: elementsCountToSkip, topMargin: topMargin, totalHeight: totalHeight};
+	});
+var FabienHenon$elm_infinite_list_view$InfiniteList$computeElementsAndSizes = F3(
+	function (configValue, scrollTop, items) {
+		var itemHeight = configValue.a.itemHeight;
+		var itemView = configValue.a.itemView;
+		var customContainer = configValue.a.customContainer;
+		if (itemHeight.$ === 'Constant') {
+			var height = itemHeight.a;
+			return A4(FabienHenon$elm_infinite_list_view$InfiniteList$computeElementsAndSizesForSimpleHeight, configValue, height, scrollTop, items);
+		} else {
+			var _function = itemHeight.a;
+			return A4(FabienHenon$elm_infinite_list_view$InfiniteList$computeElementsAndSizesForMultipleHeights, configValue, _function, scrollTop, items);
+		}
+	});
+var elm$virtual_dom$VirtualDom$lazy3 = _VirtualDom_lazy3;
+var elm$html$Html$Lazy$lazy3 = elm$virtual_dom$VirtualDom$lazy3;
+var FabienHenon$elm_infinite_list_view$InfiniteList$lazyView = F3(
+	function (configValue, _n0, items) {
+		var itemView = configValue.a.itemView;
+		var customContainer = configValue.a.customContainer;
+		var scrollTop = _n0.a;
+		var _n1 = A3(FabienHenon$elm_infinite_list_view$InfiniteList$computeElementsAndSizes, configValue, scrollTop, items);
+		var skipCount = _n1.skipCount;
+		var elements = _n1.elements;
+		var topMargin = _n1.topMargin;
+		var totalHeight = _n1.totalHeight;
+		var elementsToShow = elements;
+		var elementsCountToSkip = skipCount;
+		return A2(
+			elm$html$Html$div,
+			A2(FabienHenon$elm_infinite_list_view$InfiniteList$attributes, totalHeight, configValue),
+			_List_fromArray(
+				[
+					A2(
+					customContainer,
+					_List_fromArray(
+						[
+							_Utils_Tuple2('margin', '0'),
+							_Utils_Tuple2('padding', '0'),
+							_Utils_Tuple2('box-sizing', 'border-box'),
+							_Utils_Tuple2(
+							'top',
+							elm$core$String$fromInt(topMargin) + 'px'),
+							_Utils_Tuple2('position', 'relative')
+						]),
+					A2(
+						elm$core$List$indexedMap,
+						F2(
+							function (idx, item) {
+								return A4(elm$html$Html$Lazy$lazy3, itemView, idx, elementsCountToSkip + idx, item);
+							}),
+						elementsToShow))
+				]));
+	});
+var FabienHenon$elm_infinite_list_view$InfiniteList$view = F3(
+	function (configValue, model, list) {
+		return A4(elm$html$Html$Lazy$lazy3, FabienHenon$elm_infinite_list_view$InfiniteList$lazyView, configValue, model, list);
 	});
 var author$project$Ipc$allianceToS = function (a) {
 	if (a.$ === 'Red') {
@@ -5507,33 +6306,13 @@ var author$project$Ipc$modeToS = function (m) {
 var author$project$Model$EnableChange = function (a) {
 	return {$: 'EnableChange', a: a};
 };
+var author$project$Model$InfiniteListMsg = function (a) {
+	return {$: 'InfiniteListMsg', a: a};
+};
 var author$project$Ipc$Blue = function (a) {
 	return {$: 'Blue', a: a};
 };
-var elm$json$Json$Decode$map2 = _Json_map2;
-var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
-	switch (handler.$) {
-		case 'Normal':
-			return 0;
-		case 'MayStopPropagation':
-			return 1;
-		case 'MayPreventDefault':
-			return 2;
-		default:
-			return 3;
-	}
-};
 var elm$html$Html$a = _VirtualDom_node('a');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var elm$html$Html$Attributes$href = function (url) {
 	return A2(
 		elm$html$Html$Attributes$stringProperty,
@@ -5590,20 +6369,63 @@ var author$project$Ui$allianceStations = F2(
 			}
 		}
 	});
+var FabienHenon$elm_infinite_list_view$InfiniteList$Config = function (a) {
+	return {$: 'Config', a: a};
+};
+var FabienHenon$elm_infinite_list_view$InfiniteList$defaultContainer = F2(
+	function (styles, elements) {
+		return A2(
+			elm$html$Html$div,
+			A2(
+				elm$core$List$map,
+				function (_n0) {
+					var attr = _n0.a;
+					var value = _n0.b;
+					return A2(elm$html$Html$Attributes$style, attr, value);
+				},
+				styles),
+			elements);
+	});
+var FabienHenon$elm_infinite_list_view$InfiniteList$config = function (conf) {
+	return FabienHenon$elm_infinite_list_view$InfiniteList$Config(
+		{_class: elm$core$Maybe$Nothing, containerHeight: conf.containerHeight, customContainer: FabienHenon$elm_infinite_list_view$InfiniteList$defaultContainer, id: elm$core$Maybe$Nothing, itemHeight: conf.itemHeight, itemView: conf.itemView, offset: 200, styles: _List_Nil});
+};
+var FabienHenon$elm_infinite_list_view$InfiniteList$Constant = function (a) {
+	return {$: 'Constant', a: a};
+};
+var FabienHenon$elm_infinite_list_view$InfiniteList$withConstantHeight = function (height) {
+	return FabienHenon$elm_infinite_list_view$InfiniteList$Constant(height);
+};
+var FabienHenon$elm_infinite_list_view$InfiniteList$withOffset = F2(
+	function (offset, _n0) {
+		var value = _n0.a;
+		return FabienHenon$elm_infinite_list_view$InfiniteList$Config(
+			_Utils_update(
+				value,
+				{offset: offset}));
+	});
+var author$project$Ui$itemView = F3(
+	function (_n0, _n1, item) {
+		return A2(
+			elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text(item)
+				]));
+	});
+var author$project$Ui$infiniteListConfig = A2(
+	FabienHenon$elm_infinite_list_view$InfiniteList$withOffset,
+	300,
+	FabienHenon$elm_infinite_list_view$InfiniteList$config(
+		{
+			containerHeight: 500,
+			itemHeight: FabienHenon$elm_infinite_list_view$InfiniteList$withConstantHeight(20),
+			itemView: author$project$Ui$itemView
+		}));
 var author$project$Model$ModeChange = function (a) {
 	return {$: 'ModeChange', a: a};
 };
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
 var elm$html$Html$Events$onClick = function (msg) {
 	return A2(
 		elm$html$Html$Events$on,
@@ -5629,11 +6451,38 @@ var author$project$Ui$modeItem = F2(
 					author$project$Ipc$modeToS(mode))
 				]));
 	});
+var elm$html$Html$li = _VirtualDom_node('li');
+var elm$html$Html$span = _VirtualDom_node('span');
+var author$project$Ui$telemetryBadge = F2(
+	function (caption, alive) {
+		return A2(
+			elm$html$Html$li,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('list-group-item d-flex justify-content-between align-items-center py-2')
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text(caption),
+					A2(
+					elm$html$Html$span,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('badge'),
+							elm$html$Html$Attributes$class(
+							alive ? 'badge-success' : 'badge-danger')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(
+							alive ? 'OK' : 'ERR')
+						]))
+				]));
+	});
 var elm$core$Basics$not = _Basics_not;
-var elm$html$Html$button = _VirtualDom_node('button');
-var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$h4 = _VirtualDom_node('h4');
-var elm$html$Html$label = _VirtualDom_node('label');
+var elm$html$Html$p = _VirtualDom_node('p');
+var elm$html$Html$ul = _VirtualDom_node('ul');
 var elm$virtual_dom$VirtualDom$attribute = F2(
 	function (key, value) {
 		return A2(
@@ -5642,10 +6491,7 @@ var elm$virtual_dom$VirtualDom$attribute = F2(
 			_VirtualDom_noJavaScriptOrHtmlUri(value));
 	});
 var elm$html$Html$Attributes$attribute = elm$virtual_dom$VirtualDom$attribute;
-var elm$html$Html$Attributes$for = elm$html$Html$Attributes$stringProperty('htmlFor');
-var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
-var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
-var author$project$Main$view = function (model) {
+var author$project$Ui$controlTab = function (model) {
 	return A2(
 		elm$html$Html$div,
 		_List_fromArray(
@@ -5690,21 +6536,69 @@ var author$project$Main$view = function (model) {
 							[
 								elm$html$Html$Attributes$class('col')
 							]),
-						_List_Nil),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$ul,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('list-group mt-4')
+									]),
+								_List_fromArray(
+									[
+										A2(author$project$Ui$telemetryBadge, 'Communications', model.robotState.commsAlive),
+										A2(author$project$Ui$telemetryBadge, 'Robot Code', model.robotState.codeAlive),
+										A2(author$project$Ui$telemetryBadge, 'Joysticks', false)
+									]))
+							])),
 						A2(
 						elm$html$Html$div,
 						_List_fromArray(
 							[
 								elm$html$Html$Attributes$class('col')
 							]),
-						_List_Nil),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$p,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('lead mt-4')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Team # ' + model.teamNumber)
+									]))
+							])),
 						A2(
 						elm$html$Html$div,
 						_List_fromArray(
 							[
 								elm$html$Html$Attributes$class('col')
 							]),
-						_List_Nil)
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										A2(elm$html$Html$Attributes$style, 'width', '100%'),
+										A2(elm$html$Html$Attributes$style, 'height', '150px'),
+										A2(elm$html$Html$Attributes$style, 'overflow-x', 'hidden'),
+										A2(elm$html$Html$Attributes$style, 'overflow-y', 'auto'),
+										A2(elm$html$Html$Attributes$style, '-webkit-overflow-scrolling', 'touch'),
+										A2(elm$html$Html$Attributes$style, 'color', '#fff'),
+										elm$html$Html$Attributes$class('form-control'),
+										elm$html$Html$Attributes$class('bg-secondary'),
+										elm$html$Html$Attributes$class('mt-4'),
+										elm$html$Html$Attributes$id('stdoutListView'),
+										FabienHenon$elm_infinite_list_view$InfiniteList$onScroll(author$project$Model$InfiniteListMsg)
+									]),
+								_List_fromArray(
+									[
+										A3(FabienHenon$elm_infinite_list_view$InfiniteList$view, author$project$Ui$infiniteListConfig, model.stdoutList, model.stdout)
+									]))
+							]))
 					])),
 				A2(
 				elm$html$Html$div,
@@ -5738,7 +6632,7 @@ var author$project$Main$view = function (model) {
 										_List_fromArray(
 											[
 												elm$html$Html$Attributes$type_('button'),
-												elm$html$Html$Attributes$class('btn'),
+												elm$html$Html$Attributes$class('btn btn-lg'),
 												elm$html$Html$Attributes$class('btn-success'),
 												model.enabled ? elm$html$Html$Attributes$class('active') : elm$html$Html$Attributes$class(''),
 												elm$html$Html$Events$onClick(
@@ -5753,7 +6647,7 @@ var author$project$Main$view = function (model) {
 										_List_fromArray(
 											[
 												elm$html$Html$Attributes$type_('button'),
-												elm$html$Html$Attributes$class('btn'),
+												elm$html$Html$Attributes$class('btn btn-lg'),
 												elm$html$Html$Attributes$class('btn-danger'),
 												(!model.enabled) ? elm$html$Html$Attributes$class('active') : elm$html$Html$Attributes$class(''),
 												elm$html$Html$Events$onClick(
@@ -5775,52 +6669,70 @@ var author$project$Main$view = function (model) {
 						_List_fromArray(
 							[
 								A2(
-								elm$html$Html$label,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$for('teamSelectorDropdown'),
-										elm$html$Html$Attributes$class('dropdown-label')
-									]),
-								_List_fromArray(
-									[
-										elm$html$Html$text('Team Station: ')
-									])),
-								A2(
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('dropdown'),
-										elm$html$Html$Attributes$id('teamSelectorDropdown')
+										elm$html$Html$Attributes$class('input-group')
 									]),
 								_List_fromArray(
 									[
 										A2(
-										elm$html$Html$button,
+										elm$html$Html$div,
 										_List_fromArray(
 											[
-												elm$html$Html$Attributes$class('btn'),
-												elm$html$Html$Attributes$class('btn-secondary'),
-												elm$html$Html$Attributes$class('dropdown-toggle'),
-												elm$html$Html$Attributes$type_('button'),
-												elm$html$Html$Attributes$id('dropdownMenuButton'),
-												A2(elm$html$Html$Attributes$attribute, 'data-toggle', 'dropdown'),
-												A2(elm$html$Html$Attributes$attribute, 'aria-haspopup', 'true'),
-												A2(elm$html$Html$Attributes$attribute, 'aria-expanded', 'false')
+												elm$html$Html$Attributes$class('input-group-prepend')
 											]),
 										_List_fromArray(
 											[
-												elm$html$Html$text(
-												author$project$Ipc$allianceToS(model.alliance))
+												A2(
+												elm$html$Html$label,
+												_List_fromArray(
+													[
+														elm$html$Html$Attributes$for('teamSelectorDropdown'),
+														elm$html$Html$Attributes$class('dropdown-label lead')
+													]),
+												_List_fromArray(
+													[
+														elm$html$Html$text('Team Station ')
+													]))
 											])),
 										A2(
 										elm$html$Html$div,
 										_List_fromArray(
 											[
-												elm$html$Html$Attributes$class('dropdown-menu'),
-												elm$html$Html$Attributes$class('py-1'),
-												A2(elm$html$Html$Attributes$attribute, 'aria-labelledby', 'dropdownMenuButton')
+												elm$html$Html$Attributes$class('dropdown'),
+												elm$html$Html$Attributes$id('teamSelectorDropdown')
 											]),
-										A2(author$project$Ui$allianceStations, 6, _List_Nil))
+										_List_fromArray(
+											[
+												A2(
+												elm$html$Html$button,
+												_List_fromArray(
+													[
+														elm$html$Html$Attributes$class('btn'),
+														elm$html$Html$Attributes$class('btn-secondary'),
+														elm$html$Html$Attributes$class('dropdown-toggle'),
+														elm$html$Html$Attributes$type_('button'),
+														elm$html$Html$Attributes$id('dropdownMenuButton'),
+														A2(elm$html$Html$Attributes$attribute, 'data-toggle', 'dropdown'),
+														A2(elm$html$Html$Attributes$attribute, 'aria-haspopup', 'true'),
+														A2(elm$html$Html$Attributes$attribute, 'aria-expanded', 'false')
+													]),
+												_List_fromArray(
+													[
+														elm$html$Html$text(
+														author$project$Ipc$allianceToS(model.alliance))
+													])),
+												A2(
+												elm$html$Html$div,
+												_List_fromArray(
+													[
+														elm$html$Html$Attributes$class('dropdown-menu'),
+														elm$html$Html$Attributes$class('py-1'),
+														A2(elm$html$Html$Attributes$attribute, 'aria-labelledby', 'dropdownMenuButton')
+													]),
+												A2(author$project$Ui$allianceStations, 6, _List_Nil))
+											]))
 									]))
 							])),
 						A2(
@@ -5842,151 +6754,88 @@ var author$project$Main$view = function (model) {
 										elm$html$Html$text(
 										author$project$Ipc$modeToS(model.mode) + ('\n' + (model.enabled ? 'Enabled' : 'Disabled')))
 									]))
-							]))
+							])),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('col')
+							]),
+						_List_Nil)
 					]))
 			]));
 };
-var elm$browser$Browser$External = function (a) {
-	return {$: 'External', a: a};
-};
-var elm$browser$Browser$Internal = function (a) {
-	return {$: 'Internal', a: a};
-};
-var elm$browser$Browser$Dom$NotFound = function (a) {
-	return {$: 'NotFound', a: a};
-};
-var elm$core$Basics$never = function (_n0) {
-	never:
-	while (true) {
-		var nvr = _n0.a;
-		var $temp$_n0 = nvr;
-		_n0 = $temp$_n0;
-		continue never;
-	}
-};
-var elm$core$String$slice = _String_slice;
-var elm$core$String$dropLeft = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(
-			elm$core$String$slice,
-			n,
-			elm$core$String$length(string),
-			string);
-	});
-var elm$core$String$startsWith = _String_startsWith;
-var elm$url$Url$Http = {$: 'Http'};
-var elm$url$Url$Https = {$: 'Https'};
-var elm$core$String$indexes = _String_indexes;
-var elm$core$String$left = F2(
-	function (n, string) {
-		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
-	});
-var elm$core$String$contains = _String_contains;
-var elm$url$Url$Url = F6(
-	function (protocol, host, port_, path, query, fragment) {
-		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
-	});
-var elm$url$Url$chompBeforePath = F5(
-	function (protocol, path, params, frag, str) {
-		if (elm$core$String$isEmpty(str) || A2(elm$core$String$contains, '@', str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, ':', str);
-			if (!_n0.b) {
-				return elm$core$Maybe$Just(
-					A6(elm$url$Url$Url, protocol, str, elm$core$Maybe$Nothing, path, params, frag));
-			} else {
-				if (!_n0.b.b) {
-					var i = _n0.a;
-					var _n1 = elm$core$String$toInt(
-						A2(elm$core$String$dropLeft, i + 1, str));
-					if (_n1.$ === 'Nothing') {
-						return elm$core$Maybe$Nothing;
-					} else {
-						var port_ = _n1;
-						return elm$core$Maybe$Just(
-							A6(
-								elm$url$Url$Url,
-								protocol,
-								A2(elm$core$String$left, i, str),
-								port_,
-								path,
-								params,
-								frag));
-					}
+var author$project$Main$view = function (model) {
+	return A2(
+		elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$ul,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('nav'),
+						elm$html$Html$Attributes$class('nav-tabs')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$li,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('nav-item')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$href('#'),
+										elm$html$Html$Attributes$class('nav-link'),
+										_Utils_eq(model.activePage, author$project$Model$Control) ? elm$html$Html$Attributes$class('active') : elm$html$Html$Attributes$class(''),
+										elm$html$Html$Events$onClick(
+										author$project$Model$ChangePage(author$project$Model$Control))
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Control')
+									]))
+							])),
+						A2(
+						elm$html$Html$li,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('nav-item')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$href('#'),
+										elm$html$Html$Attributes$class('nav-link'),
+										_Utils_eq(model.activePage, author$project$Model$Config) ? elm$html$Html$Attributes$class('active') : elm$html$Html$Attributes$class(''),
+										elm$html$Html$Events$onClick(
+										author$project$Model$ChangePage(author$project$Model$Config))
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Config')
+									]))
+							]))
+					])),
+				function () {
+				var _n0 = model.activePage;
+				if (_n0.$ === 'Control') {
+					return author$project$Ui$controlTab(model);
 				} else {
-					return elm$core$Maybe$Nothing;
+					return author$project$Ui$configTab(model);
 				}
-			}
-		}
-	});
-var elm$url$Url$chompBeforeQuery = F4(
-	function (protocol, params, frag, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '/', str);
-			if (!_n0.b) {
-				return A5(elm$url$Url$chompBeforePath, protocol, '/', params, frag, str);
-			} else {
-				var i = _n0.a;
-				return A5(
-					elm$url$Url$chompBeforePath,
-					protocol,
-					A2(elm$core$String$dropLeft, i, str),
-					params,
-					frag,
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$chompBeforeFragment = F3(
-	function (protocol, frag, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '?', str);
-			if (!_n0.b) {
-				return A4(elm$url$Url$chompBeforeQuery, protocol, elm$core$Maybe$Nothing, frag, str);
-			} else {
-				var i = _n0.a;
-				return A4(
-					elm$url$Url$chompBeforeQuery,
-					protocol,
-					elm$core$Maybe$Just(
-						A2(elm$core$String$dropLeft, i + 1, str)),
-					frag,
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$chompAfterProtocol = F2(
-	function (protocol, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '#', str);
-			if (!_n0.b) {
-				return A3(elm$url$Url$chompBeforeFragment, protocol, elm$core$Maybe$Nothing, str);
-			} else {
-				var i = _n0.a;
-				return A3(
-					elm$url$Url$chompBeforeFragment,
-					protocol,
-					elm$core$Maybe$Just(
-						A2(elm$core$String$dropLeft, i + 1, str)),
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$fromString = function (str) {
-	return A2(elm$core$String$startsWith, 'http://', str) ? A2(
-		elm$url$Url$chompAfterProtocol,
-		elm$url$Url$Http,
-		A2(elm$core$String$dropLeft, 7, str)) : (A2(elm$core$String$startsWith, 'https://', str) ? A2(
-		elm$url$Url$chompAfterProtocol,
-		elm$url$Url$Https,
-		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
+			}()
+			]));
 };
 var elm$browser$Browser$element = _Browser_element;
 var author$project$Main$main = elm$browser$Browser$element(

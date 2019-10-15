@@ -24,18 +24,21 @@ modeToS m = case m of
     Teleoperated -> "Teleoperated"
     Test -> "Test"
 
+
+type alias RobotState
+    = { commsAlive : Bool
+      , codeAlive : Bool
+      , voltage : Float
+      }
+
 type IpcMsg
     = UpdateTeamNumber { team_number : Int }
     | UpdateMode { mode : Mode }
     | UpdateEnableStatus { enabled : Bool }
     | JoystickUpdate { removed : Bool, name : String }
-    | RobotStateUpdate
-        { comms_alive : Bool
-        , code_alive : Bool
-        , voltage : Float
-        }
+    | RobotStateUpdate RobotState
     | NewStdout { message : String }
-    | Invalid
+    | Invalid String
 
 
 decodeMode : Decoder Mode
@@ -99,11 +102,11 @@ encodeMsg msg =
                 , ( "name", E.string name )
                 ]
 
-        RobotStateUpdate { comms_alive, code_alive, voltage } ->
+        RobotStateUpdate { commsAlive, codeAlive, voltage } ->
             object
                 [ ( "type", E.string "RobotStateUpdate" )
-                , ( "comms_alive", E.bool comms_alive )
-                , ( "code_alive", E.bool code_alive )
+                , ( "comms_alive", E.bool commsAlive )
+                , ( "code_alive", E.bool codeAlive )
                 , ( "voltage", E.float voltage )
                 ]
 
@@ -112,12 +115,12 @@ encodeMsg msg =
                 [ ( "type", E.string "NewStdout" )
                 , ( "message", E.string message )
                 ]
-        Invalid -> Debug.todo "Unreachable"
+        Invalid _ -> Debug.todo "Unreachable"
 
 
 decodeMsg : Decoder IpcMsg
 decodeMsg =
-    D.string
+    field "type" string
         |> D.andThen
             (\ty ->
                 case ty of
@@ -144,7 +147,7 @@ decodeMsg =
                                     field "code_alive" bool
                                         |> D.andThen
                                             (\code ->
-                                                field "voltage" float |> D.map (\voltage -> RobotStateUpdate { comms_alive = comms, code_alive = code, voltage = voltage })
+                                                field "voltage" float |> D.map (\voltage -> RobotStateUpdate { commsAlive = comms, codeAlive = code, voltage = voltage })
                                             )
                                 )
 
