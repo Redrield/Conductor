@@ -38,6 +38,8 @@ type IpcMsg
     | JoystickUpdate { removed : Bool, name : String }
     | RobotStateUpdate RobotState
     | NewStdout { message : String }
+    | EstopRobot
+    | InitStdout { contents : List String }
     | Invalid String
 
 
@@ -115,7 +117,12 @@ encodeMsg msg =
                 [ ( "type", E.string "NewStdout" )
                 , ( "message", E.string message )
                 ]
-        Invalid _ -> Debug.todo "Unreachable"
+        InitStdout { contents } ->
+            object
+                [ ("type", E.string "InitStdout")
+                , ("contents", E.list E.string contents) ]
+        EstopRobot -> object [ ("type", E.string "EstopRobot") ]
+        Invalid _ -> object []
 
 
 decodeMsg : Decoder IpcMsg
@@ -135,6 +142,8 @@ decodeMsg =
 
                     "NewStdout" ->
                         field "message" string |> D.map (\msg -> NewStdout { message = msg })
+                    "InitStdout" ->
+                        field "contents" (D.list string) |> D.map(\contents -> InitStdout { contents = contents })
 
                     -- There is probably a better way to do this, but i don't know it
                     "JoystickUpdate" ->

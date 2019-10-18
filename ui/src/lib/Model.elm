@@ -16,6 +16,7 @@ type alias Model =
     , listScrollBottom : Float
     , robotState : RobotState
     , activePage : ActivePage
+    , estopped : Bool
     }
 
 type ActivePage
@@ -30,4 +31,6 @@ type Msg
     | Debounced Debounce.Msg
     | InfiniteListMsg InfiniteList.Model
     | ChangePage ActivePage
+    | GlobalKeyboardEvent Int
+    | StartStdoutWindow
     | Nop

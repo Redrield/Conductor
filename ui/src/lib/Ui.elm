@@ -3,9 +3,19 @@ module Ui exposing (..)
 import InfiniteList
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput, onSubmit)
+import Html.Events exposing (onClick, onDoubleClick, onInput, onSubmit)
 import Model exposing (..)
-import Ipc exposing (Mode, modeToS, AllianceStation, allianceToS)
+import Ipc exposing (AllianceStation, Mode, RobotState, allianceToS, modeToS)
+
+robotStatus : Model -> String
+robotStatus model = if model.estopped then
+                        "Emergency Stopped"
+                    else if model.robotState.codeAlive then
+                        Ipc.modeToS model.mode ++ "\n" ++ if model.enabled then "Enabled" else "Disabled"
+                    else if not model.robotState.codeAlive && model.robotState.commsAlive then
+                        "No Robot Code"
+                    else "No Robot Communications"
+
 
 telemetryBadge : String -> Bool -> Html Msg
 telemetryBadge caption alive
@@ -135,7 +145,7 @@ controlTab model =
           div [ class "col" ]
           [
             h4 [ class "text-center" ]
-            [ text ( Ipc.modeToS model.mode ++ "\n" ++ if model.enabled then "Enabled" else "Disabled" )]
+            [ text <| robotStatus model ]
           ],
           div [ class "col" ] []
         ]

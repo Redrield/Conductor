@@ -24,7 +24,11 @@ pub enum Message {
     },
     NewStdout {
         message: String,
-    }
+    },
+    InitStdout {
+        contents: Vec<String>
+    },
+    EstopRobot
 }
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug)]

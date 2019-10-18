@@ -23,13 +23,18 @@ impl<'r> Responder<'r> for FileResource {
 
 pub fn launch_rocket() {
     thread::spawn(|| {
-        rocket::ignite().mount("/", routes![static_resources, index]).launch();
+        rocket::ignite().mount("/", routes![static_resources, index, stdout]).launch();
     });
 }
 
 #[get("/")]
 fn index() -> content::Html<String> {
     content::Html(unsafe { String::from_utf8_unchecked(resources::Resources::get("index.html").unwrap().into_owned()) })
+}
+
+#[get("/stdout")]
+fn stdout() -> content::Html<String> {
+    content::Html(unsafe { String::from_utf8_unchecked(resources::Resources::get("stdout.html").unwrap().into_owned()) })
 }
 
 #[get("/<file..>")]
