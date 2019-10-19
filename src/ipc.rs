@@ -20,6 +20,7 @@ pub enum Message {
     RobotStateUpdate {
         comms_alive: bool,
         code_alive: bool,
+        joysticks: bool,
         voltage: f32,
     },
     NewStdout {

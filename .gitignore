@@ -1,2 +1,6 @@
 /target
 **/*.rs.bk
+**/elm-stuff/*
+**/index.js
+**/stdout.js
+*.log

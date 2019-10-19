@@ -29,6 +29,7 @@ type alias RobotState
     = { commsAlive : Bool
       , codeAlive : Bool
       , voltage : Float
+      , joysticks : Bool
       }
 
 type IpcMsg
@@ -156,7 +157,9 @@ decodeMsg =
                                     field "code_alive" bool
                                         |> D.andThen
                                             (\code ->
-                                                field "voltage" float |> D.map (\voltage -> RobotStateUpdate { commsAlive = comms, codeAlive = code, voltage = voltage })
+                                                field "voltage" float |> D.andThen (\voltage ->
+                                                    field "joysticks" bool |> D.map (\joysticks -> RobotStateUpdate { commsAlive = comms, codeAlive = code, voltage = voltage, joysticks = joysticks })
+                                                )
                                             )
                                 )
 

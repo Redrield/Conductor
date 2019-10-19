@@ -13,6 +13,8 @@ use std::path::Path;
 mod resources;
 mod ws;
 mod ipc;
+mod input;
+mod util;
 
 mod state;
 
@@ -26,7 +28,8 @@ fn main() -> WVResult {
     let mut webview = web_view::builder()
         .title("Driver Station")
         .content(Content::Url("http://localhost:8000"))
-        .size(1000, 300)
+        .size(1250, 300)
+        .resizable(false)
         .debug(true)
         .user_data(())
         .invoke_handler(move |wv, arg| {
@@ -64,12 +67,14 @@ fn main() -> WVResult {
     thread::spawn(move || {
         loop {
             let msg = {
-                let ds = &ticker_state.lock().unwrap().ds;
+                let state = ticker_state.lock().unwrap();
+                let ds = &state.ds;
                 let comms = ds.trace().is_connected();
                 let code = ds.trace().is_code_started();
+                let joysticks = state.has_joysticks;
                 let voltage = ds.battery_voltage();
 
-                Message::RobotStateUpdate { comms_alive: comms, code_alive: code, voltage }
+                Message::RobotStateUpdate { comms_alive: comms, code_alive: code, joysticks, voltage }
             };
 
             handle.dispatch(move |wv| wv.eval(&format!("update({})", serde_json::to_string(&msg).unwrap()))).unwrap();
@@ -77,6 +82,8 @@ fn main() -> WVResult {
             thread::sleep(Duration::from_millis(50));
         }
     });
+
+    input::input_thread(state.clone());
 
     webview.run()
 }

@@ -16,12 +16,18 @@ type alias Model =
     , listScrollBottom : Float
     , robotState : RobotState
     , activePage : ActivePage
+    , explaining : Maybe ErrorExplanation
     , estopped : Bool
     }
 
 type ActivePage
     = Control
     | Config
+
+type ErrorExplanation
+    = Comms
+    | Code
+    | Joysticks
 
 type Msg
     = EnableChange Bool
@@ -32,5 +38,5 @@ type Msg
     | InfiniteListMsg InfiniteList.Model
     | ChangePage ActivePage
     | GlobalKeyboardEvent Int
-    | StartStdoutWindow
+    | SideViewChange (Maybe ErrorExplanation)
     | Nop
