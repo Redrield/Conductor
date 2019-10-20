@@ -11,6 +11,8 @@ use gilrs::ev::state::GamepadState;
 use spin::Once;
 use std::collections::HashMap;
 use std::time::Duration;
+use web_view::Handle;
+use crate::ipc::Message;
 
 lazy_static! {
     pub static ref QUEUED_MAPPING_UPDATES: RwLock<Vec<MappingUpdate>> = RwLock::new(Vec::new());
@@ -25,8 +27,8 @@ pub struct MappingUpdate {
 }
 
 pub struct JoystickState {
+    handle: Handle<()>,
     gil: Gilrs,
-    state: Arc<RwLock<State>>,
     gamepad_names: Vec<String>,
     mappings: HashMap<String, usize>,
 }
@@ -36,53 +38,53 @@ unsafe impl Send for JoystickState {}
 unsafe impl Sync for JoystickState {}
 
 impl JoystickState {
-    fn new(state: Arc<RwLock<State>>) -> JoystickState {
+    fn new(handle: Handle<()>) -> JoystickState {
         JoystickState {
-            state,
+            handle,
             gil: Gilrs::new().unwrap(),
             gamepad_names: Vec::new(),
             mappings: HashMap::new(),
         }
     }
 
-    fn has_joysticks(&self) -> bool {
+    pub fn has_joysticks(&self) -> bool {
         !self.gamepad_names.is_empty()
     }
 
     pub fn add_mapping(&mut self, name: String, pos: usize) {
         self.mappings.insert(name, pos);
-        println!("Mapping added");
     }
 
     pub fn update(&mut self) {
         self.gil.next_event();
 
         let connected_names = self.gil.gamepads().map(|(_, gp)| gp.name().to_string()).collect::<Vec<String>>();
-        println!("{:?}", connected_names);
         if connected_names != self.gamepad_names {
-            let state = self.state.write().unwrap();
             for new_name in connected_names.iter().filter(|name| !self.gamepad_names.contains(*name)) {
-                state.report_joystick(new_name.clone(), false);
+                self.report_joystick(new_name.clone(), false);
             }
             for old_name in self.gamepad_names.iter().filter(|name| !connected_names.contains(*name)) {
-                state.report_joystick(old_name.clone(), true);
+                self.report_joystick(old_name.clone(), true);
                 self.mappings.remove(old_name);
             }
             self.gamepad_names = connected_names;
         }
     }
+
+    fn report_joystick(&self, name: String, removed: bool) {
+        let msg = serde_json::to_string(&Message::JoystickUpdate { removed, name }).unwrap();
+        // Always unwrap because this should be set prior to anything starting to go
+        let _ = self.handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
+    }
 }
 
-pub fn input_thread(state: Arc<RwLock<State>>) {
-    JS_STATE.call_once(move || RwLock::new(JoystickState::new(state)));
+pub fn input_thread(handle: Handle<()>) {
+    JS_STATE.call_once(move || RwLock::new(JoystickState::new(handle)));
     thread::spawn(move || {
         loop {
             {
-                println!("update start");
                 let mut state = JS_STATE.wait().unwrap().write().unwrap();
                 state.update();
-                println!("update finish");
-                state.state.write().unwrap().has_joysticks = state.has_joysticks();
 
                 if !QUEUED_MAPPING_UPDATES.read().unwrap().is_empty() {
                     let reqs = {
@@ -96,7 +98,6 @@ pub fn input_thread(state: Arc<RwLock<State>>) {
                         state.add_mapping(update.name, update.pos);
                     }
                 }
-                println!("mapping updates finish");
             }
             thread::sleep(Duration::from_millis(5));
         }

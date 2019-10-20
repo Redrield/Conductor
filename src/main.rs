@@ -78,7 +78,7 @@ fn main() -> WVResult {
                 let ds = &state.ds;
                 let comms = ds.trace().is_connected();
                 let code = ds.trace().is_code_started();
-                let joysticks = state.has_joysticks;
+                let joysticks = input::JS_STATE.wait().unwrap().read().unwrap().has_joysticks();
                 let voltage = ds.battery_voltage();
 
                 Message::RobotStateUpdate { comms_alive: comms, code_alive: code, joysticks, voltage }
@@ -90,7 +90,7 @@ fn main() -> WVResult {
         }
     });
 
-    input::input_thread(state.clone());
+    input::input_thread(webview.handle());
 
     webview.run()
 }
