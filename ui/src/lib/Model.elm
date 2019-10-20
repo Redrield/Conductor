@@ -2,8 +2,9 @@ module Model exposing (..)
 
 import Browser.Dom exposing (Error, Viewport)
 import Debounce exposing (Debounce)
+import Dict exposing (Dict)
 import InfiniteList
-import Ipc exposing (AllianceStation, Mode, RobotState)
+import Ipc exposing (AllianceStation, Mode, RobotState, robotStateInit)
 
 type alias Model =
     { teamNumber : String
@@ -17,12 +18,32 @@ type alias Model =
     , robotState : RobotState
     , activePage : ActivePage
     , explaining : Maybe ErrorExplanation
+    , joysticks : List String
+    , joystickMappings : Dict Int String
     , estopped : Bool
     }
+
+initModel : Model
+initModel
+    = { teamNumber = ""
+       , debounce = Debounce.init
+       , enabled = False
+       , estopped = False
+       , mode = Ipc.Autonomous
+       , alliance = Ipc.Red 1
+       , stdout = []
+       , joysticks = []
+       , joystickMappings = Dict.empty
+       , stdoutList = InfiniteList.init
+       , listScrollBottom = 0.0
+       , explaining = Nothing
+       , robotState = robotStateInit
+       , activePage = Control }
 
 type ActivePage
     = Control
     | Config
+    | JoysticksPage
 
 type ErrorExplanation
     = Comms
@@ -39,4 +60,5 @@ type Msg
     | ChangePage ActivePage
     | GlobalKeyboardEvent Int
     | SideViewChange (Maybe ErrorExplanation)
+    | JoystickMappingUpdate Int String
     | Nop

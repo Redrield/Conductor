@@ -17,6 +17,10 @@ pub enum Message {
         removed: bool,
         name: String,
     },
+    UpdateJoystickMapping {
+        name: String,
+        pos: usize
+    },
     RobotStateUpdate {
         comms_alive: bool,
         code_alive: bool,

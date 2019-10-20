@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Dict
 import Task
 import Browser.Dom exposing (getViewportOf, setViewportOf)
 import Browser
@@ -20,7 +21,7 @@ main =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ({ teamNumber = "", debounce = Debounce.init, enabled = False, estopped = False, mode = Ipc.Autonomous, alliance = Ipc.Red 1, stdout = [], stdoutList = InfiniteList.init, listScrollBottom = 0.0, explaining = Nothing, robotState = { commsAlive = False, codeAlive = False, voltage = 0.0, joysticks = False }, activePage = Control },
+    (Model.initModel,
        updateBackend <| Ipc.encodeMsg <| Ipc.UpdateTeamNumber { team_number = 0 })
 
 debounceConfig : Debounce.Config Msg
@@ -44,6 +45,10 @@ update msg model =
         BackendMessage m -> case m of
             Ipc.RobotStateUpdate state -> ({ model | robotState = state }, Cmd.none)
             Ipc.NewStdout { message } -> ({ model | stdout = (model.stdout ++ [message] )}, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" 0 info.scene.height) |> Task.attempt (\_ -> Nop))
+            Ipc.JoystickUpdate { removed, name } -> case removed of
+                True -> ({ model | joysticks = List.filter (\s -> s /= name) model.joysticks,
+                                   joystickMappings = Dict.filter (\_ -> \s -> s /= name ) model.joystickMappings }, Cmd.none)
+                False -> ({ model | joysticks = model.joysticks ++ [name] }, Cmd.none)
             _ -> (model, Cmd.none)
         InfiniteListMsg list -> ({ model | stdoutList = list }, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" 0 info.scene.height) |> Task.attempt (\_ -> Nop))
         SideViewChange maybe -> ({ model | explaining = maybe }, Cmd.none)
@@ -54,7 +59,11 @@ update msg model =
         ChangePage page -> ({ model | activePage = page }, case page of
             -- Scroll of stdout resets when tab is changed, send this command to re-reset it to what we want
             Control -> getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" 0 info.scene.height) |> Task.attempt (\_ -> Nop)
-            Config -> Cmd.none)
+            _ -> Cmd.none)
+        JoystickMappingUpdate n name ->
+            let updatedJoysticks = (Dict.insert n name model.joystickMappings) |> Dict.filter (\n2 -> \s -> if s == name then n2 == n else True)
+            in
+            ({ model | joystickMappings = updatedJoysticks }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateJoystickMapping { name = name, pos = n })
         TeamNumberChange team ->
             if String.length team <= 4 then
                 case String.toInt team of
@@ -81,11 +90,14 @@ view model =
         li [ class "nav-item" ] [ a [ href "#", class "nav-link", if model.activePage == Control then class "active" else class "",
                                       onClick <| ChangePage Control ] [ text "Control" ] ],
         li [ class "nav-item" ] [ a [ href "#", class "nav-link", if model.activePage == Config then class "active" else class "",
-                                      onClick <| ChangePage Config ] [ text "Config" ] ]
+                                      onClick <| ChangePage Config ] [ text "Config" ] ],
+        li [ class "nav-item" ] [ a [ href "#", class "nav-link", if model.activePage == JoysticksPage then class "active" else class "",
+                                      onClick <| ChangePage JoysticksPage ] [ text "Joysticks" ] ]
       ],
       case model.activePage of
           Control -> controlTab model
           Config -> configTab model
+          JoysticksPage -> joysticksTab model
     ]
 
 keyCodeDecoder : D.Decoder Msg

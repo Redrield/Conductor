@@ -1,5 +1,6 @@
 module Ui exposing (..)
 
+import Dict
 import Errors
 import InfiniteList
 import Html exposing (..)
@@ -51,6 +52,33 @@ modeItem model mode = a [ class "list-group-item", class "list-group-item-action
 allianceStationItem : AllianceStation -> Html Msg
 allianceStationItem alliance = a [ class "dropdown-item", class "py-1", href "#" ] [ text <| allianceToS alliance ]
 
+joystickEntry : Int -> String -> Html Msg
+joystickEntry n name = a [ class "dropdown-item", href "#", onClick <| JoystickMappingUpdate n name ] [ text name ]
+
+joystickRemapItem : Int -> Model -> Html Msg
+joystickRemapItem n model
+    = li [ class "list-group-item" ]
+      [
+        div [ class "input-group" ]
+        [
+          div [ class "input-group-prepend" ]
+          [
+            span [ class "input-group-text" ] [ text <| String.fromInt n ++ ": " ]
+          ],
+          div [ class "dropdown" ]
+          [
+            button [ class "btn btn-secondary dropdown-toggle", type_ "button", attribute "data-toggle" "dropdown", attribute "aria-haspopup" "true", attribute "aria-extended" "false" ]
+            [
+              let label = Dict.get n model.joystickMappings |> Maybe.withDefault "Controller"
+              in
+              text label
+            ],
+            div [ class "dropdown-menu" ] <| List.map (joystickEntry n) model.joysticks
+          ]
+        ]
+      ]
+
+
 allianceStations : Int -> List (Html Msg) -> List (Html Msg)
 allianceStations n l = case n of
     0 -> l
@@ -73,7 +101,7 @@ controlTab model =
         div [ class "row" ]
         [
           -- Mode selector
-          div [ class "col", class "mt-4" ]
+          div [ class "col-3", class "mt-4" ]
           [
             div [ class "list-group" ]
             [
@@ -82,7 +110,7 @@ controlTab model =
               modeItem model Ipc.Test
             ]
           ],
-          div [ class "col" ]
+          div [ class "col-3" ]
           [
             ul [ class "list-group mt-4" ]
             [
@@ -123,7 +151,7 @@ controlTab model =
         div [ class "row ", style "margin-top" "-50px" ]
         [
           -- Enable buttons
-          div [ class "col text-center", class "mt-4" ]
+          div [ class "col-3 text-center", class "mt-4" ]
           [
             div [ class "btn-group", attribute "role" "group", attribute "aria-label" "State Control Buttons" ]
             [
@@ -136,7 +164,7 @@ controlTab model =
             ]
           ],
           -- Team station selector
-          div [ class "col", class "mt-4" ]
+          div [ class "col-3", class "mt-4" ]
           [
             div [ class "input-group" ]
             [
@@ -159,6 +187,30 @@ controlTab model =
             [ text <| robotStatus model ]
           ],
           div [ class "col" ] []
+        ]
+      ]
+
+joysticks : Int -> Int -> Model -> List (Html Msg) ->  List (Html Msg)
+joysticks n end model l = if n == end then l else let l2 = l ++ [joystickRemapItem (n - 1) model]
+                      in
+                      (joysticks (n - 1) end model l2)
+
+joysticksTab : Model -> Html Msg
+joysticksTab model
+    = div [ class "container" ]
+      [
+        div [ class "row" ]
+        [
+          div [ class "col" ]
+          [
+            ul [ class "list-group" ]
+              (List.reverse <| joysticks 3 0 model [])
+          ],
+          div [ class "col" ]
+          [
+            ul [ class "list-group" ]
+              (List.reverse <| joysticks 6 3 model [])
+          ]
         ]
       ]
 

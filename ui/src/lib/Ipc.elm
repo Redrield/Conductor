@@ -32,11 +32,15 @@ type alias RobotState
       , joysticks : Bool
       }
 
+robotStateInit : RobotState
+robotStateInit = { commsAlive = False, codeAlive = False, voltage = 0.0, joysticks = False }
+
 type IpcMsg
     = UpdateTeamNumber { team_number : Int }
     | UpdateMode { mode : Mode }
     | UpdateEnableStatus { enabled : Bool }
     | JoystickUpdate { removed : Bool, name : String }
+    | UpdateJoystickMapping { name : String, pos : Int }
     | RobotStateUpdate RobotState
     | NewStdout { message : String }
     | EstopRobot
@@ -104,6 +108,11 @@ encodeMsg msg =
                 , ( "removed", E.bool removed )
                 , ( "name", E.string name )
                 ]
+        UpdateJoystickMapping { name, pos } ->
+            object
+                [ ("type", E.string "UpdateJoystickMapping")
+                , ("name", E.string name)
+                , ("pos", E.int pos) ]
 
         RobotStateUpdate { commsAlive, codeAlive, voltage } ->
             object

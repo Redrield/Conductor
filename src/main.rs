@@ -3,12 +3,13 @@ use web_view::{Content, WVResult};
 use resources::Resources;
 use ds::{DriverStation, Alliance, TcpPacket};
 use ipc::*;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 use std::time::Duration;
 use chrono::Local;
 use crate::state::State;
 use std::path::Path;
+use crate::input::MappingUpdate;
 
 mod resources;
 mod ws;
@@ -22,18 +23,18 @@ fn main() -> WVResult {
     ws::launch_rocket();
 
     let log_file_path = format!("stdout-{}.log", Local::now());
-    let mut state = Arc::new(Mutex::new(State::new(log_file_path)));
+    let mut state = Arc::new(RwLock::new(State::new(log_file_path)));
 
     let wv_state = state.clone();
     let mut webview = web_view::builder()
         .title("Driver Station")
         .content(Content::Url("http://localhost:8000"))
-        .size(1250, 300)
+        .size(1080, 300)
         .resizable(false)
         .debug(true)
         .user_data(())
         .invoke_handler(move |wv, arg| {
-            let mut state = wv_state.lock().unwrap();
+            let mut state = wv_state.write().unwrap();
             match serde_json::from_str::<Message>(arg).unwrap() {
                 Message::UpdateTeamNumber { team_number } => {
                     println!("Update to {}", team_number);
@@ -52,6 +53,10 @@ fn main() -> WVResult {
                         state.ds.disable();
                     }
                 }
+                Message::UpdateJoystickMapping { name, pos } => {
+                    println!("Got updated joystick mapping: {} => {}", name, pos);
+                    input::QUEUED_MAPPING_UPDATES.write().unwrap().push(MappingUpdate { name, pos });
+                }
 //                Message::InitStdout { contents } => {
 //                    state.launch_stdout_window(contents, wv.handle());
 //                }
@@ -62,12 +67,14 @@ fn main() -> WVResult {
         })
         .build()?;
 
+    state.write().unwrap().set_handle(webview.handle());
+
     let ticker_state = state.clone();
     let handle = webview.handle();
     thread::spawn(move || {
         loop {
             let msg = {
-                let state = ticker_state.lock().unwrap();
+                let state = ticker_state.read().unwrap();
                 let ds = &state.ds;
                 let comms = ds.trace().is_connected();
                 let code = ds.trace().is_code_started();
