@@ -15,17 +15,17 @@ main =
 
 
 type alias Model
-    = { stdout : List String, stdoutList : InfiniteList.Model }
+    = { stdout : List String, stdoutList : InfiniteList.Model, enabled : Bool }
 
 type Msg
     = AddStdout String
     | InfiniteListMsg InfiniteList.Model
-    | InitStdout (List String)
+    | UpdateEnableStatus Bool
     | Nop
 
 
 init : () -> (Model, Cmd Msg)
-init _ = ({ stdout = [""], stdoutList = InfiniteList.init }, Cmd.none)
+init _ = ({ stdout = [""], stdoutList = InfiniteList.init, enabled = False }, Cmd.none)
 
 listConfig : InfiniteList.Config String Msg
 listConfig =
@@ -41,9 +41,9 @@ itemView _ _ item = div [] [ text item ]
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of
-    AddStdout s -> ({ model | stdout = List.append model.stdout [s] }, Cmd.none)
-    InitStdout c -> ({ model | stdout = c }, Cmd.none)
-    InfiniteListMsg list -> ({ model | stdoutList = list }, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" 0 info.scene.height) |> Task.attempt (\_ -> Nop))
+    AddStdout s -> ({ model | stdout = List.append model.stdout [s] }, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" 0 info.scene.height) |> Task.attempt (\_ -> Nop))
+    UpdateEnableStatus enabled -> ({ model | enabled = enabled }, Cmd.none)
+    InfiniteListMsg list -> ({ model | stdoutList = list }, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" info.viewport.x (if model.enabled then info.scene.height else info.viewport.y)) |> Task.attempt (\_ -> Nop))
     Nop -> (model, Cmd.none)
 
 view : Model -> Html Msg
@@ -57,7 +57,7 @@ view model
             style "-webkit-overflow-scrolling" "touch",
             style "color" "#fff",
             class "form-control",
-            class "bg-secondary",
+            class "bg-dark",
             id "stdoutListView",
             InfiniteList.onScroll InfiniteListMsg
           ]
@@ -71,6 +71,6 @@ subscriptions _ = updateFrontend (\value ->
                                         in case m of
                                           Ok packet -> case packet of
                                               Ipc.NewStdout { message } -> AddStdout message
-                                              Ipc.InitStdout { contents } -> InitStdout contents
+                                              Ipc.UpdateEnableStatus { enabled } -> UpdateEnableStatus enabled
                                               _ -> Nop
                                           Err e -> Nop)

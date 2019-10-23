@@ -8,6 +8,11 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, onMouseLeave, onMouseOver)
 import Model exposing (..)
 import Ipc exposing (AllianceStation, Mode, RobotState, allianceToS, modeToS)
+import Round
+import TypedSvg exposing (g, svg)
+import TypedSvg.Attributes exposing (transform, viewBox)
+import TypedSvg.Core exposing (Svg)
+import TypedSvg.Types exposing (Transform(..))
 
 robotStatus : Model -> String
 robotStatus model = if model.estopped then
@@ -43,6 +48,14 @@ infiniteListConfig =
 
 itemView : Int -> Int -> String -> Html Msg
 itemView _ _ item = div [] [ text item ]
+
+voltageColour : Float -> String
+voltageColour voltage
+    = if voltage >= 8.5 && voltage <= 11.5 then
+        "text-warning"
+    else if voltage < 8.5 then
+        "text-danger"
+    else "text-success"
 
 modeItem : Model -> Mode -> Html Msg
 modeItem model mode = a [ class "list-group-item", class "list-group-item-action", class "py-1",
@@ -119,16 +132,18 @@ controlTab model =
               telemetryBadge [ onMouseOver <| SideViewChange <| Just Joysticks, onMouseLeave <| SideViewChange Nothing ] "Joysticks" model.robotState.joysticks
             ]
           ],
-          div [ class "col-md-2" ]
+          div [ class "col-2" ]
           [
-            p [ class "lead mt-4" ] [ text <| "Team # " ++ model.teamNumber ]
+            p [ class "lead mt-4" ] [ text <| "Team # " ++ model.teamNumber ],
+
+            p [ class "text-center mt-4", class <| voltageColour model.robotState.voltage ] [ b [] [ text <| Round.round 0 model.robotState.voltage ++ "V"] ]
           ],
           div [ class "col" ]
           [
             div [
-                  style "width" "100%",
+                  style "width" "330px",
                   style "height" "200px",
-                  style "overflow-x" "hidden",
+                  style "overflow-x" "auto",
                   style "overflow-y" "auto",
                   style "-webkit-overflow-scrolling" "touch",
                   style "color" "#fff",
@@ -181,7 +196,7 @@ controlTab model =
               ]
             ]
           ],
-          div [ class "col-md-2 align-items-center" ]
+          div [ class "col-2 align-items-center" ]
           [
             p [ class "text-center lead" ]
             [ text <| robotStatus model ]

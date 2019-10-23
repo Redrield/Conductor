@@ -5,7 +5,6 @@ import Task
 import Browser.Dom exposing (getViewportOf, setViewportOf)
 import Browser
 import Browser.Events exposing (onKeyDown)
-import InfiniteList
 import Debounce exposing (Debounce)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -33,7 +32,7 @@ save teamNumber = updateBackend <| Ipc.encodeMsg <| Ipc.UpdateTeamNumber { team_
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        EnableChange enabled -> ({ model | enabled = enabled }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateEnableStatus { enabled = enabled })
+        EnableChange enabled -> if model.estopped then (model, Cmd.none) else ({ model | enabled = enabled }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateEnableStatus { enabled = enabled })
         ModeChange mode -> let shouldDisable = model.enabled in
                            if shouldDisable then
                                ({ model | mode = mode, enabled = False }, Cmd.batch [ updateBackend <| Ipc.encodeMsg <| Ipc.UpdateMode { mode = mode },
@@ -50,11 +49,13 @@ update msg model =
                                    joystickMappings = Dict.filter (\_ -> \s -> s /= name ) model.joystickMappings }, Cmd.none)
                 False -> ({ model | joysticks = model.joysticks ++ [name] }, Cmd.none)
             _ -> (model, Cmd.none)
-        InfiniteListMsg list -> ({ model | stdoutList = list }, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" 0 info.scene.height) |> Task.attempt (\_ -> Nop))
+        InfiniteListMsg list -> ({ model | stdoutList = list }, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" info.viewport.x (if model.enabled then info.scene.height else info.viewport.y)) |> Task.attempt (\_ -> Nop))
         SideViewChange maybe -> ({ model | explaining = maybe }, Cmd.none)
-        GlobalKeyboardEvent i -> if i == 13 && model.enabled then
-                               ({ model | enabled = False }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateEnableStatus { enabled = False })
-                           else (model, Cmd.none)
+        GlobalKeyboardEvent i
+            -> case i of
+                13 -> if model.enabled then ({ model | enabled = False }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateEnableStatus { enabled = False }) else (model, Cmd.none)
+                32 -> ({ model | estopped = True }, updateBackend <| Ipc.encodeMsg <| Ipc.EstopRobot)
+                _ -> (model, Cmd.none)
         Nop  -> (model, Cmd.none)
         ChangePage page -> ({ model | activePage = page }, case page of
             -- Scroll of stdout resets when tab is changed, send this command to re-reset it to what we want
