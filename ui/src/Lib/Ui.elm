@@ -1,18 +1,14 @@
-module Ui exposing (..)
+module Lib.Ui exposing (..)
 
 import Dict
-import Errors
+import Lib.Errors as Errors exposing (..)
 import InfiniteList
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, onMouseLeave, onMouseOver)
-import Model exposing (..)
-import Ipc exposing (AllianceStation, Mode, RobotState, allianceToS, modeToS)
+import Lib.Model as Model exposing (..)
+import Lib.Ipc as Ipc exposing (AllianceStation, Mode, RobotState, allianceToS, modeToS)
 import Round
-import TypedSvg exposing (g, svg)
-import TypedSvg.Attributes exposing (transform, viewBox)
-import TypedSvg.Core exposing (Svg)
-import TypedSvg.Types exposing (Transform(..))
 
 robotStatus : Model -> String
 robotStatus model = if model.estopped then

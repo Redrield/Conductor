@@ -1,4 +1,4 @@
-module Errors exposing (..)
+module Lib.Errors exposing (..)
 
 robotComms : List String
 robotComms

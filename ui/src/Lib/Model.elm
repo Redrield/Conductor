@@ -1,10 +1,10 @@
-module Model exposing (..)
+module Lib.Model exposing (..)
 
 import Browser.Dom exposing (Error, Viewport)
 import Debounce exposing (Debounce)
 import Dict exposing (Dict)
 import InfiniteList
-import Ipc exposing (AllianceStation, Mode, RobotState, robotStateInit)
+import Lib.Ipc as Ipc exposing (AllianceStation, Mode, RobotState, robotStateInit)
 
 type alias Model =
     { teamNumber : String

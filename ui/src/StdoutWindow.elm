@@ -4,9 +4,9 @@ import Browser
 import Browser.Dom exposing (getViewportOf, setViewportOf)
 import Html exposing (..)
 import Html.Attributes exposing (class, id, style)
-import Ports exposing (updateFrontend)
+import Lib.Ports exposing (updateFrontend)
 import InfiniteList
-import Ipc exposing (IpcMsg)
+import Lib.Ipc as Ipc exposing (IpcMsg)
 import Task
 import Json.Decode as D
 

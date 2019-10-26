@@ -9,11 +9,11 @@ import Debounce exposing (Debounce)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Ipc exposing (IpcMsg, Mode, RobotState)
+import Lib.Ipc as Ipc exposing (IpcMsg, Mode, RobotState)
 import Json.Decode as D
-import Ui exposing (..)
-import Model exposing (..)
-import Ports exposing (..)
+import Lib.Ui exposing (..)
+import Lib.Model as Model exposing (..)
+import Lib.Ports exposing (..)
 
 main =
     Browser.element { init = init, update = update, subscriptions = subscriptions, view = view }

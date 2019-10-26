@@ -1,4 +1,4 @@
-module ListUtil exposing (..)
+module Lib.ListUtil exposing (..)
 
 ensureCirc : Int -> a -> List a -> List a
 ensureCirc len elem l

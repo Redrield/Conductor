@@ -1,4 +1,4 @@
-module Ipc exposing (..)
+module Lib.Ipc exposing (..)
 
 import Json.Decode as D exposing (Decoder, bool, field, float, int, string)
 import Json.Encode as E exposing (object)
