@@ -35,6 +35,10 @@ type alias RobotState
 robotStateInit : RobotState
 robotStateInit = { commsAlive = False, codeAlive = False, voltage = 0.0, joysticks = False }
 
+type Request
+     = RestartRoborio
+     | RestartCode
+
 type IpcMsg
     = UpdateTeamNumber { team_number : Int }
     | UpdateMode { mode : Mode }
@@ -43,10 +47,23 @@ type IpcMsg
     | UpdateJoystickMapping { name : String, pos : Int }
     | RobotStateUpdate RobotState
     | NewStdout { message : String }
+    | Request { req : Request }
+    | UpdateAllianceStation { station : AllianceStation }
     | EstopRobot
-    | InitStdout { contents : List String }
     | Invalid String
 
+
+encodeAlliance : AllianceStation -> E.Value
+encodeAlliance alliance =
+        case alliance of
+            Red n ->
+                object
+                [ ("color", E.string "Red")
+                , ("value", E.int n) ]
+            Blue n ->
+                object
+                [ ("color", E.string "Blue")
+                , ("value", E.int n) ]
 
 decodeMode : Decoder Mode
 decodeMode =
@@ -80,6 +97,11 @@ encodeMode m =
         Test ->
             E.string "Test"
 
+encodeRequest : Request -> E.Value
+encodeRequest req =
+    case req of
+        RestartRoborio -> E.string "RestartRoborio"
+        RestartCode -> E.string "RestartCode"
 
 encodeMsg : IpcMsg -> E.Value
 encodeMsg msg =
@@ -121,16 +143,19 @@ encodeMsg msg =
                 , ( "code_alive", E.bool codeAlive )
                 , ( "voltage", E.float voltage )
                 ]
-
         NewStdout { message } ->
             object
                 [ ( "type", E.string "NewStdout" )
                 , ( "message", E.string message )
                 ]
-        InitStdout { contents } ->
+        UpdateAllianceStation { station } ->
             object
-                [ ("type", E.string "InitStdout")
-                , ("contents", E.list E.string contents) ]
+                [ ("type", E.string "UpdateAllianceStation")
+                , ("station", encodeAlliance station) ]
+        Request { req } ->
+            object
+                [ ("type", E.string "Request")
+                , ("req", encodeRequest req) ]
         EstopRobot -> object [ ("type", E.string "EstopRobot") ]
         Invalid _ -> object []
 
@@ -141,20 +166,8 @@ decodeMsg =
         |> D.andThen
             (\ty ->
                 case ty of
-                    "UpdateTeamNumber" ->
-                        field "team_number" int |> D.map (\tn -> UpdateTeamNumber { team_number = tn })
-
-                    "UpdateMode" ->
-                        field "mode" decodeMode |> D.map (\mode -> UpdateMode { mode = mode })
-
-                    "UpdateEnableStatus" ->
-                        field "enabled" bool |> D.map (\enabled -> UpdateEnableStatus { enabled = enabled })
-
                     "NewStdout" ->
                         field "message" string |> D.map (\msg -> NewStdout { message = msg })
-                    "InitStdout" ->
-                        field "contents" (D.list string) |> D.map(\contents -> InitStdout { contents = contents })
-
                     -- There is probably a better way to do this, but i don't know it
                     "JoystickUpdate" ->
                         field "removed" bool |> D.andThen (\removed -> field "name" string |> D.map (\name -> JoystickUpdate { removed = removed, name = name }))

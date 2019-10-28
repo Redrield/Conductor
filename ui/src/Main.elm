@@ -51,6 +51,8 @@ update msg model =
             _ -> (model, Cmd.none)
         InfiniteListMsg list -> ({ model | stdoutList = list }, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" info.viewport.x (if model.enabled then info.scene.height else info.viewport.y)) |> Task.attempt (\_ -> Nop))
         SideViewChange maybe -> ({ model | explaining = maybe }, Cmd.none)
+        AllianceStationChange alliance -> ({ model | alliance = alliance }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateAllianceStation { station = alliance })
+        RequestClick req -> (model, updateBackend <| Ipc.encodeMsg <| Ipc.Request { req = req })
         GlobalKeyboardEvent i
             -> case i of
                 13 -> if model.enabled then ({ model | enabled = False }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateEnableStatus { enabled = False }) else (model, Cmd.none)

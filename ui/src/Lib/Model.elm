@@ -4,7 +4,7 @@ import Browser.Dom exposing (Error, Viewport)
 import Debounce exposing (Debounce)
 import Dict exposing (Dict)
 import InfiniteList
-import Lib.Ipc as Ipc exposing (AllianceStation, Mode, RobotState, robotStateInit)
+import Lib.Ipc as Ipc exposing (AllianceStation, Mode, Request, RobotState, robotStateInit)
 
 type alias Model =
     { teamNumber : String
@@ -53,6 +53,8 @@ type ErrorExplanation
 type Msg
     = EnableChange Bool
     | ModeChange Mode
+    | AllianceStationChange AllianceStation
+    | RequestClick Request
     | TeamNumberChange String
     | BackendMessage Ipc.IpcMsg
     | Debounced Debounce.Msg

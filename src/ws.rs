@@ -1,49 +1,67 @@
 use std::thread;
 use std::path::PathBuf;
-use rocket::*;
-use rocket::response::{content, Responder};
-use rocket::http::{Status, ContentType};
 use crate::resources;
+use std::sync::mpsc;
+use actix_web::{HttpServer, web, HttpRequest, Responder, HttpResponse, App};
+use actix_web::body::Body;
+use resources::Resources;
+use std::borrow::Cow;
+use actix_web::dev::Server;
 
-/// Contents of some file and its extension, acts as NamedFile without needing std fs apis
-struct FileResource {
-    content: String,
-    extension: String
-}
-
-impl<'r> Responder<'r> for FileResource {
-    fn respond_to(self, request: &Request) -> Result<Response<'r>, Status> {
-        if let Some(ct) = ContentType::from_extension(&self.extension) {
-            content::Content(ct, self.content).respond_to(request)
-        }else {
-            content::Plain(self.content).respond_to(request)
+fn assets(path: web::Path<String>) -> impl Responder {
+    let path = path.into_inner();
+    match Resources::get(&path) {
+        Some(content) => {
+            let body: Body = match content {
+                Cow::Borrowed(bytes) => bytes.into(),
+                Cow::Owned(bytes) => bytes.into(),
+            };
+            HttpResponse::Ok().content_type(mime_guess::from_path(path).first_or_octet_stream().as_ref()).body(body)
         }
+        None => HttpResponse::NotFound().body("404 Not Found")
     }
 }
 
-pub fn launch_rocket() {
-    thread::spawn(|| {
-        rocket::ignite().mount("/", routes![static_resources, index, stdout]).launch();
+fn index(_req: HttpRequest) -> impl Responder {
+    let contents = Resources::get("index.html").unwrap();
+    let body: Body = match contents {
+        Cow::Borrowed(bytes) => bytes.into(),
+        Cow::Owned(bytes) => bytes.into(),
+    };
+
+    HttpResponse::Ok().content_type("text/html")
+        .body(body)
+}
+
+fn stdout(_req: HttpRequest) -> impl Responder {
+    let contents = Resources::get("stdout.html").unwrap();
+    let body: Body = match contents {
+        Cow::Borrowed(bytes) => bytes.into(),
+        Cow::Owned(bytes) => bytes.into(),
+    };
+
+    HttpResponse::Ok().content_type("text/html")
+        .body(body)
+}
+
+pub fn launch_webserver() -> u16 {
+    let (port_tx, port_rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let sys = actix_rt::System::new("http-server");
+        let server = HttpServer::new(|| {
+            App::new().route("/", web::get().to(index))
+                .route("/stdout", web::get().to(stdout))
+                .route("/{path}", web::get().to(assets))
+        })
+            .bind("127.0.0.1:0")
+            .unwrap();
+
+        let port = server.addrs().first().unwrap().port();
+        port_tx.send(port).unwrap();
+
+        server.run().unwrap()
     });
-}
 
-#[get("/")]
-fn index() -> content::Html<String> {
-    content::Html(unsafe { String::from_utf8_unchecked(resources::Resources::get("index.html").unwrap().into_owned()) })
-}
-
-#[get("/stdout")]
-fn stdout() -> content::Html<String> {
-    content::Html(unsafe { String::from_utf8_unchecked(resources::Resources::get("stdout.html").unwrap().into_owned()) })
-}
-
-#[get("/<file..>")]
-fn static_resources(file: PathBuf) -> Option<FileResource> {
-    let ext = file.extension().unwrap().to_os_string().into_string().unwrap();
-    let stuff = resources::Resources::get(file.into_os_string().to_str().unwrap()).map(|cow| unsafe { String::from_utf8_unchecked(cow.into_owned()) })?;
-
-    Some(FileResource {
-        content: stuff,
-        extension: ext
-    })
+    port_rx.recv().unwrap()
 }

@@ -10,6 +10,7 @@ use chrono::Local;
 use crate::state::State;
 use std::path::Path;
 use crate::input::MappingUpdate;
+use futures::future::Future;
 
 mod resources;
 mod ws;
@@ -25,7 +26,8 @@ static WV_HANDLE: Once<Handle<()>> = Once::new();
 static STDOUT_HANDLE: Once<Handle<()>> = Once::new();
 
 fn main() -> WVResult {
-    ws::launch_rocket();
+    let port = ws::launch_webserver();
+    println!("Webserver launched on port {}", port);
 
     let log_file_path = format!("stdout-{}.log", Local::now());
     let mut state = Arc::new(RwLock::new(State::new(log_file_path)));
@@ -33,7 +35,7 @@ fn main() -> WVResult {
     let wv_state = state.clone();
     let mut webview = web_view::builder()
         .title("Driver Station")
-        .content(Content::Url("http://localhost:8000"))
+        .content(Content::Url(&format!("http://localhost:{}", port)))
         .size(1080, 300)
         .resizable(false)
         .debug(true)
@@ -66,9 +68,17 @@ fn main() -> WVResult {
                     println!("Got updated joystick mapping: {} => {}", name, pos);
                     input::QUEUED_MAPPING_UPDATES.write().unwrap().push(MappingUpdate { name, pos });
                 }
-//                Message::InitStdout { contents } => {
-//                    state.launch_stdout_window(contents, wv.handle());
-//                }
+                Message::UpdateAllianceStation { station } => {
+                    state.ds.set_alliance(station.to_ds());
+                }
+                Message::Request { req } => match req {
+                    Request::RestartRoborio => {
+                        state.ds.restart_roborio();
+                    }
+                    Request::RestartCode => {
+                        state.ds.restart_code();
+                    }
+                }
                 Message::EstopRobot => state.ds.estop(),
                 _ => {}
             }
@@ -78,7 +88,7 @@ fn main() -> WVResult {
 
     let mut stdout_wv = web_view::builder()
         .title("Robot Console")
-        .content(Content::Url("http://localhost:8000/stdout"))
+        .content(Content::Url(&format!("http://localhost:{}/stdout", port)))
         .size(650, 650)
         .resizable(true)
         .debug(true)
@@ -118,7 +128,7 @@ fn main() -> WVResult {
     loop {
         match webview.step() {
             Some(res) => res?,
-            None => break
+            None => break,
         }
 
         match stdout_wv.step() {
@@ -126,5 +136,6 @@ fn main() -> WVResult {
             None => break
         }
     }
-    webview.run()
+
+    Ok(())
 }

@@ -30,10 +30,31 @@ pub enum Message {
     NewStdout {
         message: String,
     },
-    InitStdout {
-        contents: Vec<String>
-    },
+    UpdateAllianceStation { station: AllianceStation },
+    Request { req: Request, },
     EstopRobot
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+#[serde(tag = "color", content = "value")]
+pub enum AllianceStation {
+    Red(u8),
+    Blue(u8)
+}
+
+impl AllianceStation {
+    pub fn to_ds(self) -> ds::Alliance {
+        match self {
+            AllianceStation::Red(n) => ds::Alliance::new_red(n),
+            AllianceStation::Blue(n) => ds::Alliance::new_blue(n)
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Copy, Clone, Debug)]
+pub enum Request {
+    RestartRoborio,
+    RestartCode
 }
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug)]

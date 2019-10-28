@@ -59,7 +59,7 @@ modeItem model mode = a [ class "list-group-item", class "list-group-item-action
   onClick <| Model.ModeChange mode ] [ text <| modeToS mode ]
 
 allianceStationItem : AllianceStation -> Html Msg
-allianceStationItem alliance = a [ class "dropdown-item", class "py-1", href "#" ] [ text <| allianceToS alliance ]
+allianceStationItem alliance = a [ class "dropdown-item", class "py-1", href "#", onClick <| AllianceStationChange alliance ] [ text <| allianceToS alliance ]
 
 joystickEntry : Int -> String -> Html Msg
 joystickEntry n name = a [ class "dropdown-item", href "#", onClick <| JoystickMappingUpdate n name ] [ text name ]
@@ -250,8 +250,8 @@ configTab model
           [
             div [ class "btn-group-vertical" ]
             [
-                button [ type_ "button", class "btn", class "btn-secondary" ] [ text "Restart roboRIO" ],
-                button [ type_ "button", class "btn", class "btn-secondary" ] [ text "Restart Robot Code" ]
+                button [ type_ "button", class "btn", class "btn-secondary", onClick <| RequestClick <| Ipc.RestartRoborio ] [ text "Restart roboRIO" ],
+                button [ type_ "button", class "btn", class "btn-secondary", onClick <| RequestClick <| Ipc.RestartCode ] [ text "Restart Robot Code" ]
             ]
           ]
         ]
