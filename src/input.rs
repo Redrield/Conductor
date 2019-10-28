@@ -29,7 +29,6 @@ pub struct MappingUpdate {
 }
 
 pub struct JoystickState {
-    handle: Handle<()>,
     gil: Gilrs,
     gamepad_names: Vec<String>,
     mappings: HashMap<String, usize>,
@@ -40,9 +39,8 @@ unsafe impl Send for JoystickState {}
 unsafe impl Sync for JoystickState {}
 
 impl JoystickState {
-    fn new(handle: Handle<()>) -> JoystickState {
+    fn new() -> JoystickState {
         JoystickState {
-            handle,
             gil: Gilrs::new().unwrap(),
             gamepad_names: Vec::new(),
             mappings: HashMap::new(),
@@ -63,6 +61,7 @@ impl JoystickState {
         let connected_names = self.gil.gamepads().map(|(_, gp)| gp.name().to_string()).collect::<Vec<String>>();
         if connected_names != self.gamepad_names {
             for new_name in connected_names.iter().filter(|name| !self.gamepad_names.contains(*name)) {
+                println!("Got new name; reporting");
                 self.report_joystick(new_name.clone(), false);
             }
             for old_name in self.gamepad_names.iter().filter(|name| !connected_names.contains(*name)) {
@@ -76,12 +75,13 @@ impl JoystickState {
     fn report_joystick(&self, name: String, removed: bool) {
         let msg = serde_json::to_string(&Message::JoystickUpdate { removed, name }).unwrap();
         // Always unwrap because this should be set prior to anything starting to go
-        let _ = self.handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
+        let handle = crate::WV_HANDLE.wait().unwrap();
+        let _ = handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
     }
 }
 
-pub fn input_thread(handle: Handle<()>) {
-    JS_STATE.call_once(move || RwLock::new(JoystickState::new(handle)));
+pub fn input_thread() {
+    JS_STATE.call_once(move || RwLock::new(JoystickState::new()));
     thread::spawn(move || {
         loop {
             {
@@ -116,11 +116,14 @@ pub fn joystick_callback() -> Vec<Vec<JoystickValue>> {
         return vec![];
     }
 
+    let min = *mappings.values().min().unwrap_or(&0);
+
+
     let mut sorted_joysticks = gil.gamepads().map(|(_, gp)| gp).collect::<Vec<Gamepad>>();
     sorted_joysticks.sort_by(|a, b| mappings.get(a.name()).unwrap_or(&0).cmp(mappings.get(b.name()).unwrap_or(&1)));
 
     let mapped_numbers = mappings.values().collect::<Vec<&usize>>();
 
-    mapping::apply_mappings(min, mapped_numbers, sorted_joysicks)
+    mapping::apply_mappings(min, mapped_numbers, sorted_joysticks)
 }
 

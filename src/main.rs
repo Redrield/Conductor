@@ -123,7 +123,7 @@ fn main() -> WVResult {
         }
     });
 
-    input::input_thread(webview.handle());
+    input::input_thread();
 
     loop {
         match webview.step() {
