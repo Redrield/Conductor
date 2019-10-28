@@ -1,5 +1,5 @@
 [package]
-name = "react-ds"
+name = "elm-ds"
 version = "0.1.0"
 authors = ["Redrield <redrield@gmail.com>"]
 edition = "2018"
