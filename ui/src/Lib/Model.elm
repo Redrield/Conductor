@@ -1,3 +1,6 @@
+{- All model information for the application -}
+
+
 module Lib.Model exposing (..)
 
 import Browser.Dom exposing (Error, Viewport)
@@ -6,49 +9,63 @@ import Dict exposing (Dict)
 import InfiniteList
 import Lib.Ipc as Ipc exposing (AllianceStation, Mode, Request, RobotState, robotStateInit)
 
+
 type alias Model =
-    { teamNumber : String
-    , debounce : Debounce Int
-    , enabled : Bool
-    , mode : Mode
-    , alliance : AllianceStation
-    , stdout : List String
-    , stdoutList : InfiniteList.Model
-    , listScrollBottom : Float
-    , robotState : RobotState
-    , activePage : ActivePage
-    , explaining : Maybe ErrorExplanation
-    , joysticks : List String
-    , joystickMappings : Dict Int String
-    , estopped : Bool
+    { teamNumber : String -- Current contents of the team number text field, 0 if empty
+    , enabled : Bool -- Whether the robot is enabled
+    , mode : Mode -- The currently selected mode
+    , alliance : AllianceStation -- The currently selected team station
+    , stdout : List String -- All stdout data from the robot
+    , stdoutList : InfiniteList.Model -- Associated InfiniteList helper
+    , robotState : RobotState -- The last status packet received from the backend
+    , activePage : ActivePage -- The currently selected tab of the DS
+    , explaining : Maybe ErrorExplanation -- The current error explanation being displayed to the user, if any
+    , joysticks : List String -- All joysticks available to the application
+    , joystickMappings : Dict Int String -- Mapping of joystick number to joystick name
+    , estopped : Bool -- Whether the robot is emergency stopped
     }
 
+
+
+-- Initial model state
+
+
 initModel : Model
-initModel
-    = { teamNumber = ""
-       , debounce = Debounce.init
-       , enabled = False
-       , estopped = False
-       , mode = Ipc.Autonomous
-       , alliance = Ipc.Red 1
-       , stdout = []
-       , joysticks = []
-       , joystickMappings = Dict.empty
-       , stdoutList = InfiniteList.init
-       , listScrollBottom = 0.0
-       , explaining = Nothing
-       , robotState = robotStateInit
-       , activePage = Control }
+initModel =
+    { teamNumber = ""
+    , enabled = False
+    , estopped = False
+    , mode = Ipc.Autonomous
+    , alliance = Ipc.Red 1
+    , stdout = []
+    , joysticks = []
+    , joystickMappings = Dict.empty
+    , stdoutList = InfiniteList.init
+    , explaining = Nothing
+    , robotState = robotStateInit
+    , activePage = Control
+    }
+
+
+
+{- The page (as selected in the nav view) whose contents should be displayed -}
+
 
 type ActivePage
-    = Control
-    | Config
-    | JoysticksPage
+    = Control -- Robot control
+    | Config -- Robot configuration
+    | JoysticksPage -- Joystick configuration
+
+
+
+{- The error whose explanation should be displayed in the stdout view -}
+
 
 type ErrorExplanation
-    = Comms
-    | Code
-    | Joysticks
+    = Comms -- Why is there no robot communication
+    | Code -- Why is there no robot code
+    | Joysticks -- Why are there no joysticks detected
+
 
 type Msg
     = EnableChange Bool
@@ -57,7 +74,6 @@ type Msg
     | RequestClick Request
     | TeamNumberChange String
     | BackendMessage Ipc.IpcMsg
-    | Debounced Debounce.Msg
     | InfiniteListMsg InfiniteList.Model
     | ChangePage ActivePage
     | GlobalKeyboardEvent Int
