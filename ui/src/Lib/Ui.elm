@@ -40,8 +40,6 @@ robotStatus model =
 {- Creates the red/green status pills associated with various aspects of the driver station's functionality.
    For systems that are currently not working, extra attributes can be supplied to display troubleshooting tips in the stdout view.
 -}
-
-
 telemetryBadge : List (Attribute Msg) -> String -> Bool -> Html Msg
 telemetryBadge attrs caption alive =
     li [ class "list-group-item d-flex justify-content-between align-items-center py-2" ]
@@ -70,8 +68,6 @@ infiniteListConfig =
 
 
 {- View for stdout list -}
-
-
 itemView : Int -> Int -> String -> Html Msg
 itemView _ _ item =
     div [] [ text item ]
@@ -79,8 +75,6 @@ itemView _ _ item =
 
 
 {- Determines the colour class that should be used to display voltage, depending on the current level -}
-
-
 voltageColour : Float -> String
 voltageColour voltage =
     if voltage >= 8.5 && voltage <= 11.5 then
@@ -95,14 +89,13 @@ voltageColour voltage =
 
 
 {- Creates buttons to change the robot's mode -}
-
-
 modeItem : Model -> Mode -> Html Msg
 modeItem model mode =
     a
         [ class "list-group-item"
         , class "list-group-item-action"
         , class "py-1"
+        , href "#"
         , if model.mode == mode then
             class "active"
 
@@ -115,8 +108,6 @@ modeItem model mode =
 
 
 {- Creates a dropdown item corresponding to the given AllianceStation that will update the driver station when selected. -}
-
-
 allianceStationItem : AllianceStation -> Html Msg
 allianceStationItem alliance =
     a [ class "dropdown-item", class "py-1", href "#", onClick <| AllianceStationChange alliance ] [ text <| allianceToS alliance ]
@@ -124,8 +115,6 @@ allianceStationItem alliance =
 
 
 {- Creates a joystick dropdown entry that will update the internal mapping when selected. -}
-
-
 joystickEntry : Int -> String -> Html Msg
 joystickEntry n name =
     a [ class "dropdown-item", href "#", onClick <| JoystickMappingUpdate n name ] [ text name ]
@@ -133,8 +122,6 @@ joystickEntry n name =
 
 
 {- Creates the full view associated with remapping a joystick to some number n. -}
-
-
 joystickRemapItem : Int -> Model -> Html Msg
 joystickRemapItem n model =
     li [ class "list-group-item" ]
@@ -171,8 +158,6 @@ joysticks n end model l =
 
 
 {- Builds up the full list of alliance stations a user can select (Red/Blue 1-3) -}
-
-
 allianceStations : Int -> List (Html Msg) -> List (Html Msg)
 allianceStations n l =
     case n of
@@ -204,8 +189,6 @@ allianceStations n l =
 
 -- Different tabs
 {- First tab that is displayed, contains mode information, alliance station selection, robot/joystick status, stdout view, and enable options. -}
-
-
 controlTab : Model -> Html Msg
 controlTab model =
     div [ class "container-fluid" ]
@@ -227,7 +210,7 @@ controlTab model =
                 ]
             , div [ class "col-2" ]
                 [ p [ class "lead mt-4" ] [ text <| "Team # " ++ model.teamNumber ]
-                , p [ class "text-center mt-4", class <| voltageColour model.robotState.voltage ] [ b [] [ text <| Round.round 0 model.robotState.voltage ++ "V" ] ]
+                , p [ class "text-center mt-4", class <| voltageColour model.robotState.voltage ] [ b [] [ text <| Round.round 1 model.robotState.voltage ++ "V" ] ]
                 ]
             , div [ class "col" ]
                 [ div

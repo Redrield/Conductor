@@ -37,7 +37,7 @@ fn main() -> WVResult {
         .title("Driver Station")
         .content(Content::Url(&format!("http://localhost:{}", port)))
         .size(1080, 300)
-        .resizable(false)
+        //.resizable(false)
         .debug(true)
         .user_data(())
         .invoke_handler(move |wv, arg| {

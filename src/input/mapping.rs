@@ -3,30 +3,11 @@ use ds::JoystickValue;
 use gilrs::ev::AxisOrBtn;
 use crate::util::map;
 
-pub fn ensure_mapping_spacing(mappings: &Vec<&usize>, pos: usize, output: &mut Vec<Vec<JoystickValue>>) -> bool {
-    if !mappings.contains(&&pos) {
-        output.push(vec![]);
-        true
-    } else {
-        false
-    }
-}
-
 pub fn apply_mappings(offset: usize, mappings: Vec<&usize>, gamepads: Vec<Gamepad>) -> Vec<Vec<JoystickValue>> {
-    let mut all_values = vec![];
-
-    if offset != 0 {
-        for i in 0..offset {
-            all_values.push(vec![])
-        }
-    }
+    let mut all_values = vec![vec![]; 6];
 
     for (n, gamepad) in gamepads.iter().enumerate() {
         let mapping_pos = n + offset;
-
-        if ensure_mapping_spacing(&mappings, mapping_pos, &mut all_values) {
-            continue;
-        }
 
         let state = gamepad.state();
 
@@ -84,6 +65,8 @@ pub fn apply_mappings(offset: usize, mappings: Vec<&usize>, gamepads: Vec<Gamepa
         } else if gamepad.is_pressed(Button::DPadUp) || gamepad.value(Axis::DPadY) == 1.0 {
             values.push(JoystickValue::POV { id: 0, angle: 0 });
         }
+
+        all_values[mapping_pos] = values;
     }
 
     all_values
