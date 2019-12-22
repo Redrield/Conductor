@@ -12,7 +12,7 @@ lazy_static = "1.4.0"
 rust-embed = "5.1.0"
 serde = { version = "1.0.101", features = ["derive"] }
 serde_json = "1.0.41"
-ds = "0.3.4"
+ds = { path = "../ds-rs" }
 chrono = "0.4.9"
 gilrs = "0.7.2"
 spin = "0.5.2"
@@ -21,3 +21,4 @@ actix-web = "1.0.8"
 actix-rt = "0.2.5"
 mime_guess = "2.0.1"
 futures = "0.1.29"
+env_logger = "0.7.1"

@@ -30,6 +30,9 @@ updateTeamNumber : Int -> Cmd msg
 updateTeamNumber teamNumber =
     updateBackend <| Ipc.encodeMsg <| Ipc.UpdateTeamNumber { team_number = teamNumber }
 
+updateGSM : String -> Cmd msg
+updateGSM gsm =
+    updateBackend <| Ipc.encodeMsg <| Ipc.UpdateGSM { gsm = gsm }
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -127,7 +130,7 @@ update msg model =
                                 ( model, Cmd.none )
 
                         Config ->
-                            ( model, updateTeamNumber <| (model.teamNumber |> String.toInt |> Maybe.withDefault 0) )
+                            ( model, Cmd.batch [ updateTeamNumber <| (model.teamNumber |> String.toInt |> Maybe.withDefault 0), updateGSM <| model.gsm ] )
 
                         JoysticksPage ->
                             ( model, Cmd.none )
@@ -167,6 +170,11 @@ update msg model =
                             )
             in
             ( { model | joystickMappings = updatedJoysticks }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateJoystickMapping { name = name, pos = n } )
+
+        GSMChange gsm ->
+            if String.length gsm <= 3 then
+                ({model | gsm = gsm }, Cmd.none)
+            else (model, Cmd.none)
 
         TeamNumberChange team ->
             if String.length team <= 4 then

@@ -1,16 +1,11 @@
 #![feature(decl_macro, proc_macro_hygiene)]
 use web_view::{Content, WVResult, Handle};
-use resources::Resources;
-use ds::{DriverStation, Alliance, TcpPacket};
 use ipc::*;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
-use chrono::Local;
 use crate::state::State;
-use std::path::Path;
 use crate::input::MappingUpdate;
-use futures::future::Future;
 
 mod resources;
 mod ws;
@@ -26,11 +21,13 @@ static WV_HANDLE: Once<Handle<()>> = Once::new();
 static STDOUT_HANDLE: Once<Handle<()>> = Once::new();
 
 fn main() -> WVResult {
+    env_logger::init();
     let port = ws::launch_webserver();
     println!("Webserver launched on port {}", port);
 
-    let log_file_path = format!("stdout-{}.log", Local::now());
-    let mut state = Arc::new(RwLock::new(State::new(log_file_path)));
+    input::input_thread();
+
+    let state = Arc::new(RwLock::new(State::new()));
 
     let wv_state = state.clone();
     let mut webview = web_view::builder()
@@ -40,12 +37,18 @@ fn main() -> WVResult {
         //.resizable(false)
         .debug(true)
         .user_data(())
-        .invoke_handler(move |wv, arg| {
+        .invoke_handler(move |_wv, arg| {
             let mut state = wv_state.write().unwrap();
             match serde_json::from_str::<Message>(arg).unwrap() {
                 Message::UpdateTeamNumber { team_number } => {
-                    println!("Update to {}", team_number);
-                    state.update_ds(team_number);
+                    if team_number != state.ds.team_number() {
+                        state.update_ds(team_number);
+                    }
+                }
+                Message::UpdateGSM { gsm } => {
+                    if gsm.len() == 3 {
+                        let _ = state.ds.set_game_specific_message(&gsm);
+                    }
                 }
                 Message::UpdateMode { mode } => {
                     println!("Update mode to {:?}", mode);
@@ -102,6 +105,7 @@ fn main() -> WVResult {
     let stdout_handle = stdout_wv.handle();
     STDOUT_HANDLE.call_once(move || stdout_handle);
 
+
     let ticker_state = state.clone();
     let handle = webview.handle();
     thread::spawn(move || {
@@ -123,7 +127,6 @@ fn main() -> WVResult {
         }
     });
 
-    input::input_thread();
 
     loop {
         match webview.step() {

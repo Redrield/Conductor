@@ -61,6 +61,7 @@ type Request
 
 type IpcMsg
     = UpdateTeamNumber { team_number : Int }
+    | UpdateGSM { gsm : String }
     | UpdateMode { mode : Mode }
     | UpdateEnableStatus { enabled : Bool }
     | JoystickUpdate { removed : Bool, name : String }
@@ -135,6 +136,11 @@ encodeRequest req =
 encodeMsg : IpcMsg -> E.Value
 encodeMsg msg =
     case msg of
+        UpdateGSM { gsm } ->
+            object
+                [ ("type", E.string "UpdateGSM")
+                , ("gsm", E.string gsm)
+                ]
         UpdateTeamNumber { team_number } ->
             object
                 [ ( "type", E.string "UpdateTeamNumber" )

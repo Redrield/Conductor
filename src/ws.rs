@@ -1,12 +1,10 @@
 use std::thread;
-use std::path::PathBuf;
 use crate::resources;
 use std::sync::mpsc;
 use actix_web::{HttpServer, web, HttpRequest, Responder, HttpResponse, App};
 use actix_web::body::Body;
 use resources::Resources;
 use std::borrow::Cow;
-use actix_web::dev::Server;
 
 fn assets(path: web::Path<String>) -> impl Responder {
     let path = path.into_inner();
@@ -48,7 +46,6 @@ pub fn launch_webserver() -> u16 {
     let (port_tx, port_rx) = mpsc::channel();
 
     thread::spawn(move || {
-        let sys = actix_rt::System::new("http-server");
         let server = HttpServer::new(|| {
             App::new().route("/", web::get().to(index))
                 .route("/stdout", web::get().to(stdout))

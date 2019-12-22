@@ -4,6 +4,9 @@ use ds::Mode as DsMode;
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum Message {
+    UpdateGSM {
+        gsm: String
+    },
     UpdateTeamNumber {
         team_number: u32,
     },
@@ -65,14 +68,6 @@ pub enum Mode {
 }
 
 impl Mode {
-    pub fn from_ds(mode: DsMode) -> Mode {
-        match mode {
-            DsMode::Autonomous => Mode::Autonomous,
-            DsMode::Teleoperated => Mode::Teleoperated,
-            DsMode::Test => Mode::Test
-        }
-    }
-
     pub fn to_ds(self) -> DsMode {
         match self {
             Mode::Autonomous => DsMode::Autonomous,

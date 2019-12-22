@@ -12,6 +12,7 @@ import Lib.Ipc as Ipc exposing (AllianceStation, Mode, Request, RobotState, robo
 
 type alias Model =
     { teamNumber : String -- Current contents of the team number text field, 0 if empty
+    , gsm : String -- Current contents of the game data field
     , enabled : Bool -- Whether the robot is enabled
     , mode : Mode -- The currently selected mode
     , alliance : AllianceStation -- The currently selected team station
@@ -33,6 +34,7 @@ type alias Model =
 initModel : Model
 initModel =
     { teamNumber = ""
+    , gsm = ""
     , enabled = False
     , estopped = False
     , mode = Ipc.Autonomous
@@ -73,6 +75,7 @@ type Msg
     | AllianceStationChange AllianceStation
     | RequestClick Request
     | TeamNumberChange String
+    | GSMChange String
     | BackendMessage Ipc.IpcMsg
     | InfiniteListMsg InfiniteList.Model
     | ChangePage ActivePage

@@ -1,17 +1,11 @@
-use gilrs::{Gilrs, Button, Axis, Gamepad};
-use std::ops::{Deref, DerefMut};
-use std::sync::{Arc, Mutex, RwLock};
-use crate::state::State;
-use crate::util::map;
+use gilrs::{Gilrs, Gamepad};
+use std::sync::RwLock;
 use lazy_static::lazy_static;
 use std::thread;
 use ds::JoystickValue;
-use gilrs::ev::AxisOrBtn;
-use gilrs::ev::state::GamepadState;
 use spin::Once;
 use std::collections::HashMap;
 use std::time::Duration;
-use web_view::Handle;
 use crate::ipc::Message;
 
 mod mapping;
@@ -122,8 +116,6 @@ pub fn joystick_callback() -> Vec<Vec<JoystickValue>> {
     let mut sorted_joysticks = gil.gamepads().map(|(_, gp)| gp).collect::<Vec<Gamepad>>();
     sorted_joysticks.sort_by(|a, b| mappings.get(a.name()).unwrap_or(&0).cmp(mappings.get(b.name()).unwrap_or(&1)));
 
-    let mapped_numbers = mappings.values().collect::<Vec<&usize>>();
-
-    mapping::apply_mappings(min, mapped_numbers, sorted_joysticks)
+    mapping::apply_mappings(min, sorted_joysticks)
 }
 

@@ -3,7 +3,7 @@ use ds::JoystickValue;
 use gilrs::ev::AxisOrBtn;
 use crate::util::map;
 
-pub fn apply_mappings(offset: usize, mappings: Vec<&usize>, gamepads: Vec<Gamepad>) -> Vec<Vec<JoystickValue>> {
+pub fn apply_mappings(offset: usize, gamepads: Vec<Gamepad>) -> Vec<Vec<JoystickValue>> {
     let mut all_values = vec![vec![]; 6];
 
     for (n, gamepad) in gamepads.iter().enumerate() {

@@ -210,7 +210,7 @@ controlTab model =
                 ]
             , div [ class "col-2" ]
                 [ p [ class "lead mt-4" ] [ text <| "Team # " ++ model.teamNumber ]
-                , p [ class "text-center mt-4", class <| voltageColour model.robotState.voltage ] [ b [] [ text <| Round.round 1 model.robotState.voltage ++ "V" ] ]
+                , p [ class "text-center mt-4", class <| voltageColour model.robotState.voltage ] [ b [] [ text <| Round.round 2 model.robotState.voltage ++ "V" ] ]
                 ]
             , div [ class "col" ]
                 [ div
@@ -322,7 +322,7 @@ configTab model =
                     ]
                 , label [ for "gameDataInput" ] [ text "Game Data" ]
                 , div [ class "input-group", class "mb-3" ]
-                    [ input [ type_ "text", class "form-control disabled", id "gameDataInput" ] []
+                    [ input [ type_ "text", class "form-control disabled", id "gameDataInput", value model.gsm, onInput GSMChange] []
                     ]
                 ]
             , div [ class "col" ] []
