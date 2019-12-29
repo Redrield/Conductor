@@ -18,6 +18,7 @@ mod state;
 use spin::Once;
 
 static WV_HANDLE: Once<Handle<()>> = Once::new();
+#[cfg(target_os = "linux")]
 static STDOUT_HANDLE: Once<Handle<()>> = Once::new();
 
 fn main() -> WVResult {
@@ -57,9 +58,14 @@ fn main() -> WVResult {
                 Message::UpdateEnableStatus { enabled } => {
                     println!("Changing enable status to {}", enabled);
 
-                    let handle = STDOUT_HANDLE.wait().unwrap();
-                    let msg = serde_json::to_string(&Message::UpdateEnableStatus { enabled }).unwrap();
-                    let _ = handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
+                    #[cfg(target_os = "linux")]
+                    {
+                        let handle = STDOUT_HANDLE.wait().unwrap();
+                        // Autoscrolling is disabled with the robot, to make it easier to scroll up to view potential error stack traces.
+                        // Updating the state of the robot console window means that it will start autoscrolling with new messages.
+                        let msg = serde_json::to_string(&Message::UpdateEnableStatus { enabled }).unwrap();
+                        let _ = handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
+                    }
 
                     if enabled {
                         state.ds.enable();
@@ -89,6 +95,7 @@ fn main() -> WVResult {
         })
         .build()?;
 
+    #[cfg(target_os = "linux")]
     let mut stdout_wv = web_view::builder()
         .title("Robot Console")
         .content(Content::Url(&format!("http://localhost:{}/stdout", port)))
@@ -102,8 +109,11 @@ fn main() -> WVResult {
     let handle = webview.handle();
     WV_HANDLE.call_once(move || handle);
 
-    let stdout_handle = stdout_wv.handle();
-    STDOUT_HANDLE.call_once(move || stdout_handle);
+    #[cfg(target_os = "linux")]
+    {
+        let stdout_handle = stdout_wv.handle();
+        STDOUT_HANDLE.call_once(move || stdout_handle);
+    }
 
 
     let ticker_state = state.clone();
@@ -134,9 +144,12 @@ fn main() -> WVResult {
             None => break,
         }
 
-        match stdout_wv.step() {
-            Some(res) => res?,
-            None => break
+        #[cfg(target_os = "linux")]
+        {
+            match stdout_wv.step() {
+                Some(res) => res?,
+                None => break
+            }
         }
     }
 
