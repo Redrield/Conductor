@@ -26,8 +26,6 @@ fn main() -> WVResult {
     let port = ws::launch_webserver();
     println!("Webserver launched on port {}", port);
 
-    input::input_thread();
-
     let state = Arc::new(RwLock::new(State::new()));
 
     let wv_state = state.clone();
@@ -115,6 +113,8 @@ fn main() -> WVResult {
         STDOUT_HANDLE.call_once(move || stdout_handle);
     }
 
+    // Start input thread when all the globals are fully initialized
+    input::input_thread();
 
     let ticker_state = state.clone();
     let handle = webview.handle();

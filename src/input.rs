@@ -7,6 +7,7 @@ use spin::Once;
 use std::collections::HashMap;
 use std::time::Duration;
 use crate::ipc::Message;
+use std::iter::FromIterator;
 
 mod mapping;
 
@@ -34,6 +35,10 @@ unsafe impl Sync for JoystickState {}
 
 impl JoystickState {
     fn new() -> JoystickState {
+        crate::WV_HANDLE.wait().unwrap().dispatch(|wv| wv.eval(&format!("update({})", serde_json::to_string(&Message::JoystickUpdate {
+            removed: false,
+            name: "Virtual Joystick".to_string(),
+        }).unwrap())));
         JoystickState {
             gil: Gilrs::new().unwrap(),
             gamepad_names: Vec::new(),
@@ -101,13 +106,22 @@ pub fn input_thread() {
 }
 
 pub fn joystick_callback() -> Vec<Vec<JoystickValue>> {
-    let state = JS_STATE.wait().unwrap().read().unwrap();
+    let state = match JS_STATE.wait() {
+        Some(state) => state.read().unwrap(),
+        None => return vec![] // Input thread uninitialized
+    };
 
     let gil = &state.gil;
     let mappings = &state.mappings;
 
     if gil.gamepads().count() == 0 {
-        return vec![];
+        // Non-empty implies there is 1 or more mapping to Virtual Joystick
+        return if !mappings.is_empty() {
+            let up_bound = *mappings.values().max().unwrap_or(&0)+1;
+            Vec::from_iter(std::iter::repeat(vec![]).take(up_bound))
+        } else {
+            vec![]
+        }
     }
 
     let min = *mappings.values().min().unwrap_or(&0);
