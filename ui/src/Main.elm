@@ -176,15 +176,15 @@ update msg model =
                 ({model | gsm = gsm }, Cmd.none)
             else (model, Cmd.none)
 
+        USBStatusChange useUSB ->
+            ({ model | connectUSB = useUSB }, updateBackend <| Ipc.encodeMsg <| Ipc.UpdateUSBStatus { useUSB = useUSB })
         TeamNumberChange team ->
             if String.length team <= 4 then
                 case String.toInt team of
                     Just teamNumber ->
                         if teamNumber > 0 then
                             ( { model | teamNumber = team }, Cmd.none )
-
-                        else
-                            ( model, Cmd.none )
+                        else (model, Cmd.none)
 
                     Nothing ->
                         ( { model | teamNumber = "" }, Cmd.none )

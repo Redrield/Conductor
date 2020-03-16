@@ -44,6 +44,10 @@ fn main() -> WVResult {
                         state.update_ds(team_number);
                     }
                 }
+                Message::UpdateUSBStatus { use_usb } => {
+                    println!("Trying to connect over USB");
+                    state.ds.set_use_usb(use_usb);
+                }
                 Message::UpdateGSM { gsm } => {
                     if gsm.len() == 3 {
                         let _ = state.ds.set_game_specific_message(&gsm);

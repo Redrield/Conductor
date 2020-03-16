@@ -10,6 +10,9 @@ pub enum Message {
     UpdateTeamNumber {
         team_number: u32,
     },
+    UpdateUSBStatus {
+        use_usb: bool
+    },
     UpdateMode {
         mode: Mode
     },

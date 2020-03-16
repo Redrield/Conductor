@@ -61,6 +61,7 @@ type Request
 
 type IpcMsg
     = UpdateTeamNumber { team_number : Int }
+    | UpdateUSBStatus { useUSB : Bool }
     | UpdateGSM { gsm : String }
     | UpdateMode { mode : Mode }
     | UpdateEnableStatus { enabled : Bool }
@@ -145,6 +146,11 @@ encodeMsg msg =
             object
                 [ ( "type", E.string "UpdateTeamNumber" )
                 , ( "team_number", E.int team_number )
+                ]
+        UpdateUSBStatus { useUSB } ->
+            object
+                [ ( "type", E.string "UpdateUSBStatus" )
+                , ( "use_usb", E.bool useUSB )
                 ]
 
         UpdateMode { mode } ->

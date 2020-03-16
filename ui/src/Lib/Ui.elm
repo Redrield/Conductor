@@ -3,7 +3,7 @@ module Lib.Ui exposing (..)
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput, onMouseLeave, onMouseOver)
+import Html.Events exposing (onCheck, onClick, onInput, onMouseLeave, onMouseOver)
 import InfiniteList
 import Lib.Errors as Errors exposing (..)
 import Lib.Ipc as Ipc exposing (AllianceStation, Mode, RobotState, allianceToS, modeToS)
@@ -319,6 +319,10 @@ configTab model =
                 [ label [ for "teamNumberInput" ] [ text "Team Number" ]
                 , div [ class "input-group", class "mb-3" ]
                     [ input [ type_ "number", class "form-control", id "teamNumberInput", value model.teamNumber, onInput TeamNumberChange ] []
+                    ]
+                , label [ for "useUSBCheckbox" ] [ text "Connect via USB?" ]
+                , div [ class "input-group", class "mb-3" ]
+                    [ input [ type_ "checkbox", class "form-control", id "useUSBCheckbox", checked model.connectUSB, onCheck USBStatusChange ] []
                     ]
                 , label [ for "gameDataInput" ] [ text "Game Data" ]
                 , div [ class "input-group", class "mb-3" ]
