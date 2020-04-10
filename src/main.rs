@@ -1,4 +1,3 @@
-#![feature(decl_macro, proc_macro_hygiene)]
 use web_view::{Content, WVResult, Handle};
 use ipc::*;
 use std::sync::{Arc, RwLock};
