@@ -7,18 +7,18 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-web-view = "0.5.2"
+web-view = "0.6.2"
 lazy_static = "1.4.0"
-rust-embed = "5.1.0"
-serde = { version = "1.0.101", features = ["derive"] }
-serde_json = "1.0.41"
+rust-embed = "5.5.1"
+serde = { version = "1.0.106", features = ["derive"] }
+serde_json = "1.0.51"
 ds = "1.1.1"
-chrono = "0.4.9"
-gilrs = "0.7.2"
+chrono = "0.4.11"
+gilrs = "0.7.4"
 spin = "0.5.2"
 priomutex = "0.3.1"
-actix-web = "1.0.8"
-actix-rt = "0.2.5"
-mime_guess = "2.0.1"
-futures = "0.1.29"
+actix-web = "2.0.0"
+actix-rt = "1.1.0"
+mime_guess = "2.0.3"
+futures = "0.3.4"
 env_logger = "0.7.1"
