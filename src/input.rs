@@ -63,12 +63,26 @@ impl JoystickState {
                 println!("Got new name; reporting");
                 self.report_joystick(new_name.clone(), false);
             }
+            let mut joystick_removed = false;
             for old_name in self.gamepad_names.iter().filter(|name| !connected_names.contains(*name)) {
                 self.report_joystick(old_name.clone(), true);
                 self.mappings.remove(old_name);
+                joystick_removed = true;
             }
             self.gamepad_names = connected_names;
+
+            if joystick_removed {
+                println!("Detected a joystick removal; trying to apply safety.");
+                self.apply_joystick_safety();
+            }
         }
+    }
+
+    fn apply_joystick_safety(&self) {
+        let msg = serde_json::to_string(&Message::UpdateEnableStatus { enabled: false }).unwrap();
+        let handle = crate::WV_HANDLE.wait().unwrap();
+        println!("Dispatching update to Elm.");
+        let _ = handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
     }
 
     fn report_joystick(&self, name: String, removed: bool) {

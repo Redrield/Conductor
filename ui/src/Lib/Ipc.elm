@@ -225,6 +225,9 @@ decodeMsg =
                     "JoystickUpdate" ->
                         field "removed" bool |> D.andThen (\removed -> field "name" string |> D.map (\name -> JoystickUpdate { removed = removed, name = name }))
 
+                    "UpdateEnableStatus" -> 
+                        field "enabled" bool |> D.map (\enabled -> UpdateEnableStatus { enabled = enabled })
+
                     "RobotStateUpdate" ->
                         field "comms_alive" bool
                             |> D.andThen

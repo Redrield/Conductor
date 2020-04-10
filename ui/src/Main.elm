@@ -77,18 +77,20 @@ update msg model =
                     ( { model | stdout = model.stdout ++ [ message ] }, getViewportOf "stdoutListView" |> Task.andThen (\info -> setViewportOf "stdoutListView" 0 info.scene.height) |> Task.attempt (\_ -> Nop) )
 
                 Ipc.JoystickUpdate { removed, name } ->
-                    case removed of
-                        True ->
-                            ( { model
-                                | joysticks = List.filter (\s -> s /= name) model.joysticks
-                                , joystickMappings = Dict.filter (\_ -> \s -> s /= name) model.joystickMappings
-                              }
-                            , Cmd.none
-                            )
-
-                        False ->
-                            ( { model | joysticks = model.joysticks ++ [ name ] }, Cmd.none )
-
+                    if removed then
+                        ( { model
+                            | joysticks = List.filter (\s -> s /= name) model.joysticks
+                            , joystickMappings = Dict.filter (\_ -> \s -> s /= name) model.joystickMappings
+                          }
+                        , Cmd.none
+                        )
+                    else 
+                        ( { model | joysticks = model.joysticks ++ [ name ] }, Cmd.none )
+                Ipc.UpdateEnableStatus { enabled } ->
+                    if model.estopped then
+                        ( model, Cmd.none )
+                    else
+                        ( { model | enabled = enabled }, Cmd.batch [ updateBackend <| Ipc.encodeMsg <| Ipc.UpdateEnableStatus { enabled = enabled } ])
                 _ ->
                     ( model, Cmd.none )
 
