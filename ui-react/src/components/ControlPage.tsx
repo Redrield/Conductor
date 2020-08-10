@@ -66,7 +66,7 @@ const ControlPage = (props: Props) => (
 
             <div className="col-2">
                 {/* I don't know why I have to specify the font weight now, but I do */}
-                <p className="lead font-weight-normal mt-3">
+                <p className="lead mt-3">
                     Team # {props.teamNumber}
                 </p>
                 <p className={`text-center mt-4 ${classFromVoltage(props.robotState.voltage)}`}>
@@ -85,7 +85,7 @@ const ControlPage = (props: Props) => (
                 <AllianceStationSelector />
             </div>
             <div className="col-2 align-items-center">
-                <p className="text-center lead font-weight-normal">{robotStatus(props)}</p>
+                <p className="text-center lead">{robotStatus(props)}</p>
             </div>
             <div className="col" />
         </div>
