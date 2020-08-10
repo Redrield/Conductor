@@ -3,6 +3,7 @@ import {AllianceStation, AllianceColour, initRobotState, Mode, RobotState, Updat
 import {ActivePage, CHANGE_PAGE, DriverStationState, SOCKET_CONNECTED} from "./store";
 import {connect, ConnectedProps} from "react-redux";
 import ControlPage from "./components/ControlPage";
+import ConfigPage from "./components/ConfigPage";
 
 const mapState = (state: DriverStationState) => ({
     activePage: state.activePage
@@ -26,7 +27,7 @@ class DriverStation extends React.Component<Props, any> {
     constructor(props: Props) {
         super(props);
 
-        // this.connectWs(props.webserverPort);
+        this.connectWs(props.webserverPort);
     }
 
     render() {
@@ -34,6 +35,9 @@ class DriverStation extends React.Component<Props, any> {
         switch(this.props.activePage) {
             case ActivePage.Control:
                 body = (<ControlPage />)
+                break;
+            case ActivePage.Config:
+                body = (<ConfigPage />)
                 break;
             default:
                 body = (<p>unimplemented</p>)

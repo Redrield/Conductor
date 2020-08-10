@@ -46,6 +46,7 @@ impl WebsocketHandler {
         match msg {
             ipc::Message::UpdateTeamNumber { team_number } => {
                 if team_number != state.ds.team_number() {
+                    log::info!("Updating team number to {}", team_number);
                     state.update_ds(team_number);
                 }
             }

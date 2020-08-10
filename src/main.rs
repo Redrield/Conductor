@@ -42,6 +42,9 @@ fn main() -> WVResult {
         .invoke_handler(|_,_| Ok(()))
         .build()?;
 
+    // Need to call this to start the app so that it knows the port to connect to
+    webview.eval(&format!("window.startapp({})", port));
+
     // #[cfg(target_os = "linux")]
     // let mut stdout_wv = web_view::builder()
     //     .title("Robot Console")
@@ -62,31 +65,33 @@ fn main() -> WVResult {
     //     STDOUT_HANDLE.call_once(move || stdout_handle);
     // }
 
-    // let addr = rx.recv().unwrap();
+    let addr = rx.recv().unwrap();
+    state.write().unwrap().wire_stdout(addr.clone());
 
     // Start input thread when all the globals are fully initialized
     // input::input_thread(addr.clone());
-    //
-    // let ticker_state = state.clone();
-    // let ticker_addr = addr.clone();
-    // thread::spawn(move || {
-    //     loop {
-    //         let msg = {
-    //             let state = ticker_state.read().unwrap();
-    //             let ds = &state.ds;
-    //             let comms = ds.trace().is_connected();
-    //             let code = ds.trace().is_code_started();
-    //             let joysticks = input::JS_STATE.wait().unwrap().read().unwrap().has_joysticks();
-    //             let voltage = ds.battery_voltage();
-    //
-    //             Message::RobotStateUpdate { comms_alive: comms, code_alive: code, joysticks, voltage }
-    //         };
-    //
-    //         ticker_addr.do_send(msg);
-    //
-    //         thread::sleep(Duration::from_millis(50));
-    //     }
-    // });
+
+    let ticker_state = state.clone();
+    let ticker_addr = addr.clone();
+    thread::spawn(move || {
+        loop {
+            let msg = {
+                let state = ticker_state.read().unwrap();
+                let ds = &state.ds;
+                let comms = ds.trace().is_connected();
+                let code = ds.trace().is_code_started();
+                // let joysticks = input::JS_STATE.wait().unwrap().read().unwrap().has_joysticks();
+                let joysticks = false;
+                let voltage = ds.battery_voltage();
+
+                Message::RobotStateUpdate { comms_alive: comms, code_alive: code, joysticks, voltage }
+            };
+
+            ticker_addr.do_send(msg);
+
+            thread::sleep(Duration::from_millis(50));
+        }
+    });
 
 
     loop {

@@ -11,6 +11,11 @@ export enum AllianceColour {
     Blue = "Blue"
 }
 
+export enum RequestType {
+    RestartRoborio = "RestartRoborio",
+    RestartCode = "RestartCode"
+}
+
 export interface AllianceStation {
     color: AllianceColour;
     value: number;
@@ -102,7 +107,7 @@ export interface UpdateAllianceStation {
 export const REQUEST = "Request";
 export interface Request {
     type: typeof REQUEST
-    req: Request
+    req: RequestType
 }
 
 export const ESTOP_ROBOT = "EstopRobot";

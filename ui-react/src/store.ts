@@ -25,7 +25,7 @@ export enum ActivePage {
 }
 
 export interface DriverStationState {
-    teamNumber: number;
+    teamNumber: string;
     connectUSB: boolean;
     gsm: string;
     enabled: boolean;
@@ -35,11 +35,12 @@ export interface DriverStationState {
     robotState: RobotState;
     ws: WebSocket | null;
     activePage: ActivePage;
+    stdout: string[]
 }
 
 export function initState(): DriverStationState {
     return {
-        teamNumber: 4069,
+        teamNumber: "",
         connectUSB: false,
         gsm: "",
         enabled: false,
@@ -56,7 +57,8 @@ export function initState(): DriverStationState {
             voltage: 0.0
         },
         ws: null,
-        activePage: ActivePage.Control
+        activePage: ActivePage.Control,
+        stdout: [],
     }
 }
 
@@ -72,7 +74,19 @@ export interface ChangePage {
     page: ActivePage;
 }
 
-export type AppAction = Message | SocketConnected | ChangePage;
+export const TEAM_NUMBER_CHANGE = "TeamNumberChange";
+export interface TeamNumberChange {
+    type: typeof TEAM_NUMBER_CHANGE;
+    teamNumber: string;
+}
+
+export const GSM_CHANGE = "GSMChange";
+export interface GSMChange {
+    type: typeof GSM_CHANGE;
+    gsm: string;
+}
+
+export type AppAction = Message | SocketConnected | ChangePage | TeamNumberChange | GSMChange;
 
 export function rootReducer(state: DriverStationState, action: AppAction): DriverStationState {
     switch(action.type) {
@@ -80,6 +94,7 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
             //TODO: Joysticks not implemented
             return state;
         case ROBOT_STATE_UPDATE:
+            // console.log("Robot state updated " + JSON.stringify(action));
             return {
                 ...state,
                 robotState: {
@@ -90,8 +105,10 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 }
             }
         case NEW_STDOUT:
-            //TODO: stdout not implemented
-            return state;
+            return {
+                ...state,
+                stdout: [...state.stdout, action.message]
+            };
         case SOCKET_CONNECTED:
             return {
                 ...state,
@@ -104,16 +121,10 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
             }
         case UPDATE_GSM:
             dispatchSocketMessage(state.ws, action);
-            return {
-                ...state,
-                gsm: action.gsm
-            }
+            return state;
         case UPDATE_TEAM_NUMBER:
             dispatchSocketMessage(state.ws, action);
-            return {
-                ...state,
-                teamNumber: action.team_number
-            }
+            return state;
         case UPDATE_USB_STATUS:
             dispatchSocketMessage(state.ws, action);
             return {
@@ -148,6 +159,16 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
         case ESTOP_ROBOT:
             dispatchSocketMessage(state.ws, action);
             return state;
+        case TEAM_NUMBER_CHANGE:
+            return {
+                ...state,
+                teamNumber: action.teamNumber
+            }
+        case GSM_CHANGE:
+            return {
+                ...state,
+                gsm: action.gsm
+            }
         default:
             return state;
     }

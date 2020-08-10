@@ -39,12 +39,12 @@ impl State {
         }
     }
 
-    pub fn wire_stdout(&mut self, addr: Arc<Mutex<Addr<WebsocketHandler>>>) {
+    pub fn wire_stdout(&mut self, addr: Addr<WebsocketHandler>) {
         self.ds.set_tcp_consumer(move |packet| {
             match packet {
                 TcpPacket::Stdout(msg) => {
                     let msg = Message::NewStdout { message: msg.message };
-                    addr.lock().unwrap().do_send(msg);
+                    addr.do_send(msg);
                 }
                 TcpPacket::Dummy => {}
             }

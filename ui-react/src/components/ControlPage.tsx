@@ -1,13 +1,17 @@
 import {DriverStationState} from "../store";
-import {AllianceStation, Mode, UPDATE_ALLIANCE_STATION, UPDATE_ENABLE_STATUS, UPDATE_MODE} from "../ipc";
+import {AllianceStation, Mode, RobotState, UPDATE_ALLIANCE_STATION, UPDATE_ENABLE_STATUS, UPDATE_MODE} from "../ipc";
 import {connect, ConnectedProps} from "react-redux";
 import React from "react";
 import ModeList from "./control/ModeList";
 import TelemetryList from "./control/TelemetryList";
+import StdoutView from "./control/StdoutView";
+import EnableButtons from "./control/EnableButtons";
+import AllianceStationSelector from "./control/AllianceStationSelector";
 
 const mapState = (state: DriverStationState) => ({
     mode: state.mode,
     enabled: state.enabled,
+    estopped: state.estopped,
     alliance: state.alliance,
     robotState: state.robotState,
     teamNumber: state.teamNumber
@@ -33,6 +37,22 @@ function classFromVoltage(voltage: number): string {
     }
 }
 
+function robotStatus(state: Props) {
+    if(state.estopped) {
+        return "Emergency Stopped"
+    } else if(state.robotState.codeAlive) {
+        if(state.enabled) {
+            return state.mode.toString() + "\nEnabled"
+        } else {
+            return state.mode.toString() + "\nDisabled"
+        }
+    } else if(!state.robotState.codeAlive && state.robotState.commsAlive) {
+        return "No Robot Code"
+    } else {
+        return "No Robot Communication"
+    }
+}
+
 const ControlPage = (props: Props) => (
     <div className="container-fluid">
         <div className="row">
@@ -54,8 +74,20 @@ const ControlPage = (props: Props) => (
                 </p>
             </div>
             <div className="col">
-                TODO: stdout list
+                <StdoutView />
             </div>
+        </div>
+        <div className="row" style={{marginTop: "-50px"}}>
+            <div className="col-3 text-center mt-4">
+                <EnableButtons />
+            </div>
+            <div className="col-3 mt-4">
+                <AllianceStationSelector />
+            </div>
+            <div className="col-2 align-items-center">
+                <p className="text-center lead font-weight-normal">{robotStatus(props)}</p>
+            </div>
+            <div className="col" />
         </div>
     </div>
 )

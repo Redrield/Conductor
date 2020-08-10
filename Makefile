@@ -2,11 +2,9 @@
 .PHONY: all
 
 all:
-	cd ui \
-	 && elm make src/Main.elm --output=index.js \
-	 && elm make src/StdoutWindow.elm --output=stdout.js \
-	 && mv *.js ../web
-	cargo run
+	cd ui-react \
+		&& yarn run build:react
+	RUST_LOG=info cargo run
 
 release:
 	cd ui \
