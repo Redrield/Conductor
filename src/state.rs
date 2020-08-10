@@ -1,5 +1,8 @@
 use ds::{DriverStation, Mode, Alliance, TcpPacket};
 use crate::ipc::Message;
+use crate::webserver::WebsocketHandler;
+use std::sync::{Arc, Mutex};
+use actix::Addr;
 
 pub struct State {
     pub ds: DriverStation,
@@ -34,6 +37,18 @@ impl State {
             mode: Mode::Autonomous,
             has_joysticks: false,
         }
+    }
+
+    pub fn wire_stdout(&mut self, addr: Arc<Mutex<Addr<WebsocketHandler>>>) {
+        self.ds.set_tcp_consumer(move |packet| {
+            match packet {
+                TcpPacket::Stdout(msg) => {
+                    let msg = Message::NewStdout { message: msg.message };
+                    addr.lock().unwrap().do_send(msg);
+                }
+                TcpPacket::Dummy => {}
+            }
+        });
     }
 
     pub fn update_ds(&mut self, team_number: u32) {

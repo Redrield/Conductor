@@ -1,5 +1,5 @@
 use gilrs::{Gilrs, Gamepad};
-use std::sync::RwLock;
+use std::sync::{RwLock, Arc, Mutex};
 use lazy_static::lazy_static;
 use std::thread;
 use ds::JoystickValue;
@@ -8,6 +8,8 @@ use std::collections::HashMap;
 use std::time::Duration;
 use crate::ipc::Message;
 use std::iter::FromIterator;
+use crate::webserver::WebsocketHandler;
+use actix::Addr;
 
 mod mapping;
 
@@ -27,6 +29,7 @@ pub struct JoystickState {
     gil: Gilrs,
     gamepad_names: Vec<String>,
     mappings: HashMap<String, usize>,
+    addr: Addr<WebsocketHandler>
 }
 
 unsafe impl Send for JoystickState {}
@@ -34,12 +37,13 @@ unsafe impl Send for JoystickState {}
 unsafe impl Sync for JoystickState {}
 
 impl JoystickState {
-    fn new() -> JoystickState {
-        crate::WV_HANDLE.wait().unwrap().dispatch(|wv| wv.eval(&format!("update({})", serde_json::to_string(&Message::JoystickUpdate {
+    fn new(addr: Addr<WebsocketHandler>) -> JoystickState {
+        addr.do_send(Message::JoystickUpdate {
             removed: false,
-            name: "Virtual Joystick".to_string(),
-        }).unwrap())));
+            name: "Virtual Joystick".to_string()
+        });
         JoystickState {
+            addr,
             gil: Gilrs::new().unwrap(),
             gamepad_names: Vec::new(),
             mappings: HashMap::new(),
@@ -79,22 +83,20 @@ impl JoystickState {
     }
 
     fn apply_joystick_safety(&self) {
-        let msg = serde_json::to_string(&Message::UpdateEnableStatus { enabled: false }).unwrap();
-        let handle = crate::WV_HANDLE.wait().unwrap();
+        let msg = Message::UpdateEnableStatus { enabled: false };
         println!("Dispatching update to Elm.");
-        let _ = handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
+        self.addr.do_send(msg);
     }
 
     fn report_joystick(&self, name: String, removed: bool) {
-        let msg = serde_json::to_string(&Message::JoystickUpdate { removed, name }).unwrap();
+        let msg = Message::JoystickUpdate { removed, name };
         // Always unwrap because this should be set prior to anything starting to go
-        let handle = crate::WV_HANDLE.wait().unwrap();
-        let _ = handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
+        self.addr.do_send(msg);
     }
 }
 
-pub fn input_thread() {
-    JS_STATE.call_once(move || RwLock::new(JoystickState::new()));
+pub fn input_thread(addr: Addr<WebsocketHandler>) {
+    JS_STATE.call_once(move || RwLock::new(JoystickState::new(addr)));
     thread::spawn(move || {
         loop {
             {

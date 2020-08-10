@@ -1,15 +1,25 @@
 use std::thread;
 use crate::resources;
-use std::sync::mpsc;
+use std::sync::{mpsc, RwLock, Arc, Mutex};
 use actix_web::{HttpServer, web, HttpRequest, Responder, HttpResponse, App};
 use actix_web::body::Body;
+use actix_web_actors::ws;
 use resources::Resources;
 use std::borrow::Cow;
 use futures::future::Future;
+use crate::state::State;
+use actix_web::web::{Data, Payload};
+use actix::Addr;
+
+mod sock;
+pub use sock::*;
+use actix_web::middleware::Logger;
 
 fn assets(path: web::Path<String>) -> HttpResponse {
+    use log::info;
 
     let path = path.into_inner();
+    info!("Path is {}", path);
     match Resources::get(&path) {
         Some(content) => {
             let body: Body = match content {
@@ -44,16 +54,33 @@ fn stdout(_req: HttpRequest) -> HttpResponse {
         .body(body)
 }
 
-pub fn launch_webserver() -> u16 {
+fn main_sock(req: HttpRequest, stream: Payload) -> HttpResponse {
+    // Get app state things
+    let state = req.app_data::<Arc<RwLock<State>>>().unwrap();
+    let tx = req.app_data::<Mutex<mpsc::Sender<Addr<WebsocketHandler>>>>().unwrap();
+    // Start the websocket connection, get the address of the actor
+    let (addr, res) = ws::start_with_addr(WebsocketHandler::new(state.clone()), &req, stream).unwrap();
+    // Notify the main app of the websocket Addr to be able to send messages to the frontend
+    tx.lock().unwrap().send(addr).unwrap();
+    res
+}
+
+pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Addr<WebsocketHandler>>) -> u16 {
     let (port_tx, port_rx) = mpsc::channel();
 
     thread::spawn(move || {
         let sys = actix_rt::System::new("elm-ds-actix");
-        
-        let server = HttpServer::new(|| {
-            App::new().route("/", web::get().to(index))
+
+        let server = HttpServer::new(move || {
+            // Love redundant cloning to abide by Fn limitations
+            App::new()
+                .app_data(state.clone())
+                .app_data(Mutex::new(addr_sender.clone()))
+                .wrap(Logger::default())
+                .route("/", web::get().to(index))
                 .route("/stdout", web::get().to(stdout))
-                .route("/{path}", web::get().to(assets))
+                .route("/ws/index", web::get().to(main_sock))
+                .route("/{path:.*}", web::get().to(assets))
         })
             .bind("127.0.0.1:0")
             .unwrap();
