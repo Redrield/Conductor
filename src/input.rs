@@ -65,6 +65,7 @@ impl JoystickState {
         if connected_names != self.gamepad_names {
             for new_name in connected_names.iter().filter(|name| !self.gamepad_names.contains(*name)) {
                 println!("Got new name; reporting");
+                println!("New name is {}", new_name);
                 self.report_joystick(new_name.clone(), false);
             }
             let mut joystick_removed = false;

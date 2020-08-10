@@ -43,6 +43,8 @@ export interface DriverStationState {
     activePage: ActivePage;
     stdout: string[];
     explanation: ErrorExplanation | null;
+    joysticks: string[];
+    joystickMappings: { [id: number]: string };
 }
 
 export function initState(): DriverStationState {
@@ -66,7 +68,9 @@ export function initState(): DriverStationState {
         ws: null,
         activePage: ActivePage.Control,
         stdout: [],
-        explanation: null
+        explanation: null,
+        joysticks: [],
+        joystickMappings: {}
     }
 }
 
@@ -105,10 +109,26 @@ export type AppAction = Message | SocketConnected | ChangePage | TeamNumberChang
 export function rootReducer(state: DriverStationState, action: AppAction): DriverStationState {
     switch(action.type) {
         case JOYSTICK_UPDATE:
-            //TODO: Joysticks not implemented
-            return state;
+            if(!action.removed) {
+                return {
+                    ...state,
+                    joysticks: [...state.joysticks, action.name]
+                }
+            } else {
+                let newMappings: { [id: number]: string } = {};
+                for(let key in state.joystickMappings) {
+                    let name = state.joystickMappings[key];
+                    if(name != action.name) {
+                        newMappings[key] = name;
+                    }
+                }
+                return {
+                    ...state,
+                    joysticks: state.joysticks.filter(name => name != action.name),
+                    joystickMappings: newMappings
+                }
+            }
         case ROBOT_STATE_UPDATE:
-            // console.log("Robot state updated " + JSON.stringify(action));
             return {
                 ...state,
                 robotState: {
@@ -159,8 +179,13 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
             }
         case UPDATE_JOYSTICK_MAPPING:
             dispatchSocketMessage(state.ws, action);
-            // TODO: Joysticks not implemented
-            return state;
+            return {
+                ...state,
+                joystickMappings: {
+                    ...state.joystickMappings,
+                    [action.pos]: action.name
+                }
+            }
         case UPDATE_ALLIANCE_STATION:
             dispatchSocketMessage(state.ws, action);
             return {

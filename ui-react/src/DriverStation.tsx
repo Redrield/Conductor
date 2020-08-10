@@ -4,6 +4,7 @@ import {ActivePage, CHANGE_PAGE, DriverStationState, SOCKET_CONNECTED} from "./s
 import {connect, ConnectedProps} from "react-redux";
 import ControlPage from "./components/ControlPage";
 import ConfigPage from "./components/ConfigPage";
+import JoysticksPage from "./components/JoysticksPage";
 
 const mapState = (state: DriverStationState) => ({
     activePage: state.activePage
@@ -39,6 +40,9 @@ class DriverStation extends React.Component<Props, any> {
             case ActivePage.Config:
                 body = (<ConfigPage />)
                 break;
+            case ActivePage.Joysticks:
+                body = (<JoysticksPage />)
+                break;
             default:
                 body = (<p>unimplemented</p>)
         }
@@ -52,6 +56,10 @@ class DriverStation extends React.Component<Props, any> {
                     <li className="nav-item">
                         <a href="#" className={`nav-link ${this.props.activePage == ActivePage.Config ? "active" : ""}`}
                            onClick={() => this.props.changePage(ActivePage.Config)}>Config</a>
+                    </li>
+                    <li className="nav-item">
+                        <a href="#" className={`nav-link ${this.props.activePage == ActivePage.Joysticks ? "active" : ""}`}
+                           onClick={() => this.props.changePage(ActivePage.Joysticks)}>Joysticks</a>
                     </li>
                 </ul>
                 {body}

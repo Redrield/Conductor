@@ -69,7 +69,7 @@ fn main() -> WVResult {
     state.write().unwrap().wire_stdout(addr.clone());
 
     // Start input thread when all the globals are fully initialized
-    // input::input_thread(addr.clone());
+    input::input_thread(addr.clone());
 
     let ticker_state = state.clone();
     let ticker_addr = addr.clone();
@@ -80,8 +80,7 @@ fn main() -> WVResult {
                 let ds = &state.ds;
                 let comms = ds.trace().is_connected();
                 let code = ds.trace().is_code_started();
-                // let joysticks = input::JS_STATE.wait().unwrap().read().unwrap().has_joysticks();
-                let joysticks = false;
+                let joysticks = input::JS_STATE.wait().unwrap().read().unwrap().has_joysticks();
                 let voltage = ds.battery_voltage();
 
                 Message::RobotStateUpdate { comms_alive: comms, code_alive: code, joysticks, voltage }
