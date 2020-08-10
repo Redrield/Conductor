@@ -1,4 +1,4 @@
-import {DriverStationState} from "../../store";
+import {DriverStationState, ErrorExplanation, EXPLANATION_CHANGE} from "../../store";
 import {connect, ConnectedProps} from "react-redux";
 import React from "react";
 
@@ -6,7 +6,9 @@ const mapState = (state: DriverStationState) => ({
     robotState: state.robotState
 });
 
-const mapDispatch = {}
+const mapDispatch = {
+    updateExplanation: (explanation: ErrorExplanation | null) => ({type: EXPLANATION_CHANGE, explanation: explanation})
+}
 
 const connector = connect(mapState, mapDispatch);
 
@@ -14,9 +16,9 @@ type Props = ConnectedProps<typeof connector>;
 
 const TelemetryList = (props: Props) => (
     <ul className="list-group mt-4">
-        {telemetryBadge("Communications", props.robotState.commsAlive)}
-        {telemetryBadge("Robot Code", props.robotState.codeAlive)}
-        {telemetryBadge("Joysticks", props.robotState.joysticksConnected)}
+        {telemetryBadge(props, "Communications", props.robotState.commsAlive, ErrorExplanation.Comms)}
+        {telemetryBadge(props, "Robot Code", props.robotState.codeAlive, ErrorExplanation.Code)}
+        {telemetryBadge(props, "Joysticks", props.robotState.joysticksConnected, ErrorExplanation.Joysticks)}
     </ul>
 )
 
@@ -28,7 +30,7 @@ const failStyle = {
     color: "#E74C3C"
 }
 
-function telemetryBadge(name: string, alive: boolean) {
+function telemetryBadge(props: Props, name: string, alive: boolean, type: ErrorExplanation) {
     let badge;
     if (alive) {
         badge = (
@@ -36,7 +38,9 @@ function telemetryBadge(name: string, alive: boolean) {
         )
     } else {
         badge = (
-            <span className="badge badge-danger" style={failStyle}>AA</span>
+            <span className="badge badge-danger" style={failStyle}
+                  onMouseEnter={(_) => props.updateExplanation(type)}
+                  onMouseLeave={(_) => props.updateExplanation(null)}>AA</span>
         )
     }
     return (

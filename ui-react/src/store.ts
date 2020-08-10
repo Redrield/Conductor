@@ -24,6 +24,12 @@ export enum ActivePage {
     Joysticks
 }
 
+export enum ErrorExplanation {
+    Comms,
+    Code,
+    Joysticks
+}
+
 export interface DriverStationState {
     teamNumber: string;
     connectUSB: boolean;
@@ -35,7 +41,8 @@ export interface DriverStationState {
     robotState: RobotState;
     ws: WebSocket | null;
     activePage: ActivePage;
-    stdout: string[]
+    stdout: string[];
+    explanation: ErrorExplanation | null;
 }
 
 export function initState(): DriverStationState {
@@ -59,6 +66,7 @@ export function initState(): DriverStationState {
         ws: null,
         activePage: ActivePage.Control,
         stdout: [],
+        explanation: null
     }
 }
 
@@ -86,7 +94,13 @@ export interface GSMChange {
     gsm: string;
 }
 
-export type AppAction = Message | SocketConnected | ChangePage | TeamNumberChange | GSMChange;
+export const EXPLANATION_CHANGE = "ExplanationChange";
+export interface ExplanationChange {
+    type: typeof EXPLANATION_CHANGE,
+    explanation: ErrorExplanation | null;
+}
+
+export type AppAction = Message | SocketConnected | ChangePage | TeamNumberChange | GSMChange | ExplanationChange;
 
 export function rootReducer(state: DriverStationState, action: AppAction): DriverStationState {
     switch(action.type) {
@@ -168,6 +182,11 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
             return {
                 ...state,
                 gsm: action.gsm
+            }
+        case EXPLANATION_CHANGE:
+            return {
+                ...state,
+                explanation: action.explanation
             }
         default:
             return state;
