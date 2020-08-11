@@ -5,7 +5,7 @@ use crate::webserver::WebsocketHandler;
 use std::{thread, ptr, mem};
 use x11::{xlib, xinput2};
 use x11::xlib::{XInitThreads, BadRequest, Success, XEvent, XNextEvent, XGetEventData, XGenericEventCookie, GenericEvent, XkbKeycodeToKeysym, NoSymbol, XKeysymToString};
-use std::ffi::CString;
+use std::ffi::{CString, CStr};
 use x11::xinput2::{XI_LASTEVENT, XI_RawKeyPress, XIEventMask, XIRawEvent};
 use std::mem::MaybeUninit;
 use crate::ipc::Message;
@@ -71,7 +71,7 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) {
                                 continue;
                             }
 
-                            let s = CString::from_raw(XKeysymToString(sym));
+                            let s = CStr::from_ptr(XKeysymToString(sym));
                             let key = s.to_str().unwrap();
                             if key == "Return" {
                                 state.write().unwrap().ds.disable();
@@ -82,8 +82,6 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) {
                                 addr.do_send(Message::EstopRobot { from_backend: true });
                                 println!("Estop the robot");
                             }
-                            mem::forget(s); // segfaults and stuff ensue if rust tries to free that pointer
-                            // but i didn't see anything in lsan about this being a leak so idk
                         }
                         _ => {}
                     }
