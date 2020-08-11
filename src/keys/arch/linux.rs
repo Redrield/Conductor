@@ -12,7 +12,7 @@ use std::time::Duration;
 use crate::ipc::Message;
 use x11::keysym::{XK_Return, XK_space};
 
-pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) {
+pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> bool {
     unsafe {
         XInitThreads();
         thread::spawn(move || {
@@ -53,6 +53,7 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) {
             }
         });
     }
+    true
 }
 
 fn check_keycode(keymap: [libc::c_char; 32], code: u8) -> bool {

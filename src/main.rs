@@ -70,11 +70,11 @@ fn main() -> WVResult {
     let addr = rx.recv().unwrap();
     state.write().unwrap().wire_stdout(addr.clone());
 
-    // Inform the frontend whether we'll be handling keybinds here
-    // addr.do_send(Message::Capabilities { backend_keybinds: cfg!(target_os = "linux") });
-    // #[cfg(target_os = "linux")]
-    keys::bind_keys(state.clone(), addr.clone());
-    // addr.do_send(Message::Capabilities { backend_keybinds: false });
+    // Call to platform-specific function to add hooks for the keybindings
+    // If hooks were added the function returns true, if not it returns false. This affects the frontend
+    // in both displaying a disclaimer as well as installing local keypress handlers
+    let keybindings_enabled = keys::bind_keys(state.clone(), addr.clone());
+    addr.do_send(Message::Capabilities { backend_keybinds: keybindings_enabled });
 
     // Start input thread when all the globals are fully initialized
     input::input_thread(addr.clone());
