@@ -15,12 +15,17 @@ const connector = connect(mapState, mapDispatch);
 
 type Props = ConnectedProps<typeof connector>;
 
+function buttonClick(ev: React.MouseEvent<HTMLButtonElement>, enable: boolean, props: Props) {
+    ev.currentTarget.blur();
+    props.updateEnabled(enable);
+}
+
 const EnableButtons = (props: Props) => (
     <div className="btn-group" role="group" aria-label="State Control Buttons">
         <button id="enableButton" type="button" className={`btn btn-lg btn-success ${props.enabled ? "active" : ""}`}
-                onClick={(_) => props.updateEnabled(true)}>Enable</button>
+                onClick={(ev) => buttonClick(ev, true, props)}>Enable</button>
         <button id="disableButton" type="button" className={`btn btn-lg btn-danger ${!props.enabled ? "active" : ""}`}
-                onClick={(_) => props.updateEnabled(false)}>Disable</button>
+                onClick={(ev) => buttonClick(ev, false, props)}>Disable</button>
     </div>
 )
 

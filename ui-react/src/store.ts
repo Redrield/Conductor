@@ -3,10 +3,12 @@ import {
     AllianceStation,
     CAPABILITIES,
     ESTOP_ROBOT,
+    ESTOP_STATUS,
     JOYSTICK_UPDATE,
     Message,
     Mode,
     NEW_STDOUT,
+    QUERY_ESTOP,
     REQUEST,
     ROBOT_STATE_UPDATE,
     RobotState,
@@ -80,55 +82,68 @@ export function initState(): DriverStationState {
 }
 
 export const SOCKET_CONNECTED = "SocketConnected";
+
 export interface SocketConnected {
     type: typeof SOCKET_CONNECTED;
     ws: WebSocket;
 }
 
 export const CHANGE_PAGE = "ChangePage";
+
 export interface ChangePage {
     type: typeof CHANGE_PAGE;
     page: ActivePage;
 }
 
 export const TEAM_NUMBER_CHANGE = "TeamNumberChange";
+
 export interface TeamNumberChange {
     type: typeof TEAM_NUMBER_CHANGE;
     teamNumber: string;
 }
 
 export const GSM_CHANGE = "GSMChange";
+
 export interface GSMChange {
     type: typeof GSM_CHANGE;
     gsm: string;
 }
 
 export const EXPLANATION_CHANGE = "ExplanationChange";
+
 export interface ExplanationChange {
     type: typeof EXPLANATION_CHANGE,
     explanation: ErrorExplanation | null;
 }
 
 export const ACKNOWLEDGE_WARNING = "AcknowledgeWarning";
+
 export interface AcknowledgeWarning {
     type: typeof ACKNOWLEDGE_WARNING
 }
 
-export type AppAction = Message | SocketConnected | ChangePage | TeamNumberChange | GSMChange | ExplanationChange | AcknowledgeWarning;
+export type AppAction =
+    Message
+    | SocketConnected
+    | ChangePage
+    | TeamNumberChange
+    | GSMChange
+    | ExplanationChange
+    | AcknowledgeWarning;
 
 export function rootReducer(state: DriverStationState, action: AppAction): DriverStationState {
-    switch(action.type) {
+    switch (action.type) {
         case JOYSTICK_UPDATE:
-            if(!action.removed) {
+            if (!action.removed) {
                 return {
                     ...state,
                     joysticks: [...state.joysticks, action.name]
                 }
             } else {
                 let newMappings: { [id: number]: string } = {};
-                for(let key in state.joystickMappings) {
+                for (let key in state.joystickMappings) {
                     let name = state.joystickMappings[key];
-                    if(name != action.name) {
+                    if (name != action.name) {
                         newMappings[key] = name;
                     }
                 }
@@ -139,13 +154,26 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 }
             }
         case ROBOT_STATE_UPDATE:
-            return {
-                ...state,
-                robotState: {
-                    commsAlive: action.comms_alive,
-                    codeAlive: action.code_alive,
-                    joysticksConnected: action.joysticks,
-                    voltage: action.voltage
+            if (state.estopped && !action.code_alive) {
+                return {
+                    ...state,
+                    estopped: false,
+                    robotState: {
+                        commsAlive: action.comms_alive,
+                        codeAlive: action.code_alive,
+                        joysticksConnected: action.joysticks,
+                        voltage: action.voltage
+                    }
+                }
+            } else {
+                return {
+                    ...state,
+                    robotState: {
+                        commsAlive: action.comms_alive,
+                        codeAlive: action.code_alive,
+                        joysticksConnected: action.joysticks,
+                        voltage: action.voltage
+                    }
                 }
             }
         case NEW_STDOUT:
@@ -182,7 +210,7 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 mode: action.mode
             }
         case UPDATE_ENABLE_STATUS:
-            if(!action.from_backend) {
+            if (!action.from_backend) {
                 dispatchSocketMessage(state.ws, action);
             }
             return {
@@ -208,11 +236,12 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
             dispatchSocketMessage(state.ws, action);
             return state;
         case ESTOP_ROBOT:
-            if(!action.from_backend) {
+            if (!action.from_backend) {
                 dispatchSocketMessage(state.ws, action);
             }
             return {
                 ...state,
+                enabled: false,
                 estopped: true
             };
         case TEAM_NUMBER_CHANGE:
@@ -231,7 +260,7 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 explanation: action.explanation
             }
         case CAPABILITIES:
-            if(action.backend_keybinds) {
+            if (action.backend_keybinds) {
                 return {
                     ...state,
                     backendKeybinds: action.backend_keybinds,
@@ -248,6 +277,14 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 ...state,
                 warningAcknowledged: true
             }
+        case QUERY_ESTOP:
+            dispatchSocketMessage(state.ws, action);
+            return state;
+        case ESTOP_STATUS:
+            return {
+                ...state,
+                estopped: action.estopped
+            }
         default:
             return state;
     }
@@ -256,7 +293,7 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
 // ReDuCeRs ShOuLdN't HaVe SiDe EfFeCtS
 // well I don't feel like adding another 2gb of new libraries to learn
 function dispatchSocketMessage(ws: WebSocket | null, msg: Message) {
-    if(ws != null) {
+    if (ws != null) {
         ws.send(JSON.stringify(msg));
     }
 }

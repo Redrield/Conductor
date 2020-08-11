@@ -29,9 +29,9 @@ impl Handler<ipc::Message> for WebsocketHandler {
 }
 
 impl StreamHandler<Result<WsMessage, ws::ProtocolError>> for WebsocketHandler {
-    fn handle(&mut self, item: Result<WsMessage, ProtocolError>, _ctx: &mut Self::Context) {
+    fn handle(&mut self, item: Result<WsMessage, ProtocolError>, ctx: &mut Self::Context) {
         if let Ok(WsMessage::Text(json)) = item {
-            self.handle_message(serde_json::from_str(&json).unwrap());
+            self.handle_message(serde_json::from_str(&json).unwrap(), ctx);
         }
     }
 }
@@ -41,7 +41,7 @@ impl WebsocketHandler {
         WebsocketHandler { state }
     }
 
-    pub fn handle_message(&self, msg: ipc::Message) {
+    pub fn handle_message(&self, msg: ipc::Message, ctx: &mut ws::WebsocketContext<Self>) {
         let mut state = self.state.write().unwrap();
         match msg {
             ipc::Message::UpdateTeamNumber { team_number } => {
@@ -97,6 +97,9 @@ impl WebsocketHandler {
                 }
             }
             ipc::Message::EstopRobot { .. } => state.ds.estop(),
+            ipc::Message::QueryEstop => {
+                ctx.text(serde_json::to_string(&ipc::Message::RobotEstopStatus { estopped: state.ds.estopped() }).unwrap());
+            }
             _ => {}
         }
     }

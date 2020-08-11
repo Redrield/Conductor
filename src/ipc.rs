@@ -35,7 +35,8 @@ pub enum Message {
     },
     /// Frontend <-> Backend
     /// Updates the enable status of the robot
-    /// iff the backend handles the keybinds, this will be sent by the backend to update the UI when enter is pressed.
+    /// May be sent from the backend if a joystick is removed when enabled, or if the backend
+    /// is configured to provide global disable hotkeys.
     UpdateEnableStatus {
         enabled: bool,
         from_backend: bool
@@ -77,6 +78,15 @@ pub enum Message {
     /// iff the backend is handling keybinds, this message will be sent to the frontend to notify the UI that the robot is estopped.
     EstopRobot {
         from_backend: bool
+    },
+    /// Frontend -> Backend
+    /// Queries the backends estop status, used when switching connection targets
+    /// to update the frontend if the RIO is estop locked when connected
+    QueryEstop,
+    /// Backend -> Frontend
+    /// Response to the QueryEstop message
+    RobotEstopStatus {
+        estopped: bool
     }
 }
 

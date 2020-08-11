@@ -85,7 +85,6 @@ impl JoystickState {
 
     fn apply_joystick_safety(&self) {
         let msg = Message::UpdateEnableStatus { enabled: false, from_backend: true };
-        println!("Dispatching update to Elm.");
         self.addr.do_send(msg);
     }
 

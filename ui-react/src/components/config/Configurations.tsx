@@ -1,5 +1,5 @@
 import {DriverStationState, GSM_CHANGE, TEAM_NUMBER_CHANGE} from "../../store";
-import {UPDATE_GSM, UPDATE_TEAM_NUMBER, UPDATE_USB_STATUS} from "../../ipc";
+import {QUERY_ESTOP, UPDATE_GSM, UPDATE_TEAM_NUMBER, UPDATE_USB_STATUS} from "../../ipc";
 import React, {ChangeEvent, FormEvent} from "react";
 import {connect, ConnectedProps} from "react-redux";
 
@@ -16,6 +16,7 @@ const mapDispatch = {
     updateUSB: (useUSB: boolean) => ({type: UPDATE_USB_STATUS, use_usb: useUSB}),
     updateGSM: (gsm: string) => ({type: UPDATE_GSM, gsm: gsm}),
     changeGSM: (gsm: string) => ({type: GSM_CHANGE, gsm: gsm}),
+    queryEstop: () => ({type: QUERY_ESTOP})
 }
 
 const connector = connect(mapState, mapDispatch);
@@ -43,10 +44,10 @@ function onGSMChange(props: Props) {
 function onKeyDownHandler(props: Props, type: string) {
     if (type == UPDATE_TEAM_NUMBER) {
         return (ev: React.KeyboardEvent<HTMLInputElement>) => {
-            console.log("Got event with key " + ev.key);
             if (ev.key == "Enter") {
                 console.log("Updating team number");
                 props.updateTeamNumber(+props.teamNumber);
+                setTimeout(() => props.queryEstop(), 100);
             }
         }
     } else {

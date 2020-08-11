@@ -1,5 +1,14 @@
 import React from 'react'
-import {AllianceStation, AllianceColour, initRobotState, Mode, RobotState, UpdateGSM, Message} from './ipc'
+import {
+    AllianceStation,
+    AllianceColour,
+    initRobotState,
+    Mode,
+    RobotState,
+    UpdateGSM,
+    Message,
+    UPDATE_ENABLE_STATUS, ESTOP_ROBOT
+} from './ipc'
 import {ACKNOWLEDGE_WARNING, ActivePage, CHANGE_PAGE, DriverStationState, SOCKET_CONNECTED} from "./store";
 import {connect, ConnectedProps} from "react-redux";
 import ControlPage from "./components/ControlPage";
@@ -9,14 +18,17 @@ import JoysticksPage from "./components/JoysticksPage";
 const mapState = (state: DriverStationState) => ({
     activePage: state.activePage,
     capabilities: state.backendKeybinds,
-    warningAck: state.warningAcknowledged
+    warningAck: state.warningAcknowledged,
+    enabled: state.enabled
 });
 
 const mapDispatch = {
     socketConnected: (ws: WebSocket) => ({type: SOCKET_CONNECTED, ws: ws}),
     socketMessage: (msg: Message) => (msg),
     changePage: (page: ActivePage) => ({type: CHANGE_PAGE, page: page}),
-    ackWarning: () => ({type: ACKNOWLEDGE_WARNING})
+    ackWarning: () => ({type: ACKNOWLEDGE_WARNING}),
+    disableRobot: () => ({type: UPDATE_ENABLE_STATUS, enabled: false, from_backend: false}),
+    estopRobot: () => ({type: ESTOP_ROBOT, from_backend: false})
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -32,6 +44,24 @@ class DriverStation extends React.Component<Props, any> {
         super(props);
 
         this.connectWs(props.webserverPort);
+        this.checkKeybinds = this.checkKeybinds.bind(this);
+    }
+
+    checkKeybinds(ev: KeyboardEvent) {
+        if(ev.key == "Enter") {
+            console.log("Disable Robot");
+            this.props.disableRobot();
+        }
+        if(ev.key == " " && this.props.enabled) {
+            console.log("Estop robot");
+            this.props.estopRobot();
+        }
+    }
+
+    componentDidMount() {
+        if(!this.props.capabilities) {
+            document.addEventListener("keydown", this.checkKeybinds);
+        }
     }
 
     render() {
@@ -88,7 +118,7 @@ class DriverStation extends React.Component<Props, any> {
                     body = (<p>unimplemented</p>)
             }
             return (
-                <div>
+                <>
                     <ul className="nav nav-tabs">
                         <li className="nav-item">
                             <a href="#"
@@ -107,7 +137,7 @@ class DriverStation extends React.Component<Props, any> {
                         </li>
                     </ul>
                     {body}
-                </div>
+                </>
             )
         }
     }

@@ -123,6 +123,17 @@ export interface Capabilities {
     backend_keybinds: boolean;
 }
 
+export const QUERY_ESTOP = "QueryEstop";
+export interface QueryEstop {
+    type: typeof QUERY_ESTOP
+}
+
+export const ESTOP_STATUS = "RobotEstopStatus";
+export interface RobotEstopStatus {
+    type: typeof ESTOP_STATUS
+    estopped: boolean;
+}
+
 export type Message = UpdateGSM | UpdateTeamNumber | UpdateUSBStatus | UpdateMode
 | UpdateEnableStatus | JoystickUpdate | UpdateJoystickMapping | RobotStateUpdate
-| NewStdout | UpdateAllianceStation | Request | EstopRobot | Capabilities;
+| NewStdout | UpdateAllianceStation | Request | EstopRobot | Capabilities | QueryEstop | RobotEstopStatus;

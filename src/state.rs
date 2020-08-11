@@ -14,22 +14,6 @@ impl State {
     pub fn new() -> State {
         let mut ds = DriverStation::new_team(0, Alliance::new_red(1));
 
-        ds.set_tcp_consumer(move |packet| {
-            let handle = crate::WV_HANDLE.wait().unwrap();
-            #[cfg(target_os = "linux")]
-            let stdout_handle = crate::STDOUT_HANDLE.wait().unwrap();
-            match packet {
-                TcpPacket::Stdout(msg) => {
-                    let msg = serde_json::to_string(&Message::NewStdout { message: msg.message }).unwrap();
-                    let msg2 = msg.clone();
-                    let _ = handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
-                    #[cfg(target_os = "linux")]
-                    let _ = stdout_handle.dispatch(move |wv| wv.eval(&format!("update({})", msg2)));
-                }
-                TcpPacket::Dummy => {}
-            }
-        });
-
         ds.set_joystick_supplier(crate::input::joystick_callback);
 
         State {
