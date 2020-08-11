@@ -8,7 +8,7 @@ const mapState = (state: DriverStationState) => ({
 });
 
 const mapDispatch = {
-    updateEnabled: (enabled: boolean) => ({type: UPDATE_ENABLE_STATUS, enabled: enabled})
+    updateEnabled: (enabled: boolean) => ({type: UPDATE_ENABLE_STATUS, enabled: enabled, from_backend: false})
 };
 
 const connector = connect(mapState, mapDispatch);

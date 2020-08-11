@@ -63,7 +63,7 @@ impl WebsocketHandler {
                 println!("Update mode to {:?}", mode);
                 state.set_mode(mode.to_ds());
             }
-            ipc::Message::UpdateEnableStatus { enabled } => {
+            ipc::Message::UpdateEnableStatus { enabled, .. } => {
                 println!("Changing enable status to {}", enabled);
 
                 // #[cfg(target_os = "linux")]
@@ -96,7 +96,7 @@ impl WebsocketHandler {
                     state.ds.restart_code();
                 }
             }
-            ipc::Message::EstopRobot => state.ds.estop(),
+            ipc::Message::EstopRobot { .. } => state.ds.estop(),
             _ => {}
         }
     }

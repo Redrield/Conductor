@@ -1,12 +1,16 @@
 import {
     AllianceColour,
-    AllianceStation, ESTOP_ROBOT,
+    AllianceStation,
+    CAPABILITIES,
+    ESTOP_ROBOT,
     JOYSTICK_UPDATE,
     Message,
     Mode,
-    NEW_STDOUT, REQUEST,
+    NEW_STDOUT,
+    REQUEST,
     ROBOT_STATE_UPDATE,
-    RobotState, UPDATE_ALLIANCE_STATION,
+    RobotState,
+    UPDATE_ALLIANCE_STATION,
     UPDATE_ENABLE_STATUS,
     UPDATE_GSM,
     UPDATE_JOYSTICK_MAPPING,
@@ -172,7 +176,9 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 mode: action.mode
             }
         case UPDATE_ENABLE_STATUS:
-            dispatchSocketMessage(state.ws, action);
+            if(!action.from_backend) {
+                dispatchSocketMessage(state.ws, action);
+            }
             return {
                 ...state,
                 enabled: action.enabled
@@ -196,8 +202,13 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
             dispatchSocketMessage(state.ws, action);
             return state;
         case ESTOP_ROBOT:
-            dispatchSocketMessage(state.ws, action);
-            return state;
+            if(!action.from_backend) {
+                dispatchSocketMessage(state.ws, action);
+            }
+            return {
+                ...state,
+                estopped: true
+            };
         case TEAM_NUMBER_CHANGE:
             return {
                 ...state,
@@ -213,6 +224,9 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 ...state,
                 explanation: action.explanation
             }
+        case CAPABILITIES:
+            console.log("Informed of backend capabilities: " + action.backend_keybinds);
+            return state;
         default:
             return state;
     }

@@ -1,44 +1,83 @@
 use serde::{Serialize, Deserialize};
 use ds::Mode as DsMode;
 
+/// Messages sent between the frontend and backend of the application
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum Message {
+    /// Backend -> Frontend
+    /// The capabilities of the compiled backend
+    /// If compiled on Linux with X11, the backend handles the keybinds for disabling and estopping
+    /// which it can do without regard for window focus. Otherwise, these need to be handled on the frontend
+    Capabilities {
+        backend_keybinds: bool,
+    },
+    /// Frontend -> Backend
+    /// Updates the Game Specific Message (Game Data) in the driver station
     UpdateGSM {
         gsm: String
     },
+    /// Frontend -> Backend
+    /// Updates the team number, and the address the driver station is trying to connect to
     UpdateTeamNumber {
         team_number: u32,
     },
+    /// Frontend -> Backend
+    /// Tells the driver station whether to override the network IP and attempt to connect to the USB
+    /// interface at 172.22.11.2
     UpdateUSBStatus {
         use_usb: bool
     },
+    /// Frontend -> Backend
+    /// Updates the operating mode of the driver station
     UpdateMode {
         mode: Mode
     },
+    /// Frontend <-> Backend
+    /// Updates the enable status of the robot
+    /// iff the backend handles the keybinds, this will be sent by the backend to update the UI when enter is pressed.
     UpdateEnableStatus {
-        enabled: bool
+        enabled: bool,
+        from_backend: bool
     },
+    /// Backend -> Frontend
+    /// Informs the UI of a joystick that has been detected as being added or removed
     JoystickUpdate {
         removed: bool,
         name: String,
     },
+    /// Frontend -> Backend
+    /// Informs the backend of a change to the joystick mappings,
+    /// that is how the joysticks are mapped to the ports readable by robot code
     UpdateJoystickMapping {
         name: String,
         pos: usize
     },
+    /// Backend -> Frontend
+    /// A periodic message that updates the telemetry badges and voltage display in the UI
     RobotStateUpdate {
         comms_alive: bool,
         code_alive: bool,
         joysticks: bool,
         voltage: f32,
     },
+    /// Backend -> Frontend
+    /// A message sent when new stdout data is received from the robot
     NewStdout {
         message: String,
     },
+    /// Frontend -> Backend
+    /// Updates the alliance station
     UpdateAllianceStation { station: AllianceStation },
+    /// Frontend -> Backend
+    /// Informs the backend of a specific request the user selected in the Config menu, restarting code or rebooting the roboRIO
     Request { req: Request, },
-    EstopRobot
+    /// Frontend <-> Backend
+    /// Informs the backend that the user wishes to emergency stop the robot
+    /// iff the backend is handling keybinds, this message will be sent to the frontend to notify the UI that the robot is estopped.
+    EstopRobot {
+        from_backend: bool
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]

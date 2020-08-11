@@ -66,6 +66,7 @@ export interface UpdateMode {
 export const UPDATE_ENABLE_STATUS = "UpdateEnableStatus";
 export interface UpdateEnableStatus {
     type: typeof UPDATE_ENABLE_STATUS;
+    from_backend: boolean;
     enabled: boolean;
 }
 
@@ -113,8 +114,15 @@ export interface Request {
 export const ESTOP_ROBOT = "EstopRobot";
 export interface EstopRobot {
     type: typeof ESTOP_ROBOT;
+    from_backend: boolean;
+}
+
+export const CAPABILITIES = "Capabilities";
+export interface Capabilities {
+    type: typeof CAPABILITIES;
+    backend_keybinds: boolean;
 }
 
 export type Message = UpdateGSM | UpdateTeamNumber | UpdateUSBStatus | UpdateMode
 | UpdateEnableStatus | JoystickUpdate | UpdateJoystickMapping | RobotStateUpdate
-| NewStdout | UpdateAllianceStation | Request | EstopRobot;
+| NewStdout | UpdateAllianceStation | Request | EstopRobot | Capabilities;
