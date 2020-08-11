@@ -78,9 +78,13 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) {
                                 addr.do_send(Message::UpdateEnableStatus { enabled: false, from_backend: true });
                                 println!("Disable the robot");
                             } else if key == "space" {
-                                state.write().unwrap().ds.estop();
-                                addr.do_send(Message::EstopRobot { from_backend: true });
-                                println!("Estop the robot");
+                                let mut state = state.write().unwrap();
+                                // Check that the robot is enabled just so that we dont estop the robot when someone is just typing
+                                if state.ds.enabled() {
+                                    state.ds.estop();
+                                    addr.do_send(Message::EstopRobot { from_backend: true });
+                                    println!("Estop the robot");
+                                }
                             }
                         }
                         _ => {}
