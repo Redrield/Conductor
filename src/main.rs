@@ -71,9 +71,10 @@ fn main() -> WVResult {
     state.write().unwrap().wire_stdout(addr.clone());
 
     // Inform the frontend whether we'll be handling keybinds here
-    addr.do_send(Message::Capabilities { backend_keybinds: cfg!(target_os = "linux") });
-    #[cfg(target_os = "linux")]
+    // addr.do_send(Message::Capabilities { backend_keybinds: cfg!(target_os = "linux") });
+    // #[cfg(target_os = "linux")]
     keys::bind_keys(state.clone(), addr.clone());
+    // addr.do_send(Message::Capabilities { backend_keybinds: false });
 
     // Start input thread when all the globals are fully initialized
     input::input_thread(addr.clone());

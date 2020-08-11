@@ -18,9 +18,6 @@ import {
     UPDATE_TEAM_NUMBER,
     UPDATE_USB_STATUS
 } from "./ipc";
-// import {combineReducers} from "redux";
-// import {frontendReducer} from "./reducers/frontend";
-// import {backendReducer} from "./reducers/backend";
 
 export enum ActivePage {
     Control,
@@ -49,6 +46,8 @@ export interface DriverStationState {
     explanation: ErrorExplanation | null;
     joysticks: string[];
     joystickMappings: { [id: number]: string };
+    backendKeybinds: boolean;
+    warningAcknowledged: boolean;
 }
 
 export function initState(): DriverStationState {
@@ -74,7 +73,9 @@ export function initState(): DriverStationState {
         stdout: [],
         explanation: null,
         joysticks: [],
-        joystickMappings: {}
+        joystickMappings: {},
+        backendKeybinds: false,
+        warningAcknowledged: true,
     }
 }
 
@@ -108,7 +109,12 @@ export interface ExplanationChange {
     explanation: ErrorExplanation | null;
 }
 
-export type AppAction = Message | SocketConnected | ChangePage | TeamNumberChange | GSMChange | ExplanationChange;
+export const ACKNOWLEDGE_WARNING = "AcknowledgeWarning";
+export interface AcknowledgeWarning {
+    type: typeof ACKNOWLEDGE_WARNING
+}
+
+export type AppAction = Message | SocketConnected | ChangePage | TeamNumberChange | GSMChange | ExplanationChange | AcknowledgeWarning;
 
 export function rootReducer(state: DriverStationState, action: AppAction): DriverStationState {
     switch(action.type) {
@@ -225,8 +231,23 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 explanation: action.explanation
             }
         case CAPABILITIES:
-            console.log("Informed of backend capabilities: " + action.backend_keybinds);
-            return state;
+            if(action.backend_keybinds) {
+                return {
+                    ...state,
+                    backendKeybinds: action.backend_keybinds,
+                };
+            } else {
+                return {
+                    ...state,
+                    backendKeybinds: action.backend_keybinds,
+                    warningAcknowledged: false
+                };
+            }
+        case ACKNOWLEDGE_WARNING:
+            return {
+                ...state,
+                warningAcknowledged: true
+            }
         default:
             return state;
     }
