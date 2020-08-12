@@ -11,7 +11,6 @@ mod webserver;
 mod ipc;
 mod input;
 mod util;
-#[cfg(target_os = "linux")]
 mod keys;
 
 mod state;
@@ -43,6 +42,10 @@ fn main() -> WVResult {
         .user_data(())
         .invoke_handler(|_,_| Ok(()))
         .build()?;
+    
+    for _ in 0..100 {
+        webview.step()?;
+    }
 
     // Need to call this to start the app so that it knows the port to connect to
     webview.eval(&format!("window.startapp({})", port)).unwrap();
