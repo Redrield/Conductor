@@ -42,9 +42,12 @@ fn main() -> WVResult {
         .user_data(())
         .invoke_handler(|_,_| Ok(()))
         .build()?;
-    
+
     for _ in 0..100 {
-        webview.step()?;
+        match webview.step() {
+            Some(res) => res?,
+            None => return Ok(()),
+        }
     }
 
     // Need to call this to start the app so that it knows the port to connect to
