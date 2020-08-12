@@ -45,7 +45,7 @@ fn main() -> WVResult {
         .build()?;
 
     // Need to call this to start the app so that it knows the port to connect to
-    webview.eval(&format!("window.startapp({})", port));
+    webview.eval(&format!("window.startapp({})", port)).unwrap();
 
     // #[cfg(target_os = "linux")]
     // let mut stdout_wv = web_view::builder()
