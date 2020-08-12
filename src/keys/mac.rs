@@ -7,7 +7,7 @@ use std::thread;
 use std::time::Duration;
 
 const kCGEventSourceStateCombinedSessionState: i32 = 0;
-
+const kCGEventSourceStateHIDSystemState: i32 = 1
 
 #[link(name = "CoreGraphics", kind = "framework")]
 extern {
