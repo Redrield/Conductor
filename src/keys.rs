@@ -8,10 +8,14 @@ mod arch;
 #[path = "keys/mac.rs"]
 mod arch;
 
+#[cfg(target_os = "windows")]
+#[path = "keys/win.rs"]
+mod arch;
 
 #[cfg(all(
 not(target_os = "linux"),
-not(target_os = "macos")
+not(target_os = "macos"),
+not(target_os = "windows")
 ))]
 #[path = "keys/default.rs"]
 mod arch;
