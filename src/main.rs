@@ -11,7 +11,6 @@ mod webserver;
 mod ipc;
 mod input;
 mod util;
-#[cfg(target_os = "linux")]
 mod keys;
 
 mod state;
@@ -44,6 +43,13 @@ fn main() -> WVResult {
         .invoke_handler(|_,_| Ok(()))
         .build()?;
 
+    for _ in 0..100 {
+        match webview.step() {
+            Some(res) => res?,
+            None => return Ok(()),
+        }
+    }
+
     // Need to call this to start the app so that it knows the port to connect to
     webview.eval(&format!("window.startapp({})", port)).unwrap();
 
@@ -73,9 +79,8 @@ fn main() -> WVResult {
     // Call to platform-specific function to add hooks for the keybindings
     // If hooks were added the function returns true, if not it returns false. This affects the frontend
     // in both displaying a disclaimer as well as installing local keypress handlers
-    // let keybindings_enabled = keys::bind_keys(state.clone(), addr.clone());
-    // addr.do_send(Message::Capabilities { backend_keybinds: keybindings_enabled });
-    addr.do_send(Message::Capabilities { backend_keybinds: false });
+    let keybindings_enabled = keys::bind_keys(state.clone(), addr.clone());
+    addr.do_send(Message::Capabilities { backend_keybinds: keybindings_enabled });
 
     // Start input thread when all the globals are fully initialized
     input::input_thread(addr.clone());
