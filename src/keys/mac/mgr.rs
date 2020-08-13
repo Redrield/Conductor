@@ -11,6 +11,7 @@ mod ffi;
 
 use ffi::*;
 use std::mem::MaybeUninit;
+use std::ptr;
 
 pub struct InputManager {
     iomgr: IOHIDManagerRef,
