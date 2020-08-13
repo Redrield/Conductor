@@ -1,8 +1,7 @@
-use core_foundation::base::{CFAllocatorRef, kCFAllocatorDefault, Boolean, CFIndexConvertible, CFRelease};
-use core_foundation::array::{CFArrayRef, CFArrayGetCount, CFArrayGetValueAtIndex};
-use core_foundation::dictionary::{CFDictionaryRef, CFDictionaryCreateMutable, kCFTypeDictionaryKeyCallBacks, kCFTypeDictionaryValueCallBacks, CFDictionarySetValue, CFMutableDictionaryRef, CFDictionaryApplierFunction};
-use libc::c_void;
-use core_foundation::set::{CFSetRef, CFSetGetCount, CFSetGetValue, CFSetGetValues};
+use core_foundation::base::{kCFAllocatorDefault, Boolean, CFIndexConvertible, CFRelease};
+use core_foundation::array::{CFArrayGetCount, CFArrayGetValueAtIndex};
+use core_foundation::dictionary::{CFDictionaryRef, CFDictionaryCreateMutable, kCFTypeDictionaryKeyCallBacks, kCFTypeDictionaryValueCallBacks, CFDictionarySetValue};
+use core_foundation::set::{CFSetRef, CFSetGetCount, CFSetGetValues};
 use core_foundation::number::CFNumberCreate;
 use core_foundation::string::{CFStringCreateWithBytes, kCFStringEncodingUTF8};
 
@@ -76,9 +75,6 @@ impl Drop for InputManager {
 }
 
 unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHIDElementRef)> {
-    let kHIDPage_GenericDesktop = 0x01;
-    let kHIDUsage_GD_Keyboard = 0x06;
-
     match copy_devices(mgr, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard) {
         Some(keebs) => {
             let count = CFSetGetCount(keebs);
@@ -87,7 +83,7 @@ unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHI
 
             let mut ret = None;
             for keyboard in v {
-                ret = load_keyboard(mgr, keyboard);
+                ret = load_keyboard(keyboard);
                 if ret.is_some() {
                     break;
                 }
@@ -99,7 +95,7 @@ unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHI
     }
 }
 
-unsafe fn load_keyboard(mgr: IOHIDManagerRef, keyboard: IOHIDDeviceRef) -> Option<(IOHIDElementRef, IOHIDElementRef)> {
+unsafe fn load_keyboard(keyboard: IOHIDDeviceRef) -> Option<(IOHIDElementRef, IOHIDElementRef)> {
     let keys = IOHIDDeviceCopyMatchingElements(keyboard, ptr::null(), 0);
     if keys.is_null() {
         println!("NULL keys pointer");
@@ -151,8 +147,8 @@ pub unsafe fn copy_devices(mgr: IOHIDManagerRef, page: u32, usage: u32) -> Optio
         return None;
     }
 
-    let devCount = CFSetGetCount(devices);
-    if devCount < 1 {
+    let dev_count = CFSetGetCount(devices);
+    if dev_count < 1 {
         CFRelease(devices as *const _);
         return None;
     }

@@ -2,13 +2,8 @@ use std::sync::{Arc, RwLock};
 use crate::state::State;
 use actix::Addr;
 use crate::webserver::WebsocketHandler;
-use core_graphics::event::{KeyCode, CGKeyCode};
 use std::thread;
 use std::time::Duration;
-use objc::*;
-use cocoa::appkit::{NSEvent, NSEventMask};
-use block::{Block, ConcreteBlock};
-use cocoa::base::id;
 
 #[path = "mac/mgr.rs"]
 mod mgr;
@@ -47,6 +42,7 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
                 }
             } else {
                 println!("Failed to crate input manager.");
+                addr.do_send(ipc::Message::Capabilities { backend_keybinds: false });
             }
         });
     }

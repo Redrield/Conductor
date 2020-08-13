@@ -1,3 +1,5 @@
+#![allow(non_upper_case_globals)]
+
 use libc::c_void;
 use core_foundation::dictionary::CFDictionaryRef;
 use core_foundation::base::CFAllocatorRef;
@@ -23,6 +25,8 @@ pub type IOHIDValueRef = *const __IOHIDValue;
 pub const kHIDPage_KeyboardOrKeypad: u32 = 0x07;
 pub const kHIDUsage_KeyboardReturnOrEnter: u32 = 0x28;
 pub const kHIDUsage_KeyboardSpacebar: u32 = 0x2C;
+pub const kHIDPage_GenericDesktop: u32 = 0x01;
+pub const kHIDUsage_GD_Keyboard: u32 = 0x06;
 
 #[link(name = "IOKit", kind = "framework")]
 extern {
