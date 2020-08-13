@@ -82,6 +82,7 @@ unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHI
     match copy_devices(mgr, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard) {
         Some(keebs) => {
             let count = CFSetGetCount(keebs);
+            println!("Keyboard count is {}", count);
             let mut v = vec![0 as IOHIDDeviceRef; count as usize];
             CFSetGetValues(keebs, v.as_mut_ptr() as *mut *const _);
 
