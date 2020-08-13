@@ -25,7 +25,7 @@ impl InputManager {
             let mgr = IOHIDManagerCreate(kCFAllocatorDefault, 0);
 
             let open_status = IOHIDManagerOpen(mgr, 0);
-            if open_status != kIOReturnSuccess {
+            if open_status != 0 {
                 println!("Failed to create macOS HID manager");
                 CFRelease(mgr as *const _);
                 return None;

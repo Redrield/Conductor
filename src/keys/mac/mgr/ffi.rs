@@ -21,13 +21,11 @@ pub struct __IOHIDValue(c_void);
 pub type IOHIDValueRef = *const __IOHIDValue;
 
 pub const kHIDPage_KeyboardOrKeypad: u32 = 0x07;
+pub const kHIDUsage_KeyboardReturnOrEnter: u32 = 0x28;
+pub const kHIDUsage_KeyboardSpacebar: u32 = 0x2C;
 
 #[link(name = "IOKit", kind = "framework")]
 extern {
-    pub static kIOReturnSuccess: i32;
-    pub static kHIDUsage_KeyboardReturnOrEnter: u32;
-    pub static kHIDUsage_KeyboardSpacebar: u32;
-
     pub fn IOHIDManagerCreate(allocator: CFAllocatorRef, options: u32) -> IOHIDManagerRef;
     pub fn IOHIDManagerOpen(mgr: IOHIDManagerRef, options: u32) -> i32;
     pub fn IOHIDDeviceCopyMatchingElements(device: IOHIDDeviceRef, matching: CFDictionaryRef, options: u32) -> CFArrayRef;
