@@ -20,12 +20,13 @@ pub type IOHIDElementRef = *const __IOHIDElement;
 pub struct __IOHIDValue(c_void);
 pub type IOHIDValueRef = *const __IOHIDValue;
 
+pub const kHIDPage_KeyboardOrKeypad: u32 = 0x07;
+
 #[link(name = "IOKit", kind = "framework")]
 extern {
     pub static kIOReturnSuccess: i32;
     pub static kHIDUsage_KeyboardReturnOrEnter: u32;
     pub static kHIDUsage_KeyboardSpacebar: u32;
-    pub static kHIDPage_KeyboardOrKeypad: u32;
 
     pub fn IOHIDManagerCreate(allocator: CFAllocatorRef, options: u32) -> IOHIDManagerRef;
     pub fn IOHIDManagerOpen(mgr: IOHIDManagerRef, options: u32) -> i32;
