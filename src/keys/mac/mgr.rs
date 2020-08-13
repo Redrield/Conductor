@@ -10,6 +10,7 @@ use core_foundation::string::{CFStringCreateWithBytes, kCFStringEncodingUTF8};
 mod ffi;
 
 use ffi::*;
+use std::mem::MaybeUninit;
 
 pub struct InputManager {
     iomgr: IOHIDManagerRef,
@@ -39,6 +40,26 @@ impl InputManager {
                 CFRelease(mgr as *const _);
                 return None;
             }
+        }
+    }
+
+    pub fn poll_enter(&self) -> bool {
+        unsafe {
+            let mut value = MaybeUninit::<IOHIDValueRef>::zeroed();
+            let dev = IOHIDElementGetDevice(self.return_key);
+            IOHIDDeviceGetValue(dev, self.return_key, value.as_mut_ptr());
+            let value = value.assume_init();
+            IOHIDValueGetIntegerValue(value) == 1
+        }
+    }
+
+    pub fn poll_spacebar(&self) -> bool {
+        unsafe {
+            let mut value = MaybeUninit::<IOHIDValueRef>::zeroed();
+            let dev = IOHIDElementGetDevice(self.space_key);
+            IOHIDDeviceGetValue(dev, self.space_key, value.as_mut_ptr());
+            let value = value.assume_init();
+            IOHIDValueGetIntegerValue(value) == 1
         }
     }
 }

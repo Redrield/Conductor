@@ -23,6 +23,25 @@ use mgr::*;
 pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> bool {
     unsafe {
         thread::spawn(move || {
+            if let Some(mgr) = InputManager::new() {
+                let mut return_pressed = false;
+                let mut space_pressed = false;
+
+                loop {
+                    if mgr.poll_enter() && !return_pressed {
+                        println!("Disable robot");
+                    }
+                    if mgr.poll_spacebar() && !space_pressed {
+                        println!("Estop robot");
+                    }
+
+                    return_pressed = mgr.poll_enter();
+                    space_pressed = mgr.poll_spacebar();
+                    thread::sleep(Duration::from_millis(20))
+                }
+            } else {
+                println!("Failed to crate input manager.");
+            }
         });
     }
     true
