@@ -85,8 +85,13 @@ unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHI
             let mut v = vec![0 as IOHIDDeviceRef; count as usize];
             CFSetGetValues(keebs, v.as_mut_ptr() as *mut *const _);
 
-            let main_keeb = v[0];
-            let ret = load_keyboard(mgr, main_keeb);
+            let mut ret;
+            for keyboard in v {
+                ret = load_keyboard(mgr, keyboard);
+                if ret.is_some() {
+                    break;
+                }
+            }
             CFRelease(keebs as *const _);
             ret
         }
