@@ -13,6 +13,7 @@ use cocoa::base::id;
 #[path = "mac/mgr.rs"]
 mod mgr;
 use mgr::*;
+use crate::ipc;
 
 
 // #[link(name = "CoreGraphics", kind = "framework")]
@@ -29,10 +30,15 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
 
                 loop {
                     if mgr.poll_enter() && !return_pressed {
-                        println!("Disable robot");
+                        state.write().unwrap().ds.disable();
+                        addr.do_send(ipc::Message::UpdateEnableStatus { enabled: false, from_backend: true });
                     }
                     if mgr.poll_spacebar() && !space_pressed {
-                        println!("Estop robot");
+                        let mut state = state.write().unwrap();
+                        if state.ds.enabled() {
+                            state.ds.estop();
+                            addr.do_send(ipc::Message::EstopRobot { from_backend: true });
+                        }
                     }
 
                     return_pressed = mgr.poll_enter();
