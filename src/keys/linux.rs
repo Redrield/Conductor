@@ -43,7 +43,6 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
                         state.ds.estop();
                         addr.do_send(Message::EstopRobot { from_backend: true });
                     }
-                    println!("Estop the robot");
                 }
 
                 return_pressed = check_keycode(keymap, return_code);
