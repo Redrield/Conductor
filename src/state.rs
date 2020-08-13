@@ -1,7 +1,6 @@
 use ds::{DriverStation, Mode, Alliance, TcpPacket};
 use crate::ipc::Message;
 use crate::webserver::WebsocketHandler;
-use std::sync::{Arc, Mutex};
 use actix::Addr;
 
 pub struct State {

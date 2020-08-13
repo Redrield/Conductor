@@ -1,10 +1,9 @@
-use web_view::{Content, WVResult, Handle};
+use web_view::{Content, WVResult};
 use ipc::*;
-use std::sync::{Arc, RwLock, mpsc, Mutex};
+use std::sync::{Arc, RwLock, mpsc};
 use std::thread;
 use std::time::Duration;
 use crate::state::State;
-use crate::input::MappingUpdate;
 
 mod resources;
 mod webserver;
@@ -14,15 +13,6 @@ mod util;
 mod keys;
 
 mod state;
-
-use spin::Once;
-
-use actix::Addr;
-use actix_web_actors::ws;
-
-static WV_HANDLE: Once<Handle<()>> = Once::new();
-#[cfg(target_os = "linux")]
-static STDOUT_HANDLE: Once<Handle<()>> = Once::new();
 
 fn main() -> WVResult {
     env_logger::init();

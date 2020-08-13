@@ -2,15 +2,11 @@ use std::sync::{Arc, RwLock};
 use crate::state::State;
 use actix::Addr;
 use crate::webserver::WebsocketHandler;
-use std::{thread, ptr, mem};
-use x11::{xlib, xinput2};
-use x11::xlib::{XInitThreads, BadRequest, Success, XEvent, XNextEvent, XGetEventData, XGenericEventCookie, GenericEvent, XkbKeycodeToKeysym, NoSymbol, XKeysymToString, XOpenDisplay, XKeysymToKeycode, XQueryKeymap};
-use std::ffi::{CString, CStr};
-use x11::xinput2::{XI_LASTEVENT, XI_RawKeyPress, XIEventMask, XIRawEvent};
-use std::mem::MaybeUninit;
+use std::{thread, ptr};
 use std::time::Duration;
 use crate::ipc::Message;
 use x11::keysym::{XK_Return, XK_space};
+use x11::xlib::{XInitThreads, XOpenDisplay, XKeysymToKeycode, XQueryKeymap};
 
 pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> bool {
     unsafe {

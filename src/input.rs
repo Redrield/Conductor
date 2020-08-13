@@ -1,5 +1,5 @@
 use gilrs::{Gilrs, Gamepad};
-use std::sync::{RwLock, Arc, Mutex};
+use std::sync::RwLock;
 use lazy_static::lazy_static;
 use std::thread;
 use ds::JoystickValue;

@@ -1,4 +1,4 @@
-use actix::{Actor, StreamHandler, AsyncContext, Message, Handler};
+use actix::{Actor, StreamHandler, Message, Handler};
 use actix_web_actors::ws;
 use actix_web_actors::ws::{Message as WsMessage, ProtocolError};
 use crate::ipc;

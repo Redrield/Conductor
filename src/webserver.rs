@@ -1,14 +1,13 @@
 use std::thread;
 use crate::resources;
 use std::sync::{mpsc, RwLock, Arc, Mutex};
-use actix_web::{HttpServer, web, HttpRequest, Responder, HttpResponse, App};
+use actix_web::{HttpServer, web, HttpRequest, HttpResponse, App};
 use actix_web::body::Body;
 use actix_web_actors::ws;
 use resources::Resources;
 use std::borrow::Cow;
-use futures::future::Future;
 use crate::state::State;
-use actix_web::web::{Data, Payload};
+use actix_web::web::Payload;
 use actix::Addr;
 
 mod sock;
@@ -69,7 +68,7 @@ pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Add
     let (port_tx, port_rx) = mpsc::channel();
 
     thread::spawn(move || {
-        let sys = actix_rt::System::new("elm-ds-actix");
+        let _= actix_rt::System::new("ds-actix");
 
         let server = HttpServer::new(move || {
             // Love redundant cloning to abide by Fn limitations
@@ -88,9 +87,7 @@ pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Add
         let port = server.addrs().first().unwrap().port();
         port_tx.send(port).unwrap();
 
-
         let server = server.run();
-        sys.run();
         futures::executor::block_on(server.stop(true));
     });
 
