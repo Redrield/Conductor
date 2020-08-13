@@ -1,5 +1,5 @@
 use rust_embed::RustEmbed;
 
 #[derive(RustEmbed)]
-#[folder = "ui-react/build"]
+#[folder = "ui/build"]
 pub struct Resources;

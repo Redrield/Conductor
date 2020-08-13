@@ -1,4 +1,2 @@
-2. Add second window for stdout but bigger
-3. Add keybinds in the frontend for !Linux/X11 systems
-3a. Add backend handler for macOS
-4. Create basic UI to tell windows that it's not supported
+1. Add second window for stdout but bigger
+2. Be able to register frontend handler if a second Capabilities is received in the case that a handler failed to register (looking at you macOS)
