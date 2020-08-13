@@ -1,8 +1,8 @@
 use core_foundation::base::{CFAllocatorRef, kCFAllocatorDefault, Boolean, CFIndexConvertible, CFRelease};
-use core_foundation::array::CFArrayRef;
+use core_foundation::array::{CFArrayRef, CFArrayGetCount, CFArrayGetValueAtIndex};
 use core_foundation::dictionary::{CFDictionaryRef, CFDictionaryCreateMutable, kCFTypeDictionaryKeyCallBacks, kCFTypeDictionaryValueCallBacks, CFDictionarySetValue, CFMutableDictionaryRef, CFDictionaryApplierFunction};
 use libc::c_void;
-use core_foundation::set::{CFSetRef, CFSetGetCount};
+use core_foundation::set::{CFSetRef, CFSetGetCount, CFSetGetValue, CFSetGetValues};
 use core_foundation::number::CFNumberCreate;
 use core_foundation::string::{CFStringCreateWithBytes, kCFStringEncodingUTF8};
 
@@ -18,11 +18,27 @@ pub struct InputManager {
 }
 
 impl InputManager {
-    pub fn new() {
+    pub fn new() -> Option<InputManager> {
         unsafe {
             let mgr = IOHIDManagerCreate(kCFAllocatorDefault, 0);
 
-            let openStatus = IOHIDManagerOpen(mgr, 0);
+            let open_status = IOHIDManagerOpen(mgr, 0);
+            if open_status != kIOReturnSuccess {
+                println!("Failed to create macOS HID manager");
+                CFRelease(mgr as *const _);
+                return None;
+            }
+
+            if let Some((ret, spc)) = initialize_keys(mgr) {
+                Some(InputManager {
+                    iomgr: mgr,
+                    return_key: ret,
+                    space_key: spc
+                })
+            } else {
+                CFRelease(mgr as *const _);
+                return None;
+            }
         }
     }
 }
@@ -34,6 +50,65 @@ impl Drop for InputManager {
             CFRelease(self.return_key as *const _);
             CFRelease(self.space_key as *const _);
         }
+    }
+}
+
+unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHIDElementRef)> {
+    let kHIDPage_GenericDesktop = 0x01;
+    let kHIDUsage_GD_Keyboard = 0x06;
+
+    match copy_devices(mgr, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard) {
+        Some(keebs) => {
+            let count = CFSetGetCount(keebs);
+            let mut v = vec![0 as IOHIDDeviceRef; count as usize];
+            CFSetGetValues(keebs, v.as_mut_ptr() as *mut *const _);
+
+            let main_keeb = v[0];
+            let ret = load_keyboard(mgr, main_keeb);
+            CFRelease(keebs as *const _);
+            ret
+        }
+        None => None
+    }
+}
+
+unsafe fn load_keyboard(mgr: IOHIDManagerRef, keyboard: IOHIDDeviceRef) -> Option<(IOHIDElementRef, IOHIDElementRef)> {
+    let keys = IOHIDDeviceCopyMatchingElements(keyboard, ptr::null(), 0);
+    if keys.is_null() {
+        println!("NULL keys pointer");
+        return None;
+    }
+
+    let count = CFArrayGetCount(keys);
+    if count == 0 {
+        println!("Keyless keyboard");
+        CFRelease(keys as *const _);
+    }
+
+    let mut return_key = None;
+    let mut space_key = None;
+
+    for i in 0..count {
+        let key = CFArrayGetValueAtIndex(keys, i) as IOHIDElementRef;
+
+        if IOHIDElementGetUsagePage(key) != kHIDPage_KeyboardOrKeypad {
+            continue;
+        }
+
+        let usage = IOHIDElementGetUsage(key);
+
+        if usage == kHIDUsage_KeyboardReturnOrEnter {
+            return_key = Some(key);
+        }
+
+        if usage == kHIDUsage_KeyboardSpacebar {
+            space_key = Some(key);
+        }
+    }
+
+    match (return_key, space_key) {
+        (Some(ret), Some(spc)) => Some((ret, spc)),
+        _ => None
     }
 }
 
