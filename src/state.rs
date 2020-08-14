@@ -36,7 +36,7 @@ impl State {
         });
     }
 
-    #[cfg(target_os = "linux")]
+    // #[cfg(target_os = "linux")]
     pub fn wire_stdout_two(&mut self, addr: Addr<WebsocketHandler>, stdout: Addr<StdoutHandler>) {
         self.stdout_addr = Some(stdout.clone());
         self.ds.set_tcp_consumer(move |packet| {
