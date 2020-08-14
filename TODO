@@ -1,2 +1,1 @@
-1. Add second window for stdout but bigger
-2. Be able to register frontend handler if a second Capabilities is received in the case that a handler failed to register (looking at you macOS)
+1. See if macOS can handle a second webview in the app
