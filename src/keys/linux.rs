@@ -29,14 +29,14 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
                 XQueryKeymap(display, keymap.as_mut_ptr());
 
                 if check_keycode(keymap, return_code) && !return_pressed {
-                    state.write().unwrap().ds.disable();
+                    state.write().unwrap().disable();
                     addr.do_send(Message::UpdateEnableStatus { enabled: false, from_backend: true });
                 }
 
                 if check_keycode(keymap, space_code) && !space_pressed {
                     let mut state = state.write().unwrap();
                     if state.ds.enabled() {
-                        state.ds.estop();
+                        state.estop();
                         addr.do_send(Message::EstopRobot { from_backend: true });
                     }
                 }

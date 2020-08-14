@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use ds::Mode as DsMode;
 
 /// Messages sent between the frontend and backend of the application
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub enum Message {
     /// Backend -> Frontend

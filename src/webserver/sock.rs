@@ -7,6 +7,25 @@ use std::sync::{Arc, RwLock};
 use crate::ipc::Request;
 use crate::input::{self, MappingUpdate};
 
+pub struct StdoutHandler;
+
+impl Actor for StdoutHandler {
+    type Context = ws::WebsocketContext<Self>;
+}
+
+impl Handler<ipc::Message> for StdoutHandler {
+    type Result = ();
+
+    fn handle(&mut self, msg: ipc::Message, ctx: &mut Self::Context) -> Self::Result {
+        ctx.text(serde_json::to_string(&msg).unwrap());
+    }
+}
+
+impl StreamHandler<Result<WsMessage, ws::ProtocolError>> for StdoutHandler {
+    fn handle(&mut self, _item: Result<WsMessage, ProtocolError>, _ctx: &mut Self::Context) {
+    }
+}
+
 pub struct WebsocketHandler {
     state: Arc<RwLock<State>>
 }
@@ -76,9 +95,9 @@ impl WebsocketHandler {
                     // }
 
                 if enabled {
-                    state.ds.enable();
+                    state.enable();
                 } else {
-                    state.ds.disable();
+                    state.disable();
                 }
             }
             ipc::Message::UpdateJoystickMapping { name, pos } => {
@@ -96,7 +115,7 @@ impl WebsocketHandler {
                     state.ds.restart_code();
                 }
             }
-            ipc::Message::EstopRobot { .. } => state.ds.estop(),
+            ipc::Message::EstopRobot { .. } => state.estop(),
             ipc::Message::QueryEstop => {
                 ctx.text(serde_json::to_string(&ipc::Message::RobotEstopStatus { estopped: state.ds.estopped() }).unwrap());
             }

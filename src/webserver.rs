@@ -4,7 +4,7 @@ use std::sync::{mpsc, RwLock, Arc, Mutex};
 use actix_web::{HttpServer, web, HttpRequest, HttpResponse, App};
 use actix_web::body::Body;
 use actix_web_actors::ws;
-use resources::Resources;
+use resources::*;
 use std::borrow::Cow;
 use crate::state::State;
 use actix_web::web::Payload;
@@ -27,7 +27,16 @@ fn assets(path: web::Path<String>) -> HttpResponse {
             };
             HttpResponse::Ok().content_type(mime_guess::from_path(path).first_or_octet_stream().as_ref()).body(body)
         }
-        None => HttpResponse::NotFound().body("404 Not Found")
+        None => match StdoutResources::get(&path) {
+            Some(content) => {
+                let body: Body = match content {
+                    Cow::Borrowed(bytes) => bytes.into(),
+                    Cow::Owned(bytes) => bytes.into(),
+                };
+                HttpResponse::Ok().content_type(mime_guess::from_path(path).first_or_octet_stream().as_ref()).body(body)
+            }
+            None => HttpResponse::NotFound().body("404 Not Found")
+        }
     }
 }
 
@@ -43,7 +52,7 @@ fn index(_req: HttpRequest) -> HttpResponse {
 }
 
 fn stdout(_req: HttpRequest) -> HttpResponse {
-    let contents = Resources::get("stdout.html").unwrap();
+    let contents = StdoutResources::get("index.html").unwrap();
     let body: Body = match contents {
         Cow::Borrowed(bytes) => bytes.into(),
         Cow::Owned(bytes) => bytes.into(),
@@ -64,7 +73,14 @@ fn main_sock(req: HttpRequest, stream: Payload) -> HttpResponse {
     res
 }
 
-pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Addr<WebsocketHandler>>) -> u16 {
+fn stdout_sock(req: HttpRequest, stream: Payload) -> HttpResponse {
+    let tx = req.app_data::<Mutex<mpsc::Sender<Addr<StdoutHandler>>>>().unwrap();
+    let (addr, res) = ws::start_with_addr(StdoutHandler, &req, stream).unwrap();
+    tx.lock().unwrap().send(addr).unwrap();
+    res
+}
+
+pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Addr<WebsocketHandler>>, stdout_sender: mpsc::Sender<Addr<StdoutHandler>>) -> u16 {
     let (port_tx, port_rx) = mpsc::channel();
 
     thread::spawn(move || {
@@ -75,10 +91,12 @@ pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Add
             App::new()
                 .app_data(state.clone())
                 .app_data(Mutex::new(addr_sender.clone()))
+                .app_data(Mutex::new(stdout_sender.clone()))
                 .wrap(Logger::default())
                 .route("/", web::get().to(index))
                 .route("/stdout", web::get().to(stdout))
                 .route("/ws/index", web::get().to(main_sock))
+                .route("/ws/stdout", web::get().to(stdout_sock))
                 .route("/{path:.*}", web::get().to(assets))
         })
             .bind("127.0.0.1:0")

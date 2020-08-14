@@ -82,7 +82,6 @@ export function initState(): DriverStationState {
 }
 
 export const SOCKET_CONNECTED = "SocketConnected";
-
 export interface SocketConnected {
     type: typeof SOCKET_CONNECTED;
     ws: WebSocket;

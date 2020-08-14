@@ -19,8 +19,9 @@ fn main() -> WVResult {
 
     let state = Arc::new(RwLock::new(State::new()));
     let (tx, rx) = mpsc::channel();
+    let (stdout_tx, stdout_rx) = mpsc::channel();
 
-    let port = webserver::launch_webserver(state.clone(), tx);
+    let port = webserver::launch_webserver(state.clone(), tx, stdout_tx);
     println!("Webserver launched on port {}", port);
 
     let mut webview = web_view::builder()
@@ -33,15 +34,35 @@ fn main() -> WVResult {
         .invoke_handler(|_,_| Ok(()))
         .build()?;
 
+    #[cfg(target_os = "linux")]
+    let mut stdout_wv = web_view::builder()
+        .title("Robot Console")
+        .content(Content::Url(&format!("http://localhost:{}/stdout", port)))
+        .size(650, 650)
+        .resizable(true)
+        .debug(true)
+        .user_data(())
+        .invoke_handler(|_, _| Ok(()))
+        .build()?;
+
     for _ in 0..100 {
         match webview.step() {
             Some(res) => res?,
             None => return Ok(()),
         }
+        #[cfg(target_os = "linux")]
+        {
+            match stdout_wv.step() {
+                Some(res) => res?,
+                None => return Ok(())
+            }
+        }
     }
 
     // Need to call this to start the app so that it knows the port to connect to
     webview.eval(&format!("window.startapp({})", port)).unwrap();
+    #[cfg(target_os = "linux")]
+    stdout_wv.eval(&format!("window.startapp({})", port)).unwrap();
 
     // #[cfg(target_os = "linux")]
     // let mut stdout_wv = web_view::builder()
@@ -64,7 +85,13 @@ fn main() -> WVResult {
     // }
 
     let addr = rx.recv().unwrap();
-    state.write().unwrap().wire_stdout(addr.clone());
+    #[cfg(target_os = "linux")]
+    let stdout_addr = stdout_rx.recv().unwrap();
+    if cfg!(target_os = "linux") {
+        state.write().unwrap().wire_stdout_two(addr.clone(), stdout_addr);
+    } else {
+        state.write().unwrap().wire_stdout(addr.clone());
+    }
 
     // Call to platform-specific function to add hooks for the keybindings
     // If hooks were added the function returns true, if not it returns false. This affects the frontend
@@ -103,13 +130,13 @@ fn main() -> WVResult {
             None => break,
         }
 
-        // #[cfg(target_os = "linux")]
-        // {
-        //     match stdout_wv.step() {
-        //         Some(res) => res?,
-        //         None => break
-        //     }
-        // }
+        #[cfg(target_os = "linux")]
+        {
+            match stdout_wv.step() {
+                Some(res) => res?,
+                None => break
+            }
+        }
     }
 
     Ok(())
