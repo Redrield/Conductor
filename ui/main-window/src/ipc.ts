@@ -26,6 +26,7 @@ export interface RobotState {
     codeAlive: boolean;
     voltage: number;
     joysticksConnected: boolean;
+    simulatorConnected: boolean;
 }
 
 export function initRobotState() {
@@ -90,6 +91,7 @@ export interface RobotStateUpdate {
     comms_alive: boolean;
     code_alive: boolean;
     joysticks: boolean;
+    simulator: boolean;
     voltage: number;
 }
 

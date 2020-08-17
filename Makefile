@@ -1,6 +1,10 @@
 
-.PHONY: all
+.PHONY: main
 
+main:
+	cd ui/main-window \
+		&& npm run build:react
+	RUST_LOG=info cargo run
 
 all:
 	cd ui/main-window \

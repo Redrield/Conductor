@@ -68,6 +68,7 @@ export function initState(): DriverStationState {
             commsAlive: false,
             codeAlive: false,
             joysticksConnected: false,
+            simulatorConnected: false,
             voltage: 0.0
         },
         ws: null,
@@ -161,7 +162,8 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                         commsAlive: action.comms_alive,
                         codeAlive: action.code_alive,
                         joysticksConnected: action.joysticks,
-                        voltage: action.voltage
+                        voltage: action.voltage,
+                        simulatorConnected: action.simulator,
                     }
                 }
             } else {
@@ -171,7 +173,8 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                         commsAlive: action.comms_alive,
                         codeAlive: action.code_alive,
                         joysticksConnected: action.joysticks,
-                        voltage: action.voltage
+                        voltage: action.voltage,
+                        simulatorConnected: action.simulator
                     }
                 }
             }

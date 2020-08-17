@@ -3,7 +3,7 @@ import {AllianceStation, Mode, RobotState, UPDATE_ALLIANCE_STATION, UPDATE_ENABL
 import {connect, ConnectedProps} from "react-redux";
 import React from "react";
 import ModeList from "./control/ModeList";
-import TelemetryList from "./control/TelemetryList";
+import TelemetryList, {failStyle, successStyle} from "./control/TelemetryList";
 import StdoutView from "./control/StdoutView";
 import EnableButtons from "./control/EnableButtons";
 import AllianceStationSelector from "./control/AllianceStationSelector";
@@ -53,6 +53,24 @@ function robotStatus(state: Props) {
     }
 }
 
+function simulatorBadge(connected: boolean) {
+    let badge;
+
+    if(connected) {
+        badge = (
+            <span className="badge badge-pill badge-success" style={successStyle}>*</span>
+        )
+    } else {
+        badge = (
+            <span className="badge badge-pill badge-danger" style={failStyle}>*</span>
+        )
+    }
+
+    return (
+        <p className="text-sm-right">Simulator Connection {badge}</p>
+    )
+}
+
 const ControlPage = (props: Props) => (
     <div className="container-fluid">
         <div className="row">
@@ -88,6 +106,14 @@ const ControlPage = (props: Props) => (
                 <p className="text-center lead">{robotStatus(props)}</p>
             </div>
             <div className="col" />
+        </div>
+        <div className="row">
+            <div className="col" />
+            <div className="col" />
+            <div className="col" />
+            <div className="col" style={{marginTop: "-15px"}}>
+                {simulatorBadge(props.robotState.simulatorConnected)}
+            </div>
         </div>
     </div>
 )

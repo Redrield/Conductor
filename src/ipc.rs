@@ -57,9 +57,15 @@ pub enum Message {
     /// Backend -> Frontend
     /// A periodic message that updates the telemetry badges and voltage display in the UI
     RobotStateUpdate {
+        /// Whether the driver station is currently connected to a robot
         comms_alive: bool,
+        /// Whether the user code is running
         code_alive: bool,
+        /// Whether there are any input devices attached to the computer
         joysticks: bool,
+        /// Whether the DS is in Simulator mode, where it connects to the WPILib simulator instead of a robot
+        simulator: bool,
+        /// The reported voltage of the robot
         voltage: f32,
     },
     /// Backend -> Frontend

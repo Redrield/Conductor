@@ -22,11 +22,11 @@ const TelemetryList = (props: Props) => (
     </ul>
 )
 
-const successStyle = {
+export const successStyle = {
     color: "#00BC8C"
 }
 
-const failStyle = {
+export const failStyle = {
     color: "#E74C3C"
 }
 

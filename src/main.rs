@@ -4,6 +4,7 @@ use std::sync::{Arc, RwLock, mpsc};
 use std::thread;
 use std::time::Duration;
 use crate::state::State;
+use ds::DsMode;
 
 mod resources;
 mod webserver;
@@ -28,7 +29,7 @@ fn main() -> WVResult {
         .title("Driver Station")
         .content(Content::Url(&format!("http://localhost:{}", port)))
         .size(1080, 300)
-        //.resizable(false)
+        .resizable(false)
         .debug(true)
         .user_data(())
         .invoke_handler(|_,_| Ok(()))
@@ -111,10 +112,11 @@ fn main() -> WVResult {
                 let ds = &state.ds;
                 let comms = ds.trace().is_connected();
                 let code = ds.trace().is_code_started();
+                let sim = ds.ds_mode() == DsMode::Simulation;
                 let joysticks = input::JS_STATE.wait().unwrap().read().unwrap().has_joysticks();
                 let voltage = ds.battery_voltage();
 
-                Message::RobotStateUpdate { comms_alive: comms, code_alive: code, joysticks, voltage }
+                Message::RobotStateUpdate { comms_alive: comms, code_alive: code, simulator: sim, joysticks, voltage }
             };
 
             ticker_addr.do_send(msg);
