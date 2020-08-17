@@ -2,7 +2,6 @@ import {DriverStationState} from "../../store";
 import {Mode, UPDATE_MODE} from "../../ipc";
 import {connect, ConnectedProps} from "react-redux";
 import React from "react";
-import './ModeList.css'
 
 const mapState = (state: DriverStationState) => ({
     mode: state.mode
@@ -17,17 +16,24 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector>;
 
 const ModeList = (props: Props) => (
-    <div className="list-group">
+    <div className="btn-group-vertical">
         {modeItem(props, Mode.Autonomous)}
         {modeItem(props, Mode.Teleoperated)}
         {modeItem(props, Mode.Test)}
     </div>
 )
 
+function action(ev: React.MouseEvent<HTMLButtonElement>, props: Props, mode: Mode) {
+    ev.currentTarget.blur();
+    props.updateMode(mode);
+}
+
 function modeItem(props: Props, mode: Mode) {
     return (
-        <a href="#" className={`list-group-item list-group-item-action py-1 ${props.mode == mode ? "active" : ""}`}
-           onClick={() => props.updateMode(mode)}>{mode.toString()}</a>
+        <button type="button" className={`btn btn-secondary btn-block border border-dark text-left ${props.mode == mode ? "active" : ""}`}
+                onClick={(ev) => action(ev, props, mode)}>
+            {mode.toString()}
+        </button>
     )
 }
 

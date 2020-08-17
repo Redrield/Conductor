@@ -74,7 +74,7 @@ function simulatorBadge(connected: boolean) {
 const ControlPage = (props: Props) => (
     <div className="container-fluid">
         <div className="row">
-            <div className="col-3 mt-4">
+            <div className="col-3 mt-4 d-flex flex-column">
                 <ModeList />
             </div>
 
