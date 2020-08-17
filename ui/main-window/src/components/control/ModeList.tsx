@@ -2,6 +2,7 @@ import {DriverStationState} from "../../store";
 import {Mode, UPDATE_MODE} from "../../ipc";
 import {connect, ConnectedProps} from "react-redux";
 import React from "react";
+import './ModeList.css'
 
 const mapState = (state: DriverStationState) => ({
     mode: state.mode

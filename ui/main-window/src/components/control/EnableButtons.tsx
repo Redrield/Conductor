@@ -22,10 +22,14 @@ function buttonClick(ev: React.MouseEvent<HTMLButtonElement>, enable: boolean, p
 
 const EnableButtons = (props: Props) => (
     <div className="btn-group" role="group" aria-label="State Control Buttons">
-        <button id="enableButton" type="button" className={`btn btn-lg btn-success ${props.enabled ? "active" : ""}`}
-                onClick={(ev) => buttonClick(ev, true, props)}>Enable</button>
-        <button id="disableButton" type="button" className={`btn btn-lg btn-danger ${!props.enabled ? "active" : ""}`}
-                onClick={(ev) => buttonClick(ev, false, props)}>Disable</button>
+        <button id="enableButton" type="button" className={`btn btn-lg btn-secondary ${props.enabled ? "active" : ""}`}
+                onClick={(ev) => buttonClick(ev, true, props)} style={{color: "#11CD9D"}}>
+            <b>Enable</b>
+        </button>
+        <button id="disableButton" type="button" className={`btn btn-lg btn-secondary ${!props.enabled ? "active" : ""}`}
+                onClick={(ev) => buttonClick(ev, false, props)} style={{color: "#F85D4D"}}>
+            <b>Disable</b>
+        </button>
     </div>
 )
 
