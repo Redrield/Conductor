@@ -39,7 +39,7 @@ function allianceStations(props: Props) {
 }
 
 const AllianceStationSelector = (props: Props) => (
-    <div className="input-group">
+    <div className="input-group justify-content-center">
         <div className="input-group-prepend">
             <label htmlFor="teamSelectorDropdown" className="dropdown-label lead font-weight-normal">Team Station </label>
         </div>
