@@ -84,7 +84,7 @@ pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Add
     let (port_tx, port_rx) = mpsc::channel();
 
     thread::spawn(move || {
-        let _= actix_rt::System::new("ds-actix");
+        let _= actix_rt::System::new("conductords-actix");
 
         let server = HttpServer::new(move || {
             // Love redundant cloning to abide by Fn limitations

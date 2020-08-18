@@ -26,7 +26,7 @@ fn main() -> WVResult {
     println!("Webserver launched on port {}", port);
 
     let mut webview = web_view::builder()
-        .title("Driver Station")
+        .title("Conductor DS")
         .content(Content::Url(&format!("http://localhost:{}", port)))
         .size(1080, 300)
         .resizable(false)
