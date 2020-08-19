@@ -68,8 +68,8 @@ fn main() -> WVResult {
 
     let addr = rx.recv().unwrap();
     #[cfg(target_os = "linux")]
-    let stdout_addr = stdout_rx.recv().unwrap();
-    if cfg!(target_os = "linux") {
+    {
+        let stdout_addr = stdout_rx.recv().unwrap();
         addr.do_send(SetAddr { addr: stdout_addr });
     }
     state.write().unwrap().wire_stdout(addr.clone());
