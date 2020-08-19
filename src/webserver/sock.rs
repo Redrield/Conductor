@@ -1,4 +1,4 @@
-use actix::{Actor, StreamHandler, Message, Handler};
+use actix::{Actor, StreamHandler, Message, Handler, Addr};
 use actix_web_actors::ws;
 use actix_web_actors::ws::{Message as WsMessage, ProtocolError};
 use crate::ipc;
@@ -17,7 +17,11 @@ impl Handler<ipc::Message> for StdoutHandler {
     type Result = ();
 
     fn handle(&mut self, msg: ipc::Message, ctx: &mut Self::Context) -> Self::Result {
-        ctx.text(serde_json::to_string(&msg).unwrap());
+        match msg {
+            ipc::Message::UpdateEnableStatus { .. } | ipc::Message::NewStdout { .. } =>
+                ctx.text(serde_json::to_string(&msg).unwrap()),
+            _ => {}
+        }
     }
 }
 
@@ -27,7 +31,16 @@ impl StreamHandler<Result<WsMessage, ws::ProtocolError>> for StdoutHandler {
 }
 
 pub struct WebsocketHandler {
-    state: Arc<RwLock<State>>
+    state: Arc<RwLock<State>>,
+    stdout_addr: Option<Addr<StdoutHandler>>,
+}
+
+pub struct SetAddr {
+    pub addr: Addr<StdoutHandler>,
+}
+
+impl Message for SetAddr {
+    type Result = ();
 }
 
 impl Message for ipc::Message {
@@ -44,6 +57,17 @@ impl Handler<ipc::Message> for WebsocketHandler {
     fn handle(&mut self, msg: ipc::Message, ctx: &mut Self::Context) -> Self::Result {
         let json = serde_json::to_string(&msg).unwrap();
         ctx.text(json);
+        if let Some(addr) = &self.stdout_addr {
+            addr.do_send(msg);
+        }
+    }
+}
+
+impl Handler<SetAddr> for WebsocketHandler {
+    type Result = ();
+
+    fn handle(&mut self, msg: SetAddr, _ctx: &mut Self::Context) -> Self::Result {
+        self.stdout_addr = Some(msg.addr);
     }
 }
 
@@ -57,7 +81,7 @@ impl StreamHandler<Result<WsMessage, ws::ProtocolError>> for WebsocketHandler {
 
 impl WebsocketHandler {
     pub fn new(state: Arc<RwLock<State>>) -> WebsocketHandler {
-        WebsocketHandler { state }
+        WebsocketHandler { state, stdout_addr: None }
     }
 
     pub fn handle_message(&self, msg: ipc::Message, ctx: &mut ws::WebsocketContext<Self>) {
@@ -85,14 +109,9 @@ impl WebsocketHandler {
             ipc::Message::UpdateEnableStatus { enabled, .. } => {
                 println!("Changing enable status to {}", enabled);
 
-                // #[cfg(target_os = "linux")]
-                //     {
-                //         let handle = STDOUT_HANDLE.wait().unwrap();
-                        // Autoscrolling is disabled with the robot, to make it easier to scroll up to view potential error stack traces.
-                        // Updating the state of the robot console window means that it will start autoscrolling with new messages.
-                        // let msg = serde_json::to_string(&Message::UpdateEnableStatus { enabled }).unwrap();
-                        // let _ = handle.dispatch(move |wv| wv.eval(&format!("update({})", msg)));
-                    // }
+                if let Some(addr) = &self.stdout_addr {
+                    addr.do_send(msg);
+                }
 
                 if enabled {
                     state.enable();

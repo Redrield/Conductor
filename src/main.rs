@@ -5,6 +5,7 @@ use std::thread;
 use std::time::Duration;
 use crate::state::State;
 use ds::DsMode;
+use crate::webserver::SetAddr;
 
 mod resources;
 mod webserver;
@@ -65,34 +66,13 @@ fn main() -> WVResult {
     #[cfg(target_os = "linux")]
     stdout_wv.eval(&format!("window.startapp({})", port)).unwrap();
 
-    // #[cfg(target_os = "linux")]
-    // let mut stdout_wv = web_view::builder()
-    //     .title("Robot Console")
-    //     .content(Content::Url(&format!("http://localhost:{}/stdout", port)))
-    //     .size(650, 650)
-    //     .resizable(true)
-    //     .debug(true)
-    //     .user_data(())
-    //     .invoke_handler(|_, _| Ok(()))
-    //     .build()?;
-    //
-    // let handle = webview.handle();
-    // WV_HANDLE.call_once(move || handle);
-    //
-    // #[cfg(target_os = "linux")]
-    // {
-    //     let stdout_handle = stdout_wv.handle();
-    //     STDOUT_HANDLE.call_once(move || stdout_handle);
-    // }
-
     let addr = rx.recv().unwrap();
     #[cfg(target_os = "linux")]
     let stdout_addr = stdout_rx.recv().unwrap();
     if cfg!(target_os = "linux") {
-        state.write().unwrap().wire_stdout_two(addr.clone(), stdout_addr);
-    } else {
-        state.write().unwrap().wire_stdout(addr.clone());
+        addr.do_send(SetAddr { addr: stdout_addr });
     }
+    state.write().unwrap().wire_stdout(addr.clone());
 
     // Call to platform-specific function to add hooks for the keybindings
     // If hooks were added the function returns true, if not it returns false. This affects the frontend

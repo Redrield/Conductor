@@ -90,7 +90,6 @@ impl JoystickState {
 
     fn report_joystick(&self, name: String, removed: bool) {
         let msg = Message::JoystickUpdate { removed, name };
-        // Always unwrap because this should be set prior to anything starting to go
         self.addr.do_send(msg);
     }
 }

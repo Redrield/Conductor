@@ -27,6 +27,8 @@ fn assets(path: web::Path<String>) -> HttpResponse {
             };
             HttpResponse::Ok().content_type(mime_guess::from_path(path).first_or_octet_stream().as_ref()).body(body)
         }
+        // Cascading is required because react makes the two views less unified than they were with elm
+        // This is for when the stdout page is loading and needs to find its own javascript and other assets
         None => match StdoutResources::get(&path) {
             Some(content) => {
                 let body: Body = match content {
