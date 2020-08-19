@@ -3,7 +3,7 @@ use std::sync::RwLock;
 use lazy_static::lazy_static;
 use std::thread;
 use ds::JoystickValue;
-use spin::Once;
+use conquer_once::OnceCell;
 use std::collections::HashMap;
 use std::time::Duration;
 use crate::ipc::Message;
@@ -17,7 +17,7 @@ lazy_static! {
     pub static ref QUEUED_MAPPING_UPDATES: RwLock<Vec<MappingUpdate>> = RwLock::new(Vec::new());
 }
 
-pub static JS_STATE: Once<RwLock<JoystickState>> = Once::new();
+pub static JS_STATE: OnceCell<RwLock<JoystickState>> = OnceCell::uninit();
 
 #[derive(Clone)]
 pub struct MappingUpdate {
@@ -95,11 +95,11 @@ impl JoystickState {
 }
 
 pub fn input_thread(addr: Addr<WebsocketHandler>) {
-    JS_STATE.call_once(move || RwLock::new(JoystickState::new(addr)));
+    JS_STATE.init_once(move || RwLock::new(JoystickState::new(addr)));
     thread::spawn(move || {
         loop {
             {
-                let mut state = JS_STATE.wait().unwrap().write().unwrap();
+                let mut state = JS_STATE.get().unwrap().write().unwrap();
                 state.update();
 
                 if !QUEUED_MAPPING_UPDATES.read().unwrap().is_empty() {
@@ -121,9 +121,9 @@ pub fn input_thread(addr: Addr<WebsocketHandler>) {
 }
 
 pub fn joystick_callback() -> Vec<Vec<JoystickValue>> {
-    let state = match JS_STATE.wait() {
-        Some(state) => state.read().unwrap(),
-        None => return vec![] // Input thread uninitialized
+    let state = match JS_STATE.try_get() {
+        Ok(state) => state.read().unwrap(),
+        Err(_) => return vec![] // Input thread uninitialized
     };
 
     let gil = &state.gil;
