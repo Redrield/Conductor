@@ -30,7 +30,7 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
                         addr.do_send(ipc::Message::EstopRobot { from_backend: true });
                     }
                 }
-                if mgr.poll_enable() {
+                if mgr.poll_enable() && !enable_triggered {
                     // state.write().unwrap().enable();
                     // addr.do_send(ipc::Message::UpdateEnableStatus { enabled: false, from_backend: true });
                     println!("Enable the robot");

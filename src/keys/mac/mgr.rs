@@ -84,13 +84,16 @@ impl InputManager {
             IOHIDDeviceGetValue(dev, self.rbracket_key, rbr_value.as_mut_ptr());
 
             // Backslash
-
             let dev = IOHIDElementGetDevice(self.backslash_key);
             IOHIDDeviceGetValue(dev, self.backslash_key, bcksl_value.as_mut_ptr());
 
-            IOHIDValueGetIntegerValue(lbr_value.assume_init()) == 1 &&
-                IOHIDValueGetIntegerValue(rbr_value.assume_init()) == 1 &&
-                IOHIDValueGetIntegerValue(bcksl_value.assume_init()) == 1
+            let lbr = IOHIDValueGetIntegerValue(lbr_value.assume_init()) == 1;
+            let rbr = IOHIDValueGetIntegerValue(rbr_value.assume_init()) == 1;
+            let bcksl = IOHIDValueGetIntegerValue(bcksl_value.assume_init()) == 1;
+
+            println!("TRACE: Left Bracket {}, Right Bracket: {}, Backslash: {}", lbr, rbr, bcksl);
+
+            lbr && rbr && bcksl
         }
     }
 }
