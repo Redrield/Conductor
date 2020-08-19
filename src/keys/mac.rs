@@ -19,11 +19,13 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
 
             loop {
                 if mgr.poll_enter() && !return_pressed {
+                    println!("MACOS BIT: Disable");
                     state.write().unwrap().disable();
                     addr.do_send(ipc::Message::UpdateEnableStatus { enabled: false, from_backend: true });
                 }
                 if mgr.poll_spacebar() && !space_pressed {
                     let mut state = state.write().unwrap();
+                    println!("MACOS BIT: Estop");
                     if state.ds.enabled() {
                         state.estop();
                         addr.do_send(ipc::Message::EstopRobot { from_backend: true });
