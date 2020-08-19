@@ -20,10 +20,12 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
 
             loop {
                 if mgr.poll_enter() && !return_pressed {
+                    println!("Enter pressed");
                     state.write().unwrap().disable();
                     addr.do_send(ipc::Message::UpdateEnableStatus { enabled: false, from_backend: true });
                 }
                 if mgr.poll_spacebar() && !space_pressed {
+                    println!("Spacebar pressed");
                     let mut state = state.write().unwrap();
                     if state.ds.enabled() {
                         state.estop();
