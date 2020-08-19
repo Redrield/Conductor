@@ -16,6 +16,9 @@ pub struct InputManager {
     iomgr: IOHIDManagerRef,
     return_key: IOHIDElementRef,
     space_key: IOHIDElementRef,
+    lbracket_key: IOHIDElementRef,
+    rbracket_key: IOHIDElementRef,
+    backslash_key: IOHIDElementRef,
 }
 
 impl InputManager {
@@ -30,11 +33,14 @@ impl InputManager {
                 return None;
             }
 
-            if let Some((ret, spc)) = initialize_keys(mgr) {
+            if let Some((ret, spc, lbr, rbr, bcksl)) = initialize_keys(mgr) {
                 Some(InputManager {
                     iomgr: mgr,
                     return_key: ret,
-                    space_key: spc
+                    space_key: spc,
+                    lbracket_key: lbr,
+                    rbracket_key: rbr,
+                    backslash_key: bcksl
                 })
             } else {
                 CFRelease(mgr as *const _);
@@ -62,6 +68,31 @@ impl InputManager {
             IOHIDValueGetIntegerValue(value) == 1
         }
     }
+
+    pub fn poll_enable(&self) -> bool {
+        unsafe {
+            let mut lbr_value = MaybeUninit::zeroed();
+            let mut rbr_value = MaybeUninit::zeroed();
+            let mut bcksl_value = MaybeUninit::zeroed();
+
+            // LBracket
+            let dev = IOHIDElementGetDevice(self.lbracket_key);
+            IOHIDDeviceGetValue(dev, self.lbracket_key, lbr_value.as_mut_ptr());
+
+            // RBracket
+            let dev = IOHIDElementGetDevice(self.rbracket_key);
+            IOHIDDeviceGetValue(dev, self.rbracket_key, rbr_value.as_mut_ptr());
+
+            // Backslash
+
+            let dev = IOHIDElementGetDevice(self.backslash_key);
+            IOHIDDeviceGetValue(dev, self.backslash_key, bcksl_value.as_mut_ptr());
+
+            IOHIDValueGetIntegerValue(lbr_value.assume_init()) == 1 &&
+                IOHIDValueGetIntegerValue(rbr_value.assume_init()) == 1 &&
+                IOHIDValueGetIntegerValue(bcksl_value.assume_init()) == 1
+        }
+    }
 }
 
 impl Drop for InputManager {
@@ -74,7 +105,7 @@ impl Drop for InputManager {
     }
 }
 
-unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHIDElementRef)> {
+unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHIDElementRef, IOHIDElementRef, IOHIDElementRef, IOHIDElementRef)> {
     match copy_devices(mgr, kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard) {
         Some(keebs) => {
             let count = CFSetGetCount(keebs);
@@ -95,7 +126,7 @@ unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHI
     }
 }
 
-unsafe fn load_keyboard(keyboard: IOHIDDeviceRef) -> Option<(IOHIDElementRef, IOHIDElementRef)> {
+unsafe fn load_keyboard(keyboard: IOHIDDeviceRef) -> Option<(IOHIDElementRef, IOHIDElementRef, IOHIDElementRef, IOHIDElementRef, IOHIDElementRef)> {
     let keys = IOHIDDeviceCopyMatchingElements(keyboard, ptr::null(), 0);
     if keys.is_null() {
         println!("NULL keys pointer");
@@ -110,6 +141,9 @@ unsafe fn load_keyboard(keyboard: IOHIDDeviceRef) -> Option<(IOHIDElementRef, IO
 
     let mut return_key = None;
     let mut space_key = None;
+    let mut lbracket_key = None;
+    let mut rbracket_key = None;
+    let mut backslash_key = None;
 
     for i in 0..count {
         let key = CFArrayGetValueAtIndex(keys, i) as IOHIDElementRef;
@@ -127,10 +161,22 @@ unsafe fn load_keyboard(keyboard: IOHIDDeviceRef) -> Option<(IOHIDElementRef, IO
         if usage == kHIDUsage_KeyboardSpacebar {
             space_key = Some(key);
         }
+
+        if usage == kHIDUsage_KeyboardOpenBracket {
+            lbracket_key = Some(key);
+        }
+
+        if usage == kHIDUsage_KeyboardCloseBracket {
+            rbracket_key = Some(key);
+        }
+
+        if usage == kHIDUsage_KeyboardBackslash {
+            backslash_key = Some(key);
+        }
     }
 
-    match (return_key, space_key) {
-        (Some(ret), Some(spc)) => Some((ret, spc)),
+    match (return_key, space_key, lbracket_key, rbracket_key, backslash_key) {
+        (Some(ret), Some(spc), Some(lbr), Some(rbr), Some(bcksl)) => Some((ret, spc, lbr, rbr, bcksl)),
         _ => None
     }
 }

@@ -16,6 +16,7 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
         if let Some(mgr) = InputManager::new() {
             let mut return_pressed = false;
             let mut space_pressed = false;
+            let mut enable_triggered = false;
 
             loop {
                 if mgr.poll_enter() && !return_pressed {
@@ -29,9 +30,15 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
                         addr.do_send(ipc::Message::EstopRobot { from_backend: true });
                     }
                 }
+                if mgr.poll_enable() {
+                    // state.write().unwrap().enable();
+                    // addr.do_send(ipc::Message::UpdateEnableStatus { enabled: false, from_backend: true });
+                    println!("Enable the robot");
+                }
 
                 return_pressed = mgr.poll_enter();
                 space_pressed = mgr.poll_spacebar();
+                enable_triggered = mgr.poll_enable();
                 thread::sleep(Duration::from_millis(20))
             }
         } else {

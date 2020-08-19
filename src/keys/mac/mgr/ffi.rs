@@ -25,6 +25,9 @@ pub type IOHIDValueRef = *const __IOHIDValue;
 pub const kHIDPage_KeyboardOrKeypad: u32 = 0x07;
 pub const kHIDUsage_KeyboardReturnOrEnter: u32 = 0x28;
 pub const kHIDUsage_KeyboardSpacebar: u32 = 0x2C;
+pub const kHIDUsage_KeyboardOpenBracket: u32 = 0x2F;
+pub const kHIDUsage_KeyboardCloseBracket: u32 = 0x30;
+pub const kHIDUsage_KeyboardBackslash: u32 = 0x31;
 pub const kHIDPage_GenericDesktop: u32 = 0x01;
 pub const kHIDUsage_GD_Keyboard: u32 = 0x06;
 
