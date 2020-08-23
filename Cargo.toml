@@ -12,8 +12,7 @@ lazy_static = "1.4.0"
 rust-embed = "5.5.1"
 serde = { version = "1.0.106", features = ["derive"] }
 serde_json = "1.0.51"
-#ds = "1.2.3"
-ds = { git = "https://github.com/first-rust-competition/ds-rs" }
+ds = "1.2.4"
 gilrs = "0.7.4"
 actix-web = "2.0.0"
 actix-rt = "1.1.0"
