@@ -2,7 +2,7 @@
 
 Conductor is a Driver Station for FRC robots for Linux and macOS which supports nearly<sup>*</sup> every feature of the NI Driver Station.
 
-<sup>*</sup>Conductor cannot yet auto-launch dashboards, and is not compatible with the Field Management System. 
+<sup>*</sup>Conductor cannot yet auto-launch dashboards, and is not and will never be compatible with the Field Management System. 
 
 # Building
 
