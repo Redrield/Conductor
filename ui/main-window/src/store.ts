@@ -20,6 +20,8 @@ import {
     UPDATE_TEAM_NUMBER,
     UPDATE_USB_STATUS
 } from "./ipc";
+import {JoystickData} from "./components/joysticks/Joystick";
+import {v4 as newV4Uuid} from "uuid";
 
 export enum ActivePage {
     Control,
@@ -46,10 +48,18 @@ export interface DriverStationState {
     activePage: ActivePage;
     stdout: string[];
     explanation: ErrorExplanation | null;
-    joysticks: string[];
+    joysticks: JoystickData[];
     joystickMappings: { [id: number]: string };
     backendKeybinds: boolean;
     warningAcknowledged: boolean;
+}
+
+function makeJoysticks() {
+    let arr = new Array(6);
+    for(let i = 0; i < 6; i++) {
+        arr[i] = {name: "Unbound", id: newV4Uuid()};
+    }
+    return arr;
 }
 
 export function initState(): DriverStationState {
@@ -75,7 +85,7 @@ export function initState(): DriverStationState {
         activePage: ActivePage.Control,
         stdout: [],
         explanation: null,
-        joysticks: [],
+        joysticks: makeJoysticks(),
         joystickMappings: {},
         backendKeybinds: false,
         warningAcknowledged: true,
@@ -122,6 +132,22 @@ export interface AcknowledgeWarning {
     type: typeof ACKNOWLEDGE_WARNING
 }
 
+export const REORDER_JOYSTICKS = "ReorderJoysticks";
+export interface ReorderJoysticks {
+    type: typeof REORDER_JOYSTICKS;
+    js: JoystickData;
+    oldIdx: number;
+    newIdx: number;
+}
+
+export const UPDATE_JOYSTICK_MAPPING_INTERNAL = "__UpdateJoystickMapping";
+export interface UpdateJoystickMappingInternal {
+    type: typeof UPDATE_JOYSTICK_MAPPING_INTERNAL;
+    name: string;
+    pos: number;
+    uuid: string;
+}
+
 export type AppAction =
     Message
     | SocketConnected
@@ -129,15 +155,54 @@ export type AppAction =
     | TeamNumberChange
     | GSMChange
     | ExplanationChange
-    | AcknowledgeWarning;
+    | AcknowledgeWarning
+    | ReorderJoysticks
+    | UpdateJoystickMappingInternal;
+
+function reorder(items: JoystickData[], start: number, end: number) {
+    let result = Array.from(items);
+    let [removed] = result.splice(start, 1);
+    result.splice(end, 0, removed);
+
+    return result;
+}
+
+function clearSpace(items: JoystickData[]) {
+    let result = Array.from(items);
+    for(let i = 0; i < 6; i++) {
+        if(items[i].name == "Unbound") {
+            result.splice(i, 1);
+            return result;
+        }
+    }
+    return result;
+}
+
+function replaceRemoved(items: JoystickData[], removedName: string) {
+    let result = Array.from(items);
+
+    let idx = result.findIndex(item => item.name == removedName);
+    result.splice(idx, 1, {name:"Unbound", id:newV4Uuid()});
+    return result;
+}
 
 export function rootReducer(state: DriverStationState, action: AppAction): DriverStationState {
     switch (action.type) {
         case JOYSTICK_UPDATE:
             if (!action.removed) {
-                return {
-                    ...state,
-                    joysticks: [...state.joysticks, action.name]
+                let cleared = clearSpace(state.joysticks);
+                // Put the virtual joystick at the front, it's only added at startup and is mapped to port 0 by default
+                // For any other joystick, putting it at the front would mean sending multiple mapping updates for every other device
+                if(action.name == "Virtual Joystick") {
+                    return {
+                        ...state,
+                        joysticks: [{name: action.name, id: action.uuid}, ...cleared]
+                    }
+                }else {
+                    return {
+                        ...state,
+                        joysticks: [...cleared, {name: action.name, id: action.uuid}]
+                    }
                 }
             } else {
                 let newMappings: { [id: number]: string } = {};
@@ -147,9 +212,11 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                         newMappings[key] = name;
                     }
                 }
+
+                let joysticks = replaceRemoved(state.joysticks, action.name);
                 return {
                     ...state,
-                    joysticks: state.joysticks.filter(name => name != action.name),
+                    joysticks: joysticks,
                     joystickMappings: newMappings
                 }
             }
@@ -219,14 +286,13 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
                 ...state,
                 enabled: action.enabled
             }
-        case UPDATE_JOYSTICK_MAPPING:
-            dispatchSocketMessage(state.ws, action);
+        case UPDATE_JOYSTICK_MAPPING_INTERNAL:
+            if(action.name == "Unbound") {
+                return state; // backend doesn't need to know about those
+            }
+            dispatchSocketMessage(state.ws, {type: UPDATE_JOYSTICK_MAPPING, pos: action.pos, uuid: action.uuid});
             return {
                 ...state,
-                joystickMappings: {
-                    ...state.joystickMappings,
-                    [action.pos]: action.name
-                }
             }
         case UPDATE_ALLIANCE_STATION:
             dispatchSocketMessage(state.ws, action);
@@ -286,6 +352,11 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
             return {
                 ...state,
                 estopped: action.estopped
+            }
+        case REORDER_JOYSTICKS:
+            return {
+                ...state,
+                joysticks: reorder(state.joysticks, action.oldIdx, action.newIdx)
             }
         default:
             return state;

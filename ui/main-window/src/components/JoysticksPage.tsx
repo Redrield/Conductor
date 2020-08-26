@@ -1,7 +1,9 @@
-import {DriverStationState} from "../store";
+import {DriverStationState, REORDER_JOYSTICKS, UPDATE_JOYSTICK_MAPPING_INTERNAL} from "../store";
 import {UPDATE_JOYSTICK_MAPPING} from "../ipc";
 import {connect, ConnectedProps} from "react-redux";
 import React from "react";
+import {DragDropContext, Droppable, DropResult} from "react-beautiful-dnd";
+import {Joystick, JoystickData} from "./joysticks/Joystick";
 
 const mapState = (state: DriverStationState) => ({
     joysticks: state.joysticks,
@@ -9,61 +11,50 @@ const mapState = (state: DriverStationState) => ({
 })
 
 const mapDispatch = {
-    updateMapping: (n: number, name: string) => ({type: UPDATE_JOYSTICK_MAPPING, name: name, pos: n})
+    updateList: (js: JoystickData, startIdx: number, endIdx: number) => ({type:REORDER_JOYSTICKS, js:js, oldIdx: startIdx, newIdx:endIdx}),
+    updateMapping: (name: string, pos: number, uuid: string) => ({type:UPDATE_JOYSTICK_MAPPING_INTERNAL, name:name, pos:pos, uuid:uuid})
 }
 
 const connector = connect(mapState, mapDispatch);
 
 type Props = ConnectedProps<typeof connector>;
 
-function joystickItem(n: number, props: Props) {
-    let mapping = props.mappings[n];
-    return (
-        <li className="list-group-item">
-            <div className="input-group">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">{n}: </span>
-                </div>
-                <div className="dropdown">
-                    <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {mapping != null ? mapping : "Controller"}
-                    </button>
-                    <div className="dropdown-menu">
-                        {props.joysticks.map(name => (
-                            <a className="dropdown-item" href="#" onClick={(_) => props.updateMapping(n, name)}>{name}</a>
-                        ))}
+class JoysticksPage extends React.Component<Props, any> {
+    constructor(props: Props) {
+        super(props)
+
+        this.onDragEnd = this.onDragEnd.bind(this)
+    }
+
+    onDragEnd(result: DropResult) {
+        if(!result.destination) {
+            return;
+        }
+
+        this.props.updateList(this.props.joysticks[result.source.index], result.source.index, result.destination.index)
+        this.props.updateMapping(this.props.joysticks[result.source.index].name, result.destination.index, this.props.joysticks[result.source.index].id);
+    }
+
+    render() {
+        return (<div className="container">
+            <DragDropContext onDragEnd={this.onDragEnd}>
+                <div className="row">
+                    <div className="col col-md-3">
+                        <Droppable droppableId="joysticksList">
+                            {(provided) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}>
+                                    {this.props.joysticks.map((data, index) => (<Joystick {...data} index={index} />))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
                     </div>
                 </div>
-            </div>
-        </li>
-    )
-}
-
-function joysticks(start: number, end: number, props: Props) {
-    let body = []
-
-    for(let i = start; i < end; i++) {
-        body.push(joystickItem(i, props))
+            </DragDropContext>
+        </div>);
     }
-    return body
 }
-
-const JoysticksPage = (props: Props) => (
-    <div className="container">
-        <div className="row">
-            <div className="col">
-                <ul className="list-group">
-                    {joysticks(0, 3, props)}
-                </ul>
-            </div>
-
-            <div className="col">
-                <ul className="list-group">
-                    {joysticks(3, 6, props)}
-                </ul>
-            </div>
-        </div>
-    </div>
-)
 
 export default connector(JoysticksPage)

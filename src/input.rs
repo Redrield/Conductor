@@ -1,4 +1,4 @@
-use gilrs::{Gilrs, Gamepad};
+use gilrs::{Gilrs, Gamepad, GamepadId};
 use std::sync::RwLock;
 use lazy_static::lazy_static;
 use std::thread;
@@ -10,6 +10,8 @@ use crate::ipc::Message;
 use std::iter::FromIterator;
 use crate::webserver::WebsocketHandler;
 use actix::Addr;
+use uuid::Uuid;
+use std::str::FromStr;
 
 mod mapping;
 
@@ -21,14 +23,21 @@ pub static JS_STATE: OnceCell<RwLock<JoystickState>> = OnceCell::uninit();
 
 #[derive(Clone)]
 pub struct MappingUpdate {
-    pub name: String,
+    pub uuid: String,
     pub pos: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct GamepadData {
+    assigned_id: Uuid,
+    gid: GamepadId,
+    name: String,
 }
 
 pub struct JoystickState {
     gil: Gilrs,
-    gamepad_names: Vec<String>,
-    mappings: HashMap<String, usize>,
+    gamepads: Vec<GamepadData>,
+    mappings: HashMap<Uuid, usize>,
     addr: Addr<WebsocketHandler>
 }
 
@@ -40,46 +49,52 @@ impl JoystickState {
     fn new(addr: Addr<WebsocketHandler>) -> JoystickState {
         addr.do_send(Message::JoystickUpdate {
             removed: false,
-            name: "Virtual Joystick".to_string()
+            name: "Virtual Joystick".to_string(),
+            uuid: Uuid::nil().to_string(),
         });
         JoystickState {
             addr,
             gil: Gilrs::new().unwrap(),
-            gamepad_names: Vec::new(),
+            gamepads: Vec::new(),
             mappings: HashMap::new(),
         }
     }
 
     pub fn has_joysticks(&self) -> bool {
-        !self.gamepad_names.is_empty()
+        !self.gamepads.is_empty()
     }
 
-    pub fn add_mapping(&mut self, name: String, pos: usize) {
+    pub fn add_mapping(&mut self, name: Uuid, pos: usize) {
         self.mappings.insert(name, pos);
     }
 
     pub fn update(&mut self) {
         self.gil.next_event();
 
-        let connected_names = self.gil.gamepads().map(|(_, gp)| gp.name().to_string()).collect::<Vec<String>>();
-        if connected_names != self.gamepad_names {
-            for new_name in connected_names.iter().filter(|name| !self.gamepad_names.contains(*name)) {
-                println!("Got new name; reporting");
-                println!("New name is {}", new_name);
-                self.report_joystick(new_name.clone(), false);
-            }
-            let mut joystick_removed = false;
-            for old_name in self.gamepad_names.iter().filter(|name| !connected_names.contains(*name)) {
-                self.report_joystick(old_name.clone(), true);
-                self.mappings.remove(old_name);
-                joystick_removed = true;
-            }
-            self.gamepad_names = connected_names;
+        let new_gamepads = self.gil.gamepads().any(|(id, _)| !self.gamepads.iter().any(|gp| gp.gid == id));
+        let removed_gamepads = self.gamepads.iter().any(|gp| !self.gil.gamepad(gp.gid).is_connected());
 
-            if joystick_removed {
-                println!("Detected a joystick removal; trying to apply safety.");
-                self.apply_joystick_safety();
+        if new_gamepads {
+            let gp = self.gamepads.clone();
+            for (id, gp) in self.gil.gamepads().filter(|(id, _)| !gp.iter().any(|gp| gp.gid == *id)) {
+                let gamepad_id = Uuid::new_v4();
+                let msg = Message::JoystickUpdate { removed: false, name: gp.name().to_string(), uuid: gamepad_id.to_string() };
+                self.addr.do_send(msg);
+                let data = GamepadData { assigned_id: gamepad_id, gid: id, name: gp.name().to_string() };
+                self.gamepads.push(data);
             }
+        }
+
+        if removed_gamepads {
+            for (i, gp)in self.gamepads.clone().into_iter().enumerate() {
+                if self.gil.gamepad(gp.gid).is_connected() {
+                    continue;
+                }
+                self.gamepads.remove(i);
+                let msg = Message::JoystickUpdate { removed: true, uuid: gp.assigned_id.to_string(), name: gp.name };
+                self.addr.do_send(msg);
+            }
+            self.apply_joystick_safety();
         }
     }
 
@@ -88,9 +103,8 @@ impl JoystickState {
         self.addr.do_send(msg);
     }
 
-    fn report_joystick(&self, name: String, removed: bool) {
-        let msg = Message::JoystickUpdate { removed, name };
-        self.addr.do_send(msg);
+    fn map_gid(&self, id: GamepadId) -> Option<Uuid> {
+        self.gamepads.iter().find(|gp| gp.gid == id).map(|gp| gp.assigned_id)
     }
 }
 
@@ -111,7 +125,7 @@ pub fn input_thread(addr: Addr<WebsocketHandler>) {
                     };
 
                     for update in reqs {
-                        state.add_mapping(update.name, update.pos);
+                        state.add_mapping(Uuid::from_str(&update.uuid).unwrap(), update.pos);
                     }
                 }
             }
@@ -141,9 +155,8 @@ pub fn joystick_callback() -> Vec<Vec<JoystickValue>> {
 
     let min = *mappings.values().min().unwrap_or(&0);
 
-
     let mut sorted_joysticks = gil.gamepads().map(|(_, gp)| gp).collect::<Vec<Gamepad>>();
-    sorted_joysticks.sort_by(|a, b| mappings.get(a.name()).unwrap_or(&0).cmp(mappings.get(b.name()).unwrap_or(&1)));
+    sorted_joysticks.sort_by(|a, b| mappings.get(&state.map_gid(a.id()).unwrap()).unwrap_or(&0).cmp(mappings.get(&state.map_gid(b.id()).unwrap()).unwrap_or(&1)));
 
     mapping::apply_mappings(min, sorted_joysticks)
 }

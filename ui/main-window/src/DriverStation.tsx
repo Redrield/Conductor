@@ -58,6 +58,10 @@ class DriverStation extends React.Component<Props, any> {
         }
     }
 
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.checkKeybinds);
+    }
+
     render() {
         if (!this.props.capabilities && !this.props.warningAck) {
             const containerStyle = {

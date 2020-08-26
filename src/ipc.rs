@@ -46,12 +46,13 @@ pub enum Message {
     JoystickUpdate {
         removed: bool,
         name: String,
+        uuid: String,
     },
     /// Frontend -> Backend
     /// Informs the backend of a change to the joystick mappings,
     /// that is how the joysticks are mapped to the ports readable by robot code
     UpdateJoystickMapping {
-        name: String,
+        uuid: String,
         pos: usize
     },
     /// Backend -> Frontend

@@ -119,9 +119,8 @@ impl WebsocketHandler {
                     state.disable();
                 }
             }
-            ipc::Message::UpdateJoystickMapping { name, pos } => {
-                println!("Got updated joystick mapping: {} => {}", name, pos);
-                input::QUEUED_MAPPING_UPDATES.write().unwrap().push(MappingUpdate { name, pos });
+            ipc::Message::UpdateJoystickMapping { uuid, pos } => {
+                input::QUEUED_MAPPING_UPDATES.write().unwrap().push(MappingUpdate { uuid, pos });
             }
             ipc::Message::UpdateAllianceStation { station } => {
                 state.ds.set_alliance(station.to_ds());

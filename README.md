@@ -13,3 +13,8 @@ Building a release build of Conductor is simple, after cloning the repository ru
 # Contributing
 
 Building debug builds is almost as simple, after initially cloning run `make setup && make all` to compile both the react apps and the Rust app once. Afterwards, assuming you're only changing the Rust app you can use `cargo run` to skip the compile time of the react apps. If you're changing the main window as well you can use `make` to only recompile the main window as well as the Rust app. 
+
+# Usage
+
+Conductor is designed to emulate the design of the NI Driver Station as closely as possible
+

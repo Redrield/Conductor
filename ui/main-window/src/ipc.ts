@@ -76,12 +76,13 @@ export interface JoystickUpdate {
     type: typeof JOYSTICK_UPDATE;
     removed: boolean;
     name: string;
+    uuid: string;
 }
 
 export const UPDATE_JOYSTICK_MAPPING = "UpdateJoystickMapping";
 export interface UpdateJoystickMapping {
     type: typeof UPDATE_JOYSTICK_MAPPING;
-    name: string;
+    uuid: string;
     pos: number;
 }
 

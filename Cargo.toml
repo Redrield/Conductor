@@ -23,6 +23,7 @@ actix-web-actors = "2.0.0"
 actix = "0.9.0"
 log = "0.4.11"
 conquer-once = "0.2.1"
+uuid = { version = "0.8.1", features = ["v4"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2.74"
