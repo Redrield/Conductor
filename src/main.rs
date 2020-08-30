@@ -93,12 +93,10 @@ fn main() -> WVResult {
     // Start input thread when all the globals are fully initialized
     input::input_thread(addr.clone());
 
-    let ticker_state = state.clone();
-    let ticker_addr = addr.clone();
     thread::spawn(move || {
         loop {
             let msg = {
-                let state = ticker_state.read().unwrap();
+                let state = state.read().unwrap();
                 let ds = &state.ds;
                 let comms = ds.trace().is_connected();
                 let code = ds.trace().is_code_started();
@@ -109,7 +107,7 @@ fn main() -> WVResult {
                 Message::RobotStateUpdate { comms_alive: comms, code_alive: code, simulator: sim, joysticks, voltage }
             };
 
-            ticker_addr.do_send(msg);
+            addr.do_send(msg);
 
             thread::sleep(Duration::from_millis(50));
         }

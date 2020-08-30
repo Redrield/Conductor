@@ -56,13 +56,13 @@ pub fn apply_mappings(offset: usize, gamepads: Vec<Gamepad>) -> Vec<Vec<Joystick
         values.extend(buttons);
 
         // POVs
-        if gamepad.is_pressed(Button::DPadDown) || gamepad.value(Axis::DPadY) == -1.0 {
+        if gamepad.is_pressed(Button::DPadDown) || (gamepad.value(Axis::DPadY) + 1.0).abs() < f32::EPSILON {
             values.push(JoystickValue::POV { id: 0, angle: 180 });
-        } else if gamepad.is_pressed(Button::DPadLeft) || gamepad.value(Axis::DPadX) == -1.0 {
+        } else if gamepad.is_pressed(Button::DPadLeft) || (gamepad.value(Axis::DPadX) + 1.0).abs() < f32::EPSILON {
             values.push(JoystickValue::POV { id: 0, angle: 270 });
-        } else if gamepad.is_pressed(Button::DPadRight) || gamepad.value(Axis::DPadX) == 1.0 {
+        } else if gamepad.is_pressed(Button::DPadRight) || (gamepad.value(Axis::DPadX) - 1.0).abs() < f32::EPSILON {
             values.push(JoystickValue::POV { id: 0, angle: 90 });
-        } else if gamepad.is_pressed(Button::DPadUp) || gamepad.value(Axis::DPadY) == 1.0 {
+        } else if gamepad.is_pressed(Button::DPadUp) || (gamepad.value(Axis::DPadY) - 1.0).abs() < f32::EPSILON {
             values.push(JoystickValue::POV { id: 0, angle: 0 });
         }
 
