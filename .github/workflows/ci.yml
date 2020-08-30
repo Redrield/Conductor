@@ -30,7 +30,6 @@ jobs:
     - name: Install Dependencies
       run: |
         curl -y https://sh.rustup.rs -sSf | sh
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
         brew install nodejs
     - name: Build Application
       run: |
