@@ -4,6 +4,8 @@ on: [push, pull_request]
 jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
+    env:
+      CI: false
     steps:
     - uses: actions/checkout@v2
     - name: Install Dependencies
@@ -21,6 +23,8 @@ jobs:
         path: target/release/conductor
   build-macos:
     runs-on: macos-latest
+    env:
+      CI: false
     steps:
     - uses: actions/checkout@v2
     - name: Install Dependencies
