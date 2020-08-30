@@ -15,6 +15,7 @@ jobs:
       with:
         toolchain: stable
         override: true
+        components: clippy
     - name: Install Dependencies
       run: |
         curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
@@ -22,6 +23,10 @@ jobs:
     - name: Build Application
       run: |
         make setup && make release
+    - name: rust-clippy-check
+      uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Archive Application
       uses: actions/upload-artifact@v2
       with:
@@ -36,15 +41,20 @@ jobs:
       with:
         toolchain: stable
         override: true
+        components: clippy
     - name: Build Application
       run: |
         make setup && make release
+    - name: rust-clippy-check
+      uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Archive Application
       uses: actions/upload-artifact@v2
       with:
         name: macos-latest
         path: target/release/conductor
-  checks:
+  fmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -53,7 +63,7 @@ jobs:
         with:
           toolchain: stable
           override: true
-          components: rustfmt, clippy
+          components: rustfmt
       - name: Install Dependencies
         run: |
           curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
@@ -61,10 +71,6 @@ jobs:
       - name: Build frontend
         run: |
           make setup && make frontend
-      - name: rust-clippy-check
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Formatter
         uses: mbrobbel/rustfmt-check@master
         with:
