@@ -10,7 +10,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install Dependencies
       run: |
-        curl https://sh.rustup.rs -sSf | sh -y
+        curl https://sh.rustup.rs -sSf | sh -s -y
         curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
         sudo apt-get install -y nodejs libudev-dev libx11-dev
     - name: Build Application
@@ -29,7 +29,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install Dependencies
       run: |
-        curl https://sh.rustup.rs -sSf | sh -y
+        curl https://sh.rustup.rs -sSf | sh -s -y
     - name: Build Application
       run: |
         make setup && make all
