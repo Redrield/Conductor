@@ -48,20 +48,20 @@ jobs:
         name: macos-latest
         path: target/release/conductor
   checks:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: rust-toolchain
-          uses: rust-toolchain/toolchain@v1
-          with:
-            toolchain: stable
-            override: true
-            components: rustfmt, clippy
-        - name: rust-clippy-check
-          uses: actions-rs/clippy-check@v1
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-        - name: Formatter
-          uses: mbrobbel/rustfmt-check@master
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: rust-toolchain
+        uses: rust-toolchain/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+      - name: rust-clippy-check
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Formatter
+        uses: mbrobbel/rustfmt-check@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
