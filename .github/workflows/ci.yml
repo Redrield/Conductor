@@ -15,7 +15,7 @@ jobs:
         sudo apt-get install -y nodejs libudev-dev libx11-dev libxi-dev libpango1.0-dev libatk1.0-dev libsoup2.4-dev
     - name: Build Application
       run: |
-        make setup && make all
+        make setup && make release
     - name: Archive Application
       uses: actions/upload-artifact@v2
       with:
@@ -32,7 +32,7 @@ jobs:
         curl https://sh.rustup.rs -sSf | sh -s -- -y
     - name: Build Application
       run: |
-        make setup && make all
+        make setup && make release
     - name: Archive Application
       uses: actions/upload-artifact@v2
       with:
