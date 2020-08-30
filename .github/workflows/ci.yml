@@ -1,0 +1,38 @@
+name: ci
+on: [push, pull_request]
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: |
+        curl https://sh.rustup.rs -sSf | sh
+        curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+    - name: Build Application
+      run: |
+        make setup && make all
+    - name: Archive Application
+      uses: actions/upload-artifact@v2
+      with:
+        name: ubuntu-latest
+        path: target/release/conductor
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: |
+        curl https://sh.rustup.rs -sSf | sh
+        wget https://nodejs.org/dist/v14.9.0/node-v14.9.0.pkg -O node.pkg
+        installer -pkg node.pkg -target CurrentUserHomeDirectory
+    - name: Build Application
+      run: |
+        make setup && make all
+    - name: Archive Application
+      uses: actions/upload-artifact@v2
+      with:
+        name: macos-latest
+        path: target/release/conductor
