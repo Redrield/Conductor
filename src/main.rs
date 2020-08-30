@@ -19,6 +19,16 @@ mod state;
 fn main() -> WVResult {
     env_logger::init();
 
+    // You're welcome dalton :)
+    #[cfg(target_os = "windows")]
+    {
+        use tinyfiledialogs::{MessageBoxIcon, message_box_ok};
+        message_box_ok("Unsupported Environment", "The Conductor Driver Station is not supported on your operating system. Please use the NI Driver Station instead.\n\nThis application will now terminate.", MessageBoxIcon::Error);
+
+        return std::process::exit(1);
+    }
+
+
     let state = Arc::new(RwLock::new(State::new()));
     let (tx, rx) = mpsc::channel();
     let (stdout_tx, stdout_rx) = mpsc::channel();
