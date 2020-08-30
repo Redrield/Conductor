@@ -8,7 +8,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install Dependencies
       run: |
-        curl https://sh.rustup.rs -sSf | sh
+        curl -y https://sh.rustup.rs -sSf | sh
         curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
         sudo apt-get install -y nodejs
     - name: Build Application
@@ -25,7 +25,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install Dependencies
       run: |
-        curl https://sh.rustup.rs -sSf | sh
+        curl -y https://sh.rustup.rs -sSf | sh
         wget https://nodejs.org/dist/v14.9.0/node-v14.9.0.pkg -O node.pkg
         installer -pkg node.pkg -target CurrentUserHomeDirectory
     - name: Build Application
