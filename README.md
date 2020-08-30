@@ -16,5 +16,42 @@ Building debug builds is almost as simple, after initially cloning run `make set
 
 # Usage
 
-Conductor is designed to emulate the design of the NI Driver Station as closely as possible
+Conductor is designed to emulate the design of the NI Driver Station as closely as possible. The main window is split into three sections, Control, Config, and Joysticks, while the second window serves as a larger viewport to see riolog messages.
 
+## Control Tab
+
+![Control Tab](./images/Conductor.png)
+
+*The control tab of Conductor when not connected to a robot*
+
+![Control with Connection](./images/conductor-control-connected.png)
+
+*The control tab of Conductor when connected to a robot*
+
+The control tab is very similar to the equivalent tab in the NI Driver Station. On the far left are selectors for the mode, and buttons to enable or disable the robot. In the middle there are boxes indicating connection status, voltage, team number, and current operating mode. On the right is the smaller stdout viewport for seeing messages from riolog.
+
+Underneath the stdout window is one final indicator which shows simulator connection. This indicator is normally red, including when connected to a physical robot. It lights up green when Conductor is connected to a simulator instance on the local machine. 
+
+![Conductor with simulator](./images/conductor-simulator.png)
+
+*The control tab of Conductor with a connection to the WPILib Simulator*
+
+## Config
+
+![Configuration](./images/conductor-config.png)
+
+The second tab in the main window is for configuring functions that only need to be set once, such as team number, and game data.
+
+The first accessible field is the team number field. This will update the number displayed in the control tab, and will also configure the IP to which Conductor will try to connect. The target IP is the familiar 10.TE.AM.2 IP, filled in with the value provided.
+
+The "Connect via USB?" checkbox enables users to override the team number IP and connect to `172.22.11.2` if they have connected to the RIO over USB in a way that allows them to use this interface.
+
+The game data field can be used to update the Game Specific Message given to robot code. This can be used similar to the NI Driver Station to test code that uses this message, such as control panel code in Infinite Recharge.
+
+On the right side are buttons to restart user code, and reboot the roboRIO. These function as they do in the NI Driver Station.
+
+## Joysticks
+
+![Joysticks Tab](./images/conductor-joysticks.png)
+
+The final tab is the most sparse, and allows users to configure their joystick mappings. The list visible in this tab is drag and drop, and will update the joystick mappings as they are reordered. The first entry in this map is the Virtual Joystick, which can be used to silence WPILib warnings about unplugged joysticks should it be desired. As joysticks are detected by Conductor, they will be added to this list, replacing "Unbound" entries as required.
