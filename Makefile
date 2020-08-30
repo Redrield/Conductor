@@ -19,6 +19,12 @@ setup:
 	cd ui/stdout \
         && npm install
 
+frontend:
+	cd ui/main-window \
+		&& npm run build:react
+	cd ui/stdout \
+		&& npm run build
+
 release:
 	cd ui/main-window \
 	    && npm run build:react
