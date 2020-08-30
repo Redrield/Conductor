@@ -26,8 +26,8 @@ jobs:
     - name: Install Dependencies
       run: |
         curl -y https://sh.rustup.rs -sSf | sh
-        wget https://nodejs.org/dist/v14.9.0/node-v14.9.0.pkg -O node.pkg
-        installer -pkg node.pkg -target CurrentUserHomeDirectory
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+        brew install nodejs
     - name: Build Application
       run: |
         make setup && make all
