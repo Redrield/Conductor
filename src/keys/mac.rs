@@ -1,15 +1,15 @@
-use std::sync::{Arc, RwLock};
 use crate::state::State;
-use actix::Addr;
 use crate::webserver::WebsocketHandler;
+use actix::Addr;
+use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
 
 #[path = "mac/mgr.rs"]
 mod mgr;
 
-use mgr::*;
 use crate::ipc;
+use mgr::*;
 
 pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> bool {
     thread::spawn(move || {
@@ -21,7 +21,10 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
                 if mgr.poll_enter() && !return_pressed {
                     println!("MACOS BIT: Disable");
                     state.write().unwrap().disable();
-                    addr.do_send(ipc::Message::UpdateEnableStatus { enabled: false, from_backend: true });
+                    addr.do_send(ipc::Message::UpdateEnableStatus {
+                        enabled: false,
+                        from_backend: true,
+                    });
                 }
                 if mgr.poll_spacebar() && !space_pressed {
                     let mut state = state.write().unwrap();
@@ -38,7 +41,9 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
             }
         } else {
             println!("Failed to crate input manager.");
-            addr.do_send(ipc::Message::Capabilities { backend_keybinds: false });
+            addr.do_send(ipc::Message::Capabilities {
+                backend_keybinds: false,
+            });
         }
     });
     true

@@ -1,12 +1,12 @@
-use std::sync::{Arc, RwLock};
-use crate::state::State;
-use actix::Addr;
-use crate::webserver::WebsocketHandler;
-use std::{thread, ptr};
-use std::time::Duration;
 use crate::ipc::Message;
-use x11::keysym::{XK_Return, XK_space, XK_bracketleft, XK_bracketright, XK_backslash};
-use x11::xlib::{XInitThreads, XOpenDisplay, XKeysymToKeycode, XQueryKeymap};
+use crate::state::State;
+use crate::webserver::WebsocketHandler;
+use actix::Addr;
+use std::sync::{Arc, RwLock};
+use std::time::Duration;
+use std::{ptr, thread};
+use x11::keysym::{XK_Return, XK_backslash, XK_bracketleft, XK_bracketright, XK_space};
+use x11::xlib::{XInitThreads, XKeysymToKeycode, XOpenDisplay, XQueryKeymap};
 
 pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> bool {
     // BEGIN: Rust written like C
@@ -18,7 +18,9 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
             if display.is_null() {
                 println!("Failed to open display");
                 // Failure means the frontend needs to handle keybinds,
-                addr.do_send(Message::Capabilities { backend_keybinds: false });
+                addr.do_send(Message::Capabilities {
+                    backend_keybinds: false,
+                });
                 return;
             }
 
@@ -40,7 +42,10 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
 
                 if check_keycode(keymap, return_code) && !return_pressed {
                     state.write().unwrap().disable();
-                    addr.do_send(Message::UpdateEnableStatus { enabled: false, from_backend: true });
+                    addr.do_send(Message::UpdateEnableStatus {
+                        enabled: false,
+                        from_backend: true,
+                    });
                 }
 
                 if check_keycode(keymap, space_code) && !space_pressed {
@@ -51,14 +56,19 @@ pub fn bind_keys(state: Arc<RwLock<State>>, addr: Addr<WebsocketHandler>) -> boo
                     }
                 }
 
-                if check_keycode(keymap, left_bracket_code) && check_keycode(keymap, right_bracket_code) && check_keycode(keymap, backslash_code)
-                    && !enable_triggered {
+                if check_keycode(keymap, left_bracket_code)
+                    && check_keycode(keymap, right_bracket_code)
+                    && check_keycode(keymap, backslash_code)
+                    && !enable_triggered
+                {
                     state.write().unwrap().enable();
                 }
 
                 return_pressed = check_keycode(keymap, return_code);
                 space_pressed = check_keycode(keymap, space_code);
-                enable_triggered = check_keycode(keymap, left_bracket_code) && check_keycode(keymap, right_bracket_code) && check_keycode(keymap, backslash_code);
+                enable_triggered = check_keycode(keymap, left_bracket_code)
+                    && check_keycode(keymap, right_bracket_code)
+                    && check_keycode(keymap, backslash_code);
 
                 thread::sleep(Duration::from_millis(20));
             }

@@ -1,10 +1,10 @@
 #![allow(non_upper_case_globals)]
 
-use libc::c_void;
-use core_foundation::dictionary::CFDictionaryRef;
-use core_foundation::base::CFAllocatorRef;
-use core_foundation::set::CFSetRef;
 use core_foundation::array::CFArrayRef;
+use core_foundation::base::CFAllocatorRef;
+use core_foundation::dictionary::CFDictionaryRef;
+use core_foundation::set::CFSetRef;
+use libc::c_void;
 
 #[repr(C)]
 pub struct __IOHIDManager(c_void);
@@ -29,18 +29,23 @@ pub const kHIDPage_GenericDesktop: u32 = 0x01;
 pub const kHIDUsage_GD_Keyboard: u32 = 0x06;
 
 #[link(name = "IOKit", kind = "framework")]
-extern {
+extern "C" {
     pub fn IOHIDManagerCreate(allocator: CFAllocatorRef, options: u32) -> IOHIDManagerRef;
     pub fn IOHIDManagerOpen(mgr: IOHIDManagerRef, options: u32) -> i32;
-    pub fn IOHIDDeviceCopyMatchingElements(device: IOHIDDeviceRef, matching: CFDictionaryRef, options: u32) -> CFArrayRef;
+    pub fn IOHIDDeviceCopyMatchingElements(
+        device: IOHIDDeviceRef,
+        matching: CFDictionaryRef,
+        options: u32,
+    ) -> CFArrayRef;
     pub fn IOHIDElementGetUsagePage(element: IOHIDElementRef) -> u32;
     pub fn IOHIDElementGetUsage(element: IOHIDElementRef) -> u32;
     pub fn IOHIDManagerSetDeviceMatching(manager: IOHIDManagerRef, matching: CFDictionaryRef);
     pub fn IOHIDManagerCopyDevices(manager: IOHIDManagerRef) -> CFSetRef;
     pub fn IOHIDElementGetDevice(element: IOHIDElementRef) -> IOHIDDeviceRef;
-    pub fn IOHIDDeviceGetValue(device: IOHIDDeviceRef, element: IOHIDElementRef, value: *mut IOHIDValueRef) -> i32;
+    pub fn IOHIDDeviceGetValue(
+        device: IOHIDDeviceRef,
+        element: IOHIDElementRef,
+        value: *mut IOHIDValueRef,
+    ) -> i32;
     pub fn IOHIDValueGetIntegerValue(value: IOHIDValueRef) -> i64;
 }
-
-
-

@@ -1,7 +1,7 @@
-use ds::{DriverStation, Mode, Alliance, TcpPacket};
 use crate::ipc::Message;
 use crate::webserver::WebsocketHandler;
 use actix::Addr;
+use ds::{Alliance, DriverStation, Mode, TcpPacket};
 
 pub struct State {
     pub ds: DriverStation,
@@ -23,14 +23,14 @@ impl State {
     }
 
     pub fn wire_stdout(&mut self, addr: Addr<WebsocketHandler>) {
-        self.ds.set_tcp_consumer(move |packet| {
-            match packet {
-                TcpPacket::Stdout(msg) => {
-                    let msg = Message::NewStdout { message: msg.message };
-                    addr.do_send(msg);
-                }
-                TcpPacket::Dummy => {}
+        self.ds.set_tcp_consumer(move |packet| match packet {
+            TcpPacket::Stdout(msg) => {
+                let msg = Message::NewStdout {
+                    message: msg.message,
+                };
+                addr.do_send(msg);
             }
+            TcpPacket::Dummy => {}
         });
     }
 

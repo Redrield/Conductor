@@ -1,9 +1,12 @@
-use core_foundation::base::{kCFAllocatorDefault, Boolean, CFIndexConvertible, CFRelease};
 use core_foundation::array::{CFArrayGetCount, CFArrayGetValueAtIndex};
-use core_foundation::dictionary::{CFDictionaryRef, CFDictionaryCreateMutable, kCFTypeDictionaryKeyCallBacks, kCFTypeDictionaryValueCallBacks, CFDictionarySetValue};
-use core_foundation::set::{CFSetRef, CFSetGetCount, CFSetGetValues};
+use core_foundation::base::{kCFAllocatorDefault, Boolean, CFIndexConvertible, CFRelease};
+use core_foundation::dictionary::{
+    kCFTypeDictionaryKeyCallBacks, kCFTypeDictionaryValueCallBacks, CFDictionaryCreateMutable,
+    CFDictionaryRef, CFDictionarySetValue,
+};
 use core_foundation::number::CFNumberCreate;
-use core_foundation::string::{CFStringCreateWithBytes, kCFStringEncodingUTF8};
+use core_foundation::set::{CFSetGetCount, CFSetGetValues, CFSetRef};
+use core_foundation::string::{kCFStringEncodingUTF8, CFStringCreateWithBytes};
 
 #[path = "mgr/ffi.rs"]
 mod ffi;
@@ -34,7 +37,7 @@ impl InputManager {
                 Some(InputManager {
                     iomgr: mgr,
                     return_key: ret,
-                    space_key: spc
+                    space_key: spc,
                 })
             } else {
                 CFRelease(mgr as *const _);
@@ -91,7 +94,7 @@ unsafe fn initialize_keys(mgr: IOHIDManagerRef) -> Option<(IOHIDElementRef, IOHI
             CFRelease(keebs as *const _);
             ret
         }
-        None => None
+        None => None,
     }
 }
 
@@ -131,7 +134,7 @@ unsafe fn load_keyboard(keyboard: IOHIDDeviceRef) -> Option<(IOHIDElementRef, IO
 
     match (return_key, space_key) {
         (Some(ret), Some(spc)) => Some((ret, spc)),
-        _ => None
+        _ => None,
     }
 }
 
@@ -154,31 +157,37 @@ pub unsafe fn copy_devices(mgr: IOHIDManagerRef, page: u32, usage: u32) -> Optio
     }
 
     Some(devices)
-
 }
 
 pub unsafe fn copy_devices_mask(page: u32, usage: u32) -> CFDictionaryRef {
-    let dict = CFDictionaryCreateMutable(kCFAllocatorDefault, 2,
-    &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    let dict = CFDictionaryCreateMutable(
+        kCFAllocatorDefault,
+        2,
+        &kCFTypeDictionaryKeyCallBacks,
+        &kCFTypeDictionaryValueCallBacks,
+    );
 
-    let string  = "DeviceUsagePage";
-    let string_ref = CFStringCreateWithBytes(kCFAllocatorDefault,
-                                             string.as_ptr(),
-                                             string.len().to_CFIndex(),
-                                             kCFStringEncodingUTF8,
-                                             false as Boolean);
+    let string = "DeviceUsagePage";
+    let string_ref = CFStringCreateWithBytes(
+        kCFAllocatorDefault,
+        string.as_ptr(),
+        string.len().to_CFIndex(),
+        kCFStringEncodingUTF8,
+        false as Boolean,
+    );
     let value = CFNumberCreate(kCFAllocatorDefault, 9, &page as *const u32 as *const _);
     CFDictionarySetValue(dict, string_ref as *const _, value as *const _);
     CFRelease(string_ref as *const _);
     CFRelease(value as *const _);
 
-
-    let string  = "DeviceUsage";
-    let string_ref = CFStringCreateWithBytes(kCFAllocatorDefault,
-                                             string.as_ptr(),
-                                             string.len().to_CFIndex(),
-                                             kCFStringEncodingUTF8,
-                                             false as Boolean);
+    let string = "DeviceUsage";
+    let string_ref = CFStringCreateWithBytes(
+        kCFAllocatorDefault,
+        string.as_ptr(),
+        string.len().to_CFIndex(),
+        kCFStringEncodingUTF8,
+        false as Boolean,
+    );
     let value = CFNumberCreate(kCFAllocatorDefault, 9, &usage as *const u32 as *const _);
     CFDictionarySetValue(dict, string_ref as *const _, value as *const _);
     CFRelease(string_ref as *const _);
@@ -186,4 +195,3 @@ pub unsafe fn copy_devices_mask(page: u32, usage: u32) -> CFDictionaryRef {
 
     dict as CFDictionaryRef
 }
-

@@ -1,18 +1,18 @@
-use std::thread;
 use crate::resources;
-use std::sync::{mpsc, RwLock, Arc, Mutex};
-use actix_web::{HttpServer, web, HttpRequest, HttpResponse, App};
+use crate::state::State;
+use actix::Addr;
 use actix_web::body::Body;
+use actix_web::web::Payload;
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 use resources::*;
 use std::borrow::Cow;
-use crate::state::State;
-use actix_web::web::Payload;
-use actix::Addr;
+use std::sync::{mpsc, Arc, Mutex, RwLock};
+use std::thread;
 
 mod sock;
-pub use sock::*;
 use actix_web::middleware::Logger;
+pub use sock::*;
 
 fn assets(path: web::Path<String>) -> HttpResponse {
     use log::info;
@@ -25,7 +25,9 @@ fn assets(path: web::Path<String>) -> HttpResponse {
                 Cow::Borrowed(bytes) => bytes.into(),
                 Cow::Owned(bytes) => bytes.into(),
             };
-            HttpResponse::Ok().content_type(mime_guess::from_path(path).first_or_octet_stream().as_ref()).body(body)
+            HttpResponse::Ok()
+                .content_type(mime_guess::from_path(path).first_or_octet_stream().as_ref())
+                .body(body)
         }
         // Cascading is required because react makes the two views less unified than they were with elm
         // This is for when the stdout page is loading and needs to find its own javascript and other assets
@@ -35,10 +37,12 @@ fn assets(path: web::Path<String>) -> HttpResponse {
                     Cow::Borrowed(bytes) => bytes.into(),
                     Cow::Owned(bytes) => bytes.into(),
                 };
-                HttpResponse::Ok().content_type(mime_guess::from_path(path).first_or_octet_stream().as_ref()).body(body)
+                HttpResponse::Ok()
+                    .content_type(mime_guess::from_path(path).first_or_octet_stream().as_ref())
+                    .body(body)
             }
-            None => HttpResponse::NotFound().body("404 Not Found")
-        }
+            None => HttpResponse::NotFound().body("404 Not Found"),
+        },
     }
 }
 
@@ -49,8 +53,7 @@ fn index(_req: HttpRequest) -> HttpResponse {
         Cow::Owned(bytes) => bytes.into(),
     };
 
-    HttpResponse::Ok().content_type("text/html")
-        .body(body)
+    HttpResponse::Ok().content_type("text/html").body(body)
 }
 
 fn stdout(_req: HttpRequest) -> HttpResponse {
@@ -60,33 +63,41 @@ fn stdout(_req: HttpRequest) -> HttpResponse {
         Cow::Owned(bytes) => bytes.into(),
     };
 
-    HttpResponse::Ok().content_type("text/html")
-        .body(body)
+    HttpResponse::Ok().content_type("text/html").body(body)
 }
 
 fn main_sock(req: HttpRequest, stream: Payload) -> HttpResponse {
     // Get app state things
     let state = req.app_data::<Arc<RwLock<State>>>().unwrap();
-    let tx = req.app_data::<Mutex<mpsc::Sender<Addr<WebsocketHandler>>>>().unwrap();
+    let tx = req
+        .app_data::<Mutex<mpsc::Sender<Addr<WebsocketHandler>>>>()
+        .unwrap();
     // Start the websocket connection, get the address of the actor
-    let (addr, res) = ws::start_with_addr(WebsocketHandler::new(state.clone()), &req, stream).unwrap();
+    let (addr, res) =
+        ws::start_with_addr(WebsocketHandler::new(state.clone()), &req, stream).unwrap();
     // Notify the main app of the websocket Addr to be able to send messages to the frontend
     tx.lock().unwrap().send(addr).unwrap();
     res
 }
 
 fn stdout_sock(req: HttpRequest, stream: Payload) -> HttpResponse {
-    let tx = req.app_data::<Mutex<mpsc::Sender<Addr<StdoutHandler>>>>().unwrap();
+    let tx = req
+        .app_data::<Mutex<mpsc::Sender<Addr<StdoutHandler>>>>()
+        .unwrap();
     let (addr, res) = ws::start_with_addr(StdoutHandler, &req, stream).unwrap();
     tx.lock().unwrap().send(addr).unwrap();
     res
 }
 
-pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Addr<WebsocketHandler>>, stdout_sender: mpsc::Sender<Addr<StdoutHandler>>) -> u16 {
+pub fn launch_webserver(
+    state: Arc<RwLock<State>>,
+    addr_sender: mpsc::Sender<Addr<WebsocketHandler>>,
+    stdout_sender: mpsc::Sender<Addr<StdoutHandler>>,
+) -> u16 {
     let (port_tx, port_rx) = mpsc::channel();
 
     thread::spawn(move || {
-        let _= actix_rt::System::new("conductords-actix");
+        let _ = actix_rt::System::new("conductords-actix");
 
         let server = HttpServer::new(move || {
             // Love redundant cloning to abide by Fn limitations
@@ -101,8 +112,8 @@ pub fn launch_webserver(state: Arc<RwLock<State>>, addr_sender: mpsc::Sender<Add
                 .route("/ws/stdout", web::get().to(stdout_sock))
                 .route("/{path:.*}", web::get().to(assets))
         })
-            .bind("127.0.0.1:0")
-            .unwrap();
+        .bind("127.0.0.1:0")
+        .unwrap();
 
         let port = server.addrs().first().unwrap().port();
         port_tx.send(port).unwrap();

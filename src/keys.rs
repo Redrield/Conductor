@@ -8,10 +8,6 @@ mod arch;
 #[path = "keys/mac.rs"]
 mod arch;
 
-
-#[cfg(all(
-not(target_os = "linux"),
-not(target_os = "macos")
-))]
+#[cfg(all(not(target_os = "linux"), not(target_os = "macos")))]
 #[path = "keys/default.rs"]
 mod arch;

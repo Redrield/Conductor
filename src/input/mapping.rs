@@ -1,7 +1,7 @@
-use gilrs::{Gamepad, Button, Axis};
+use crate::util::map;
 use ds::JoystickValue;
 use gilrs::ev::AxisOrBtn;
-use crate::util::map;
+use gilrs::{Axis, Button, Gamepad};
 
 pub fn apply_mappings(offset: usize, gamepads: Vec<Gamepad>) -> Vec<Vec<JoystickValue>> {
     let mut all_values = vec![vec![]; 6];
@@ -13,12 +13,12 @@ pub fn apply_mappings(offset: usize, gamepads: Vec<Gamepad>) -> Vec<Vec<Joystick
 
         let mut values = vec![];
 
-        let axes = state.axes().filter_map(|(code, axis)| {
-            match gamepad.axis_or_btn_name(code) {
+        let axes = state
+            .axes()
+            .filter_map(|(code, axis)| match gamepad.axis_or_btn_name(code) {
                 Some(AxisOrBtn::Axis(ax)) => Some((ax, axis)),
-                _ => None
-            }
-        })
+                _ => None,
+            })
             .filter_map(|(axis, value)| {
                 if let Some(id) = axis_to_roborio(axis) {
                     Some((id, value))
@@ -39,16 +39,18 @@ pub fn apply_mappings(offset: usize, gamepads: Vec<Gamepad>) -> Vec<Vec<Joystick
             });
         values.extend(axes);
 
-
-        let buttons = state.buttons().filter_map(|(code, value)| {
-            match gamepad.axis_or_btn_name(code) {
+        let buttons = state
+            .buttons()
+            .filter_map(|(code, value)| match gamepad.axis_or_btn_name(code) {
                 Some(AxisOrBtn::Btn(button)) => Some((button, value)),
-                _ => None
-            }
-        })
+                _ => None,
+            })
             .filter_map(|(button, value)| {
                 if let Some(id) = button_to_roborio(button) {
-                    Some(JoystickValue::Button { id, pressed: value.is_pressed() })
+                    Some(JoystickValue::Button {
+                        id,
+                        pressed: value.is_pressed(),
+                    })
                 } else {
                     None
                 }
@@ -56,13 +58,21 @@ pub fn apply_mappings(offset: usize, gamepads: Vec<Gamepad>) -> Vec<Vec<Joystick
         values.extend(buttons);
 
         // POVs
-        if gamepad.is_pressed(Button::DPadDown) || (gamepad.value(Axis::DPadY) + 1.0).abs() < f32::EPSILON {
+        if gamepad.is_pressed(Button::DPadDown)
+            || (gamepad.value(Axis::DPadY) + 1.0).abs() < f32::EPSILON
+        {
             values.push(JoystickValue::POV { id: 0, angle: 180 });
-        } else if gamepad.is_pressed(Button::DPadLeft) || (gamepad.value(Axis::DPadX) + 1.0).abs() < f32::EPSILON {
+        } else if gamepad.is_pressed(Button::DPadLeft)
+            || (gamepad.value(Axis::DPadX) + 1.0).abs() < f32::EPSILON
+        {
             values.push(JoystickValue::POV { id: 0, angle: 270 });
-        } else if gamepad.is_pressed(Button::DPadRight) || (gamepad.value(Axis::DPadX) - 1.0).abs() < f32::EPSILON {
+        } else if gamepad.is_pressed(Button::DPadRight)
+            || (gamepad.value(Axis::DPadX) - 1.0).abs() < f32::EPSILON
+        {
             values.push(JoystickValue::POV { id: 0, angle: 90 });
-        } else if gamepad.is_pressed(Button::DPadUp) || (gamepad.value(Axis::DPadY) - 1.0).abs() < f32::EPSILON {
+        } else if gamepad.is_pressed(Button::DPadUp)
+            || (gamepad.value(Axis::DPadY) - 1.0).abs() < f32::EPSILON
+        {
             values.push(JoystickValue::POV { id: 0, angle: 0 });
         }
 
@@ -80,7 +90,7 @@ fn axis_to_roborio(axis: Axis) -> Option<u8> {
         Axis::RightStickY => Some(5),
         Axis::LeftZ => Some(2),
         Axis::RightZ => Some(3),
-        _ => None
+        _ => None,
     }
 }
 
@@ -96,7 +106,7 @@ fn button_to_roborio(button: Button) -> Option<u8> {
         Button::Start => Some(8),
         Button::LeftThumb => Some(9),
         Button::RightThumb => Some(10),
-        _ => None
+        _ => None,
     }
 }
 
@@ -113,7 +123,7 @@ mod tests {
         let mappings = vec![&2usize, &5usize];
         let value = JoystickValue::Axis { id: 0, value: 1.0 };
 
-        for n in 0..=(5-offset) {
+        for n in 0..=(5 - offset) {
             if ensure_mapping_spacing(&mappings, n + offset, &mut v) {
                 continue;
             }
@@ -121,6 +131,9 @@ mod tests {
             v.push(vec![value]);
         }
 
-        assert_eq!(vec![vec![], vec![], vec![value], vec![], vec![value], vec![]], v);
+        assert_eq!(
+            vec![vec![], vec![], vec![value], vec![], vec![value], vec![]],
+            v
+        );
     }
 }

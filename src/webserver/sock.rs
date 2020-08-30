@@ -1,11 +1,11 @@
-use actix::{Actor, StreamHandler, Message, Handler, Addr};
+use crate::input::{self, MappingUpdate};
+use crate::ipc;
+use crate::ipc::Request;
+use crate::state::State;
+use actix::{Actor, Addr, Handler, Message, StreamHandler};
 use actix_web_actors::ws;
 use actix_web_actors::ws::{Message as WsMessage, ProtocolError};
-use crate::ipc;
-use crate::state::State;
 use std::sync::{Arc, RwLock};
-use crate::ipc::Request;
-use crate::input::{self, MappingUpdate};
 
 pub struct StdoutHandler;
 
@@ -18,16 +18,16 @@ impl Handler<ipc::Message> for StdoutHandler {
 
     fn handle(&mut self, msg: ipc::Message, ctx: &mut Self::Context) -> Self::Result {
         match msg {
-            ipc::Message::UpdateEnableStatus { .. } | ipc::Message::NewStdout { .. } =>
-                ctx.text(serde_json::to_string(&msg).unwrap()),
+            ipc::Message::UpdateEnableStatus { .. } | ipc::Message::NewStdout { .. } => {
+                ctx.text(serde_json::to_string(&msg).unwrap())
+            }
             _ => {}
         }
     }
 }
 
 impl StreamHandler<Result<WsMessage, ws::ProtocolError>> for StdoutHandler {
-    fn handle(&mut self, _item: Result<WsMessage, ProtocolError>, _ctx: &mut Self::Context) {
-    }
+    fn handle(&mut self, _item: Result<WsMessage, ProtocolError>, _ctx: &mut Self::Context) {}
 }
 
 pub struct WebsocketHandler {
@@ -81,7 +81,10 @@ impl StreamHandler<Result<WsMessage, ws::ProtocolError>> for WebsocketHandler {
 
 impl WebsocketHandler {
     pub fn new(state: Arc<RwLock<State>>) -> WebsocketHandler {
-        WebsocketHandler { state, stdout_addr: None }
+        WebsocketHandler {
+            state,
+            stdout_addr: None,
+        }
     }
 
     pub fn handle_message(&self, msg: ipc::Message, ctx: &mut ws::WebsocketContext<Self>) {
@@ -120,7 +123,10 @@ impl WebsocketHandler {
                 }
             }
             ipc::Message::UpdateJoystickMapping { uuid, pos } => {
-                input::QUEUED_MAPPING_UPDATES.write().unwrap().push(MappingUpdate { uuid, pos });
+                input::QUEUED_MAPPING_UPDATES
+                    .write()
+                    .unwrap()
+                    .push(MappingUpdate { uuid, pos });
             }
             ipc::Message::UpdateAllianceStation { station } => {
                 state.ds.set_alliance(station.to_ds());
@@ -132,10 +138,15 @@ impl WebsocketHandler {
                 Request::RestartCode => {
                     state.ds.restart_code();
                 }
-            }
+            },
             ipc::Message::EstopRobot { .. } => state.estop(),
             ipc::Message::QueryEstop => {
-                ctx.text(serde_json::to_string(&ipc::Message::RobotEstopStatus { estopped: state.ds.estopped() }).unwrap());
+                ctx.text(
+                    serde_json::to_string(&ipc::Message::RobotEstopStatus {
+                        estopped: state.ds.estopped(),
+                    })
+                    .unwrap(),
+                );
             }
             _ => {}
         }
