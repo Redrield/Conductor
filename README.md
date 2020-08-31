@@ -1,3 +1,5 @@
+![Build Status](https://github.com/Redrield/Conductor/workflows/Build%20Status/badge.svg)
+
 # Conductor: A cross-platform FRC Driver Station
 
 Conductor is a Driver Station for FRC robots for Linux and macOS which supports nearly<sup>*</sup> every feature of the NI Driver Station.
