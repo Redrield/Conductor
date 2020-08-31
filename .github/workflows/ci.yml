@@ -27,6 +27,7 @@ jobs:
       uses: actions-rs/clippy-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        name: Ubuntu
     - name: Archive Application
       uses: actions/upload-artifact@v2
       with:
@@ -49,6 +50,7 @@ jobs:
       uses: actions-rs/clippy-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        name: macOS
     - name: Archive Application
       uses: actions/upload-artifact@v2
       with:
