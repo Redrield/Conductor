@@ -7,13 +7,13 @@ use std::thread;
 use std::time::Duration;
 use web_view::{Content, WVResult};
 
+mod cfg;
 mod input;
 mod ipc;
 mod keys;
 mod resources;
 mod util;
 mod webserver;
-mod cfg;
 use cfg::Config;
 
 mod state;
@@ -90,7 +90,10 @@ fn main() -> WVResult {
     state.write().unwrap().wire_stdout(addr.clone());
 
     if cfg.team_number != 0 {
-        addr.do_send(Message::UpdateTeamNumber { team_number: cfg.team_number, from_backend: true });
+        addr.do_send(Message::UpdateTeamNumber {
+            team_number: cfg.team_number,
+            from_backend: true,
+        });
         state.write().unwrap().update_ds(cfg.team_number);
     }
 

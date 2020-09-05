@@ -1,7 +1,6 @@
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
-    pub team_number: u32
+    pub team_number: u32,
 }
