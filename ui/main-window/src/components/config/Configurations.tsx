@@ -11,7 +11,7 @@ const mapState = (state: DriverStationState) => ({
 });
 
 const mapDispatch = {
-    updateTeamNumber: (tn: number) => ({type: UPDATE_TEAM_NUMBER, team_number: tn}),
+    updateTeamNumber: (tn: number) => ({type: UPDATE_TEAM_NUMBER, team_number: tn, from_backend: false}),
     changeTeamNumber: (tn: string) => ({type: TEAM_NUMBER_CHANGE, teamNumber: tn}),
     updateUSB: (useUSB: boolean) => ({type: UPDATE_USB_STATUS, use_usb: useUSB}),
     updateGSM: (gsm: string) => ({type: UPDATE_GSM, gsm: gsm}),

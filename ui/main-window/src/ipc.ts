@@ -50,6 +50,7 @@ export const UPDATE_TEAM_NUMBER = "UpdateTeamNumber";
 export interface UpdateTeamNumber {
     type: typeof UPDATE_TEAM_NUMBER;
     team_number: number;
+    from_backend: boolean;
 }
 
 export const UPDATE_USB_STATUS = "UpdateUSBStatus";

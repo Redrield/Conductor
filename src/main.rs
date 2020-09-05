@@ -13,11 +13,14 @@ mod keys;
 mod resources;
 mod util;
 mod webserver;
+mod cfg;
+use cfg::Config;
 
 mod state;
 
 fn main() -> WVResult {
     env_logger::init();
+    let mut cfg = confy::load::<Config>("conductor").unwrap();
 
     // You're welcome dalton :)
     #[cfg(target_os = "windows")]
@@ -29,6 +32,7 @@ fn main() -> WVResult {
     }
 
     let state = Arc::new(RwLock::new(State::new()));
+    let end_state = state.clone();
     let (tx, rx) = mpsc::channel();
     let (stdout_tx, stdout_rx) = mpsc::channel();
 
@@ -85,6 +89,11 @@ fn main() -> WVResult {
     }
     state.write().unwrap().wire_stdout(addr.clone());
 
+    if cfg.team_number != 0 {
+        addr.do_send(Message::UpdateTeamNumber { team_number: cfg.team_number, from_backend: true });
+        state.write().unwrap().update_ds(cfg.team_number);
+    }
+
     // Call to platform-specific function to add hooks for the keybindings
     // If hooks were added the function returns true, if not it returns false. This affects the frontend
     // in both displaying a disclaimer as well as installing local keypress handlers
@@ -140,5 +149,8 @@ fn main() -> WVResult {
         }
     }
 
+    cfg.team_number = end_state.read().unwrap().ds.team_number();
+    log::info!("Updating TN to {}", cfg.team_number);
+    confy::store("conductor", cfg).unwrap();
     Ok(())
 }

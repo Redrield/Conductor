@@ -13,9 +13,10 @@ pub enum Message {
     /// Frontend -> Backend
     /// Updates the Game Specific Message (Game Data) in the driver station
     UpdateGSM { gsm: String },
-    /// Frontend -> Backend
+    /// Frontend <-> Backend
     /// Updates the team number, and the address the driver station is trying to connect to
-    UpdateTeamNumber { team_number: u32 },
+    /// Can be sent from the backend on initialization to reload a team number from a config file
+    UpdateTeamNumber { team_number: u32, from_backend: bool },
     /// Frontend -> Backend
     /// Tells the driver station whether to override the network IP and attempt to connect to the USB
     /// interface at 172.22.11.2

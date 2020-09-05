@@ -264,8 +264,16 @@ export function rootReducer(state: DriverStationState, action: AppAction): Drive
             dispatchSocketMessage(state.ws, action);
             return state;
         case UPDATE_TEAM_NUMBER:
-            dispatchSocketMessage(state.ws, action);
-            return state;
+            if(action.from_backend) {
+                console.log("Received message from backend " + action.team_number);
+                return {
+                    ...state,
+                    teamNumber: action.team_number.toString()
+                }
+            } else {
+                dispatchSocketMessage(state.ws, action);
+                return state;
+            }
         case UPDATE_USB_STATUS:
             dispatchSocketMessage(state.ws, action);
             return {

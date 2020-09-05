@@ -82,20 +82,6 @@ class DriverStation extends React.Component<Props, any> {
                                        onClick={() => this.props.ackWarning()}>Continue</a>
                                 </div>
                             </div>
-                            {/*<div className="modal">*/}
-                            {/*    <div className="modal-dialog">*/}
-                            {/*        <div className="modal-content">*/}
-                            {/*            <div className="modal-header">*/}
-                            {/*                <h5 className="modal-title text-danger font-weight-bold">Warning: Disable Keybinds</h5>*/}
-                            {/*            </div>*/}
-                            {/*            <div className="modal-body">*/}
-                            {/*                </p>*/}
-                            {/*            </div>*/}
-                            {/*            <div className="modal-footer">*/}
-                            {/*                <button className="btn btn-lg btn-danger" onClick={() => this.props.ackWarning()}>Continue</button>*/}
-                            {/*            </div>*/}
-                            {/*        </div>*/}
-                            {/*    </div>*/}
                         </div>
                     </div>
                 </div>
