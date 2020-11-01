@@ -1,8 +1,10 @@
 [package]
 name = "conductor"
 version = "0.1.0"
-authors = ["Redrield <redrield@gmail.com>"]
+authors = ["Kaitlyn Kenwell <redrield@gmail.com>"]
 edition = "2018"
+description = "A cross-platform driver station for FRC robots"
+license-file = "LICENSE"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -40,3 +42,12 @@ core-foundation = "0.9.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 tinyfiledialogs = "3.3.0"
+
+[package.metadata.rpm]
+package = "conductor"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+conductor = { path = "/usr/bin/conductor" }
