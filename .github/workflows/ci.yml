@@ -63,6 +63,7 @@ jobs:
     - name: Bundle Application
       run: |
           cargo bundle --format osx --release
+          tar -cvf target/release/bundle/osx/Conductor.app.tar.gz target/release/bundle/osx/Conductor.app
     - name: rust-clippy-check
       uses: actions-rs/clippy-check@v1
       with:
@@ -71,8 +72,8 @@ jobs:
     - name: Archive Application
       uses: actions/upload-artifact@v2
       with:
-        name: Conductor.app
-        path: target/release/bundle/osx/Conductor.app
+        name: Conductor.app.tar.gz
+        path: target/release/bundle/osx/Conductor.app.tar.gz
   fmt:
     runs-on: ubuntu-latest
     steps:
