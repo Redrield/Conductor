@@ -50,7 +50,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
           name: Conductor.rpm
-          path: target/release/rpmbuild/RPMs/x86_64/*.rpm
+          path: target/release/rpmbuild/RPMS/x86_64/*.rpm
   build-macos:
     runs-on: macos-latest
     steps:
