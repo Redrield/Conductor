@@ -29,6 +29,8 @@ jobs:
     - name: Build DEB
       run: |
           cargo bundle --format deb --release
+    - name: Build RPM
+      uses: ./rpm-docker-action
     - name: rust-clippy-check
       uses: actions-rs/clippy-check@v1
       with:
@@ -44,6 +46,11 @@ jobs:
       with:
           name: Conductor.deb
           path: target/release/bundle/deb/*.deb
+    - name: Archive RPM
+      uses: actions/upload-artifact@v2
+      with:
+          name: Conductor.rpm
+          path: target/release/rpmbuild/RPMs/x86_64/*.rpm
   build-macos:
     runs-on: macos-latest
     steps:
