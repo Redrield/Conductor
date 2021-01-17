@@ -16,6 +16,17 @@ Before building, ensure that you have the following dependencies installed:
 
 Building a release build of Conductor is simple; after cloning the repository run `make setup && make release` to install all the dependencies of the react applications, and then compile both the React apps and the Rust backend into a single executable. When this process is completed, you can find the compiled driver station at `target/release/conductor`. 
 
+# Prebuilt Artifacts
+
+Some artifacts are built and saved automatically by Github Actions. These artifacts can be found published under the Build Status action for the `next` branch. The artifacts that can be downloaded here are:
+
+* A normal x86_64 Linux executable, compiled on Ubuntu
+* An x86_64 .deb file
+* An x86_64 .rpm file
+* An x86_64 macOS .app file (This is compressed in a tarball to preserve permissions)
+
+If desired, these artifacts can be downloaded and installed rather than having to build the project manually.
+
 # Contributing
 
 Building debug builds is almost as simple, after initially cloning run `make setup && make all` to compile both the react apps and the Rust app once. Afterwards, assuming you're only changing the Rust app you can use `cargo run` to skip the compile time of the react apps. If you're changing the main window as well you can use `make` to only recompile the main window as well as the Rust app. 
