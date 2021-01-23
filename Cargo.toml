@@ -27,6 +27,7 @@ log = "0.4.11"
 conquer-once = "0.2.1"
 uuid = { version = "0.8.1", features = ["v4"] }
 confy = "0.4.0"
+autopilot = "0.4.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2.74"

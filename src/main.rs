@@ -18,6 +18,9 @@ use cfg::Config;
 
 mod state;
 
+const PERCENT_WIDTH: f64 = 0.7906295754026355;
+const PERCENT_HEIGHT: f64 = 0.390625;
+
 fn main() -> WVResult {
     env_logger::init();
     let mut cfg = confy::load::<Config>("conductor").unwrap();
@@ -39,10 +42,13 @@ fn main() -> WVResult {
     let port = webserver::launch_webserver(state.clone(), tx, stdout_tx);
     println!("Webserver launched on port {}", port);
 
+    let screen_size = autopilot::screen::size();
+
+    println!("{} {}", (screen_size.width * PERCENT_WIDTH) as i32, (screen_size.height * PERCENT_HEIGHT) as i32);
     let mut webview = web_view::builder()
         .title("Conductor DS")
         .content(Content::Url(&format!("http://localhost:{}", port)))
-        .size(1080, 300)
+        .size((screen_size.width * PERCENT_WIDTH) as i32, (screen_size.height * PERCENT_HEIGHT) as i32)
         .resizable(false)
         .debug(true)
         .user_data(())
