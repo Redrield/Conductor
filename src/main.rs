@@ -44,11 +44,18 @@ fn main() -> WVResult {
 
     let screen_size = autopilot::screen::size();
 
-    println!("{} {}", (screen_size.width * PERCENT_WIDTH) as i32, (screen_size.height * PERCENT_HEIGHT) as i32);
+    println!(
+        "{} {}",
+        (screen_size.width * PERCENT_WIDTH) as i32,
+        (screen_size.height * PERCENT_HEIGHT) as i32
+    );
     let mut webview = web_view::builder()
         .title("Conductor DS")
         .content(Content::Url(&format!("http://localhost:{}", port)))
-        .size((screen_size.width * PERCENT_WIDTH) as i32, (screen_size.height * PERCENT_HEIGHT) as i32)
+        .size(
+            (screen_size.width * PERCENT_WIDTH) as i32,
+            (screen_size.height * PERCENT_HEIGHT) as i32,
+        )
         .resizable(false)
         .debug(true)
         .user_data(())
