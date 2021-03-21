@@ -9,40 +9,40 @@ license-file = "LICENSE"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-web-view = "0.7.2"
+web-view = "0.6.2"
 lazy_static = "1.4.0"
-rust-embed = "5.9.0"
-serde = { version = "1.0.120", features = ["derive"] }
-serde_json = "1.0.61"
+rust-embed = "5.5.1"
+serde = { version = "1.0.106", features = ["derive"] }
+serde_json = "1.0.51"
 ds = "1.2.4"
-gilrs = "0.8.0"
-actix-web = "3.3.2"
-actix-rt = "1.1.1"
+gilrs = "0.7.4"
+actix-web = "2.0.0"
+actix-rt = "1.1.0"
 mime_guess = "2.0.3"
-futures = "0.3.12"
-env_logger = "0.8.2"
-actix-web-actors = "3.0.0"
-actix = "0.10.0"
-log = "0.4.13"
-conquer-once = "0.3.2"
-uuid = { version = "0.8.2", features = ["v4"] }
+futures = "0.3.4"
+env_logger = "0.7.1"
+actix-web-actors = "2.0.0"
+actix = "0.9.0"
+log = "0.4.11"
+conquer-once = "0.2.1"
+uuid = { version = "0.8.1", features = ["v4"] }
 confy = "0.4.0"
 autopilot = "0.4.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-libc = "0.2.82"
+libc = "0.2.74"
 x11 = { version = "2.18.2", features = ["xlib", "xinput"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-libc = "0.2.82"
-core-graphics = "0.22.2"
+libc = "0.2.74"
+core-graphics = "0.21.0"
 objc = "0.2.7"
-cocoa = "0.24.0"
+cocoa = "0.23.0"
 block = "0.1.6"
-core-foundation = "0.9.1"
+core-foundation = "0.9.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-tinyfiledialogs = "3.3.10"
+tinyfiledialogs = "3.3.0"
 
 [package.metadata.bundle]
 name = "Conductor"
