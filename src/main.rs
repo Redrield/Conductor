@@ -14,6 +14,7 @@ mod keys;
 mod resources;
 mod util;
 mod webserver;
+mod scrn;
 use cfg::Config;
 
 mod state;
@@ -42,13 +43,14 @@ fn main() -> WVResult {
     let port = webserver::launch_webserver(state.clone(), tx, stdout_tx);
     println!("Webserver launched on port {}", port);
 
-    let screen_size = autopilot::screen::size();
+    // let screen_size = autopilot::screen::size();
+    let (width, height) = unsafe { scrn::screen_resolution() };
 
-    println!("{} {}", (screen_size.width * PERCENT_WIDTH) as i32, (screen_size.height * PERCENT_HEIGHT) as i32);
+    println!("{} {}", (width * PERCENT_WIDTH) as i32, (height * PERCENT_HEIGHT) as i32);
     let mut webview = web_view::builder()
         .title("Conductor DS")
         .content(Content::Url(&format!("http://localhost:{}", port)))
-        .size((screen_size.width * PERCENT_WIDTH) as i32, (screen_size.height * PERCENT_HEIGHT) as i32)
+        .size((width * PERCENT_WIDTH) as i32, (height * PERCENT_HEIGHT) as i32)
         .resizable(false)
         .debug(true)
         .user_data(())

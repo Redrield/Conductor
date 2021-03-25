@@ -31,7 +31,7 @@ autopilot = "0.4.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2.74"
-x11 = { version = "2.18.2", features = ["xlib", "xinput"] }
+x11 = { version = "2.18.2", features = ["xlib", "xinput", "xrandr"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "0.2.74"
