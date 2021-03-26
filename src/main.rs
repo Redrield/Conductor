@@ -46,8 +46,6 @@ fn main() -> WVResult {
     // let screen_size = autopilot::screen::size();
     let (width, height) = scrn::screen_resolution();
     println!("{} {}", width, height);
-    let (lw, lh) = unsafe { scrn::arch::screen_resolution() };
-    println!("{} {}", lw, lh);
 
     println!("{} {}", (width * PERCENT_WIDTH) as i32, (height * PERCENT_HEIGHT) as i32);
     let mut webview = web_view::builder()
