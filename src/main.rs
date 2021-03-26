@@ -44,7 +44,10 @@ fn main() -> WVResult {
     println!("Webserver launched on port {}", port);
 
     // let screen_size = autopilot::screen::size();
-    let (width, height) = unsafe { scrn::screen_resolution() };
+    let (width, height) = scrn::screen_resolution();
+    println!("{} {}", width, height);
+    let (lw, lh) = unsafe { scrn::arch::screen_resolution() };
+    println!("{} {}", lw, lh);
 
     println!("{} {}", (width * PERCENT_WIDTH) as i32, (height * PERCENT_HEIGHT) as i32);
     let mut webview = web_view::builder()
