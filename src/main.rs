@@ -12,9 +12,9 @@ mod input;
 mod ipc;
 mod keys;
 mod resources;
+mod scrn;
 mod util;
 mod webserver;
-mod scrn;
 use cfg::Config;
 
 mod state;
@@ -49,11 +49,18 @@ fn main() -> WVResult {
     let (lw, lh) = unsafe { scrn::arch::screen_resolution() };
     println!("{} {}", lw, lh);
 
-    println!("{} {}", (width * PERCENT_WIDTH) as i32, (height * PERCENT_HEIGHT) as i32);
+    println!(
+        "{} {}",
+        (width * PERCENT_WIDTH) as i32,
+        (height * PERCENT_HEIGHT) as i32
+    );
     let mut webview = web_view::builder()
         .title("Conductor DS")
         .content(Content::Url(&format!("http://localhost:{}", port)))
-        .size((width * PERCENT_WIDTH) as i32, (height * PERCENT_HEIGHT) as i32)
+        .size(
+            (width * PERCENT_WIDTH) as i32,
+            (height * PERCENT_HEIGHT) as i32,
+        )
         .resizable(false)
         .debug(true)
         .user_data(())
