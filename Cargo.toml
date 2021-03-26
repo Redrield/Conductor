@@ -28,6 +28,8 @@ conquer-once = "0.2.1"
 uuid = { version = "0.8.1", features = ["v4"] }
 confy = "0.4.0"
 autopilot = "0.4.0"
+tinyfiledialogs = "3.3.0"
+human-panic = "1.0.3"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2.74"
@@ -40,9 +42,6 @@ objc = "0.2.7"
 cocoa = "0.23.0"
 block = "0.1.6"
 core-foundation = "0.9.0"
-
-[target.'cfg(target_os = "windows")'.dependencies]
-tinyfiledialogs = "3.3.0"
 
 [package.metadata.bundle]
 name = "Conductor"

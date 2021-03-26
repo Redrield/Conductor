@@ -15,7 +15,11 @@ mod resources;
 mod util;
 mod webserver;
 mod scrn;
+mod panic;
+
 use cfg::Config;
+use std::panic::PanicInfo;
+use tinyfiledialogs::{message_box_ok, MessageBoxIcon};
 
 mod state;
 
@@ -25,6 +29,13 @@ const PERCENT_HEIGHT: f64 = 0.390625;
 fn main() -> WVResult {
     env_logger::init();
     let mut cfg = confy::load::<Config>("conductor").unwrap();
+    // std::panic::set_hook(Box::new(panic_dialog_creator));
+    match std::env::var("RUST_BACKTRACE") {
+        Err(_) => {
+            std::panic::set_hook(Box::new(panic::hook));
+        }
+        Ok(_) => {}
+    }
 
     // You're welcome dalton :)
     #[cfg(target_os = "windows")]
