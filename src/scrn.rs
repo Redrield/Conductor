@@ -20,6 +20,7 @@ pub fn screen_resolution() -> (f64, f64) {
         mon.map(|mon| {
             let (_, _, w, h) = mon.get_workarea();
             (w as f64, h as f64)
-        }).unwrap_or((0f64, 0f64))
+        })
+        .unwrap_or((0f64, 0f64))
     })
 }
