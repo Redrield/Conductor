@@ -20,7 +20,7 @@ use cfg::Config;
 mod state;
 
 const PERCENT_WIDTH: f64 = 0.7906295754026355;
-const PERCENT_HEIGHT: f64 = 0.390625;
+const PERCENT_HEIGHT: f64 = 0.42;
 
 fn main() -> WVResult {
     env_logger::init();
@@ -45,10 +45,10 @@ fn main() -> WVResult {
 
     // let screen_size = autopilot::screen::size();
     let (width, height) = scrn::screen_resolution();
-    println!("{} {}", width, height);
+    println!("Detected Resolution {} {}", width, height);
 
     println!(
-        "{} {}",
+        "Resized {} {}",
         (width * PERCENT_WIDTH) as i32,
         (height * PERCENT_HEIGHT) as i32
     );
