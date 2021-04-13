@@ -18,7 +18,7 @@ Building a release build of Conductor is simple; after cloning the repository ru
 
 # Prebuilt Artifacts
 
-Some artifacts are built and saved automatically by Github Actions. These artifacts can be found published under the Build Status action for the `next` branch. The artifacts that can be downloaded here are:
+Some artifacts are built and saved automatically by Github Actions. These artifacts can be found published under the Build Status action for the `next` branch.  The artifacts that can be downloaded [here](https://github.com/Redrield/Conductor/actions/workflows/ci.yml?query=branch%3Anext) (Click the link, select the top result, and scroll down to the bottom section that says "artifacts") are:
 
 * A normal x86_64 Linux executable, compiled on Ubuntu
 * An x86_64 .deb file

@@ -12,6 +12,7 @@ mod input;
 mod ipc;
 mod keys;
 mod resources;
+mod scrn;
 mod util;
 mod webserver;
 mod scrn;
@@ -24,7 +25,7 @@ use tinyfiledialogs::{message_box_ok, MessageBoxIcon};
 mod state;
 
 const PERCENT_WIDTH: f64 = 0.7906295754026355;
-const PERCENT_HEIGHT: f64 = 0.390625;
+const PERCENT_HEIGHT: f64 = 0.42;
 
 fn main() -> WVResult {
     env_logger::init();
@@ -55,13 +56,21 @@ fn main() -> WVResult {
     println!("Webserver launched on port {}", port);
 
     // let screen_size = autopilot::screen::size();
-    let (width, height) = unsafe { scrn::screen_resolution() };
+    let (width, height) = scrn::screen_resolution();
+    println!("Detected Resolution {} {}", width, height);
 
-    println!("{} {}", (width * PERCENT_WIDTH) as i32, (height * PERCENT_HEIGHT) as i32);
+    println!(
+        "Resized {} {}",
+        (width * PERCENT_WIDTH) as i32,
+        (height * PERCENT_HEIGHT) as i32
+    );
     let mut webview = web_view::builder()
         .title("Conductor DS")
         .content(Content::Url(&format!("http://localhost:{}", port)))
-        .size((width * PERCENT_WIDTH) as i32, (height * PERCENT_HEIGHT) as i32)
+        .size(
+            (width * PERCENT_WIDTH) as i32,
+            (height * PERCENT_HEIGHT) as i32,
+        )
         .resizable(false)
         .debug(true)
         .user_data(())
