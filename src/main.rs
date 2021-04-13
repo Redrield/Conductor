@@ -11,12 +11,12 @@ mod cfg;
 mod input;
 mod ipc;
 mod keys;
+mod panic;
 mod resources;
+mod scrn;
 mod scrn;
 mod util;
 mod webserver;
-mod scrn;
-mod panic;
 
 use cfg::Config;
 use std::panic::PanicInfo;

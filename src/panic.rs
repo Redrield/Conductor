@@ -1,8 +1,8 @@
-use human_panic::{Metadata, handle_dump};
-use std::path::Path;
-use std::panic::PanicInfo;
+use human_panic::{handle_dump, Metadata};
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
+use std::panic::PanicInfo;
+use std::path::Path;
 use tinyfiledialogs::{message_box_ok, MessageBoxIcon};
 
 pub fn hook(info: &PanicInfo) {
@@ -51,7 +51,6 @@ pub fn create_msg<P: AsRef<Path>>(
      people to submit reports.\n"
     )?;
     writeln!(&mut buffer, "Thank you kindly!")?;
-
 
     Ok(buffer)
 }
