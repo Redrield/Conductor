@@ -11,11 +11,15 @@ mod cfg;
 mod input;
 mod ipc;
 mod keys;
+mod panic;
 mod resources;
 mod scrn;
 mod util;
 mod webserver;
+
 use cfg::Config;
+use std::panic::PanicInfo;
+use tinyfiledialogs::{message_box_ok, MessageBoxIcon};
 
 mod state;
 
@@ -25,6 +29,13 @@ const PERCENT_HEIGHT: f64 = 0.42;
 fn main() -> WVResult {
     env_logger::init();
     let mut cfg = confy::load::<Config>("conductor").unwrap();
+    // std::panic::set_hook(Box::new(panic_dialog_creator));
+    match std::env::var("RUST_BACKTRACE") {
+        Err(_) => {
+            std::panic::set_hook(Box::new(panic::hook));
+        }
+        Ok(_) => {}
+    }
 
     // You're welcome dalton :)
     #[cfg(target_os = "windows")]
