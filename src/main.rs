@@ -14,7 +14,6 @@ mod keys;
 mod panic;
 mod resources;
 mod scrn;
-mod scrn;
 mod util;
 mod webserver;
 
