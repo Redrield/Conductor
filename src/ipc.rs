@@ -77,6 +77,10 @@ pub enum Message {
     /// Backend -> Frontend
     /// Response to the QueryEstop message
     RobotEstopStatus { estopped: bool },
+    /// Backend -> Frontend
+    /// Response when a value sent by the frontend could not be decoded
+    /// Includes serde_json error message, and the type of the message being responded to.
+    ValueError { error_message: String, instigator: String, }
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]

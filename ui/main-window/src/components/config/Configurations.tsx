@@ -59,7 +59,7 @@ function onKeyDownHandler(props: Props, type: string) {
     }
 }
 
-const Configurations = (props: Props) => (
+const Configurations = (props: Props) => (//TODO: Add hidden notification near team number change dialog to be displayed if an invalid entry is reported by the backend.
     <div className="col">
         <label htmlFor="teamNumberInput">Team Number</label>
         <div className="input-group mb-3">

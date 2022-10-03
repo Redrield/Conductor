@@ -6,6 +6,9 @@ use std::sync::{mpsc, Arc, RwLock};
 use std::thread;
 use std::time::Duration;
 use web_view::{Content, WVResult};
+use cfg::Config;
+use std::panic::PanicInfo;
+use tinyfiledialogs::{message_box_ok, MessageBoxIcon};
 
 mod cfg;
 mod input;
@@ -16,10 +19,6 @@ mod resources;
 mod scrn;
 mod util;
 mod webserver;
-
-use cfg::Config;
-use std::panic::PanicInfo;
-use tinyfiledialogs::{message_box_ok, MessageBoxIcon};
 
 mod state;
 
@@ -70,7 +69,6 @@ fn main() -> WVResult {
             (width * PERCENT_WIDTH) as i32,
             (height * PERCENT_HEIGHT) as i32,
         )
-        .resizable(false)
         .debug(true)
         .user_data(())
         .invoke_handler(|_, _| Ok(()))
