@@ -1,14 +1,14 @@
 use crate::state::State;
 use crate::webserver::SetAddr;
+use cfg::Config;
 use ds::DsMode;
 use ipc::*;
+use std::panic::PanicInfo;
 use std::sync::{mpsc, Arc, RwLock};
 use std::thread;
 use std::time::Duration;
-use web_view::{Content, WVResult};
-use cfg::Config;
-use std::panic::PanicInfo;
 use tinyfiledialogs::{message_box_ok, MessageBoxIcon};
+use web_view::{Content, WVResult};
 
 mod cfg;
 mod input;
