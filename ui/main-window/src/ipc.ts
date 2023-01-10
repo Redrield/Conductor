@@ -138,6 +138,13 @@ export interface RobotEstopStatus {
     estopped: boolean;
 }
 
+export const VALUE_ERROR = "ValueError";
+export interface ValueError {
+    type: typeof VALUE_ERROR;
+    error_message: string;
+    instigator: string;
+}
+
 export type Message = UpdateGSM | UpdateTeamNumber | UpdateUSBStatus | UpdateMode
-| UpdateEnableStatus | JoystickUpdate | UpdateJoystickMapping | RobotStateUpdate
+| UpdateEnableStatus | JoystickUpdate | UpdateJoystickMapping | RobotStateUpdate | ValueError
 | NewStdout | UpdateAllianceStation | Request | EstopRobot | Capabilities | QueryEstop | RobotEstopStatus;

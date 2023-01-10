@@ -74,7 +74,22 @@ impl Handler<SetAddr> for WebsocketHandler {
 impl StreamHandler<Result<WsMessage, ws::ProtocolError>> for WebsocketHandler {
     fn handle(&mut self, item: Result<WsMessage, ProtocolError>, ctx: &mut Self::Context) {
         if let Ok(WsMessage::Text(json)) = item {
-            self.handle_message(serde_json::from_str(&json).unwrap(), ctx);
+            match serde_json::from_str(&json) {
+                Ok(m) => self.handle_message(m, ctx),
+                Err(e) => {
+                    // type is a transient field that only exists in the serialized data. Grab it with the manual manipulation API to punt back to JS
+                    // this is required because a queue of sent messages isn't stored on either side, so the source of the error cant be determined through context alone.
+                    let raw_value = serde_json::to_value(json).unwrap();
+                    let _type = raw_value.get("type").unwrap().as_str().unwrap();
+                    ctx.text(
+                        serde_json::to_string(&ipc::Message::ValueError {
+                            error_message: e.to_string(),
+                            instigator: _type.to_string(),
+                        })
+                        .unwrap(),
+                    );
+                }
+            }
         }
     }
 }
