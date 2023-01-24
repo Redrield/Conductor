@@ -35,7 +35,32 @@ cargo install cargo-bundle
 # Conductor
 git clone https://github.com/Redrield/Conductor
 make setup && make release
+```  
+  
+## Mac
 ```
+# Homebrew Install
+xcode-select --install
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install webkitgtk
+
+# Node Version Manager
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+nvm install 14
+nvm use 14
+
+# Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+cargo install cargo-bundle
+
+# Conductor
+git clone https://github.com/Redrield/Conductor
+make setup && make release
+```  
 
 Building a release build of Conductor is simple; after cloning the repository run `make setup && make release` to install all the dependencies of the react applications, and then compile both the React apps and the Rust backend into a single executable. When this process is completed, you can find the compiled driver station at `target/release/conductor`. 
 
