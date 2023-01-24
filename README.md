@@ -32,6 +32,8 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source "$HOME/.cargo/env"
 cargo install cargo-bundle
 
+# Conductor
+git clone https://github.com/Redrield/Conductor
 make setup && make release
 ```
 
