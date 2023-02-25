@@ -6,6 +6,7 @@ use std::path::Path;
 use tinyfiledialogs::{message_box_ok, MessageBoxIcon};
 
 pub fn hook(info: &PanicInfo) {
+    println!("PANIC {:?}", info);
     let meta = Metadata {
         version: env!("CARGO_PKG_VERSION").into(),
         name: env!("CARGO_PKG_NAME").into(),
