@@ -1,3 +1,9 @@
+# Archived
+
+Starting in 2027, the official Driver Station has cross platform support, I no longer recommend using Conductor in any scenario.
+
+More information can be found [here](https://wpilib.org/blog/the-2027-first-driver-station) and [here](https://github.com/wpilibsuite/FirstDriverStation-Public)
+
 ![Build Status](https://github.com/Redrield/Conductor/workflows/Build%20Status/badge.svg)
 
 # Conductor: A cross-platform FRC Driver Station
